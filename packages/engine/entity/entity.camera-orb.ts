@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { Entity } from './entity';
 
-export class CameraOrbModel extends Entity {
+export class CameraOrbEntity extends Entity {
   constructor() {
     const graphic = new PIXI.Graphics()
       .rect(0, 0, 3, 3)
@@ -10,6 +10,6 @@ export class CameraOrbModel extends Entity {
     graphic.pivot.x = graphic.width / 2;
     graphic.pivot.y = graphic.height / 2;
     super(graphic);
-    this.ctr.visible = false;
+    // this.ctr.visible = false;
   }
 }

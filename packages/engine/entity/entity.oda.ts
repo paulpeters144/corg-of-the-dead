@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js';
 import type { Position } from '../types/types';
 import { Entity } from './entity';
 
-const spriteAnimKeys = ['idle'] as const;
+const spriteAnimKeys = ['idle', 'running'] as const;
 type AnimKey = (typeof spriteAnimKeys)[number];
 
 const spriteSheetRowDic: {
@@ -14,7 +14,8 @@ const spriteSheetRowDic: {
     idx: number;
   };
 } = {
-  idle: { row: 0, frames: 8, animSpeed: 0.12, idx: 0 },
+  idle: { row: 0, frames: 8, animSpeed: 0.025, idx: 0 },
+  running: { row: 1, frames: 8, animSpeed: 0.20, idx: 0 },
 };
 
 export type AnimMapType = {
@@ -30,7 +31,7 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
     const textures = Array.from({ length: frames }, (_, i) => {
       const t = new PIXI.Texture({
         source: texture.source,
-        frame: new PIXI.Rectangle(width * i, height * row * 1.5, width, height),
+        frame: new PIXI.Rectangle(width * i, height * row, width, height),
       });
       t.source.scaleMode = 'nearest';
       return t;
@@ -83,6 +84,12 @@ export class OdaEntity extends Entity {
     throw new Error(m);
   }
 
+
+  get isRunning(): boolean {
+    if (this.activeAnimation !== 'running') return false;
+    return this.anim.playing;
+  }
+
   constructor(props: { spriteSheet: PIXI.Texture }) {
     super(new PIXI.Container());
     this.animMap = createAnimations(props.spriteSheet);
@@ -93,6 +100,18 @@ export class OdaEntity extends Entity {
       this.ctr.addChild(anim);
     });
     this.ctr.children[0].visible = true;
+  }
+
+  setIdle() {
+    this._setAllAnimsInvisible();
+    this.ctr.children[spriteSheetRowDic.idle.idx].visible = true;
+    this.anim.gotoAndPlay(0);
+  }
+
+  setRunning() {
+    this._setAllAnimsInvisible();
+    this.ctr.children[spriteSheetRowDic.running.idx].visible = true;
+    this.anim.gotoAndPlay(0);
   }
 
   faceLeft() {
@@ -109,6 +128,10 @@ export class OdaEntity extends Entity {
       c.anchor.set(0, 0);
       c.scale.set(1, 1);
     }
+  }
+
+  private _setAllAnimsInvisible() {
+    for (let i = 0; i < this.ctr.children.length; i++) this.ctr.children[i].visible = false;
   }
 }
 
