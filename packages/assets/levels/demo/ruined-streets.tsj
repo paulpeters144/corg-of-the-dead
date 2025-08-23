@@ -1,0 +1,15 @@
+{ "columns":64,
+ "image":"Background_CityRuins_Streets.png",
+ "imageheight":512,
+ "imagewidth":1024,
+ "margin":0,
+ "name":"ruined-streets",
+ "spacing":0,
+ "tilecount":2048,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "transparentcolor":"#ff00ff",
+ "type":"tileset",
+ "version":"1.10"
+}

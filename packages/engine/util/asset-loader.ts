@@ -1,0 +1,57 @@
+import * as PIXI from 'pixi.js';
+
+import bunnyUrl from '@package/assets/images/bunny.png';
+import atlasDemoUrl from '@package/assets/levels/demo/Background_CityRuins_Streets.png';
+import odaIdleUrl from '@package/assets/images/actors/player/oda_idle_anim.png';
+import fg1Url from '@package/assets/levels/demo/fg-1.png';
+import bg1Url from '@package/assets/levels/demo/bg-1.png';
+
+
+const assetMap = {
+  bunny: bunnyUrl,
+  odaIdle: odaIdleUrl,
+  atlasDemo: atlasDemoUrl,
+  fg1: fg1Url,
+  bg1: bg1Url,
+};
+
+export const assetFilePath = ['bunny', 'atlasDemo', 'odaIdle', 'bg1', 'fg1'] as const;
+export type AssetName = (typeof assetFilePath)[number];
+
+const assertNoMissingAssetName = () => {
+  for (const mapKey in assetMap) {
+    const name = mapKey as AssetName;
+    if (!assetFilePath.includes(name)) {
+      throw new Error(`"${name}" is not a valid AssetName`);
+    }
+  }
+};
+
+export interface IAssetLoader {
+  createSprite: (name: AssetName) => PIXI.Sprite;
+  preload: (...names: AssetName[]) => Promise<void>;
+  getTexture: (name: AssetName) => PIXI.Texture;
+}
+
+export const createAssetLoader = (): IAssetLoader => {
+  const textures: Record<string, PIXI.Texture> = {};
+  assertNoMissingAssetName();
+
+  return {
+    createSprite: (name: AssetName) => new PIXI.Sprite(textures[name]),
+    getTexture: (name: AssetName) => textures[name],
+    preload: async (...assetNames: AssetName[]) => {
+      PIXI.Assets.reset();
+      for (const key of assetNames) {
+        const path = assetMap[key];
+        PIXI.Assets.add({ alias: key, src: path });
+      }
+      const assets = await PIXI.Assets.load(assetNames);
+      for (const key of Object.keys(assets)) {
+        if (!assets[key]) continue;
+        textures[key] = assets[key];
+        textures[key].source.scaleMode = 'nearest';
+      }
+    },
+  };
+};

@@ -1,0 +1,65 @@
+import * as PIXI from 'pixi.js';
+import { type IAnimateOptions, type IClampOptions, type IFollowOptions, Viewport } from 'pixi-viewport';
+import type { Position } from '../types/types';
+import type { IGameConstants } from './game.constants';
+
+export const createCamera = (
+  appRef: PIXI.Application,
+  gameRef: PIXI.Container,
+  gameConstants: IGameConstants,
+): ICamera => {
+  const viewport = new Viewport({
+    screenWidth: gameConstants.virtualGameWidth,
+    screenHeight: gameConstants.virtualGameHeight,
+    passiveWheel: false,
+    events: appRef.renderer.events,
+  });
+
+  viewport.addChild(gameRef);
+  appRef.stage.addChild(viewport);
+
+  viewport.decelerate({
+    friction: 0.98,
+    minSpeed: 10,
+    bounce: 0,
+  });
+
+  viewport.clampZoom({
+    minScale: 0.9,
+    maxScale: 10,
+  });
+
+  return {
+    animate: (options: IAnimateOptions) => viewport.animate(options),
+    centerPos: () => ({ x: viewport.center.x, y: viewport.center.y }),
+    zeroPos: () => {
+      return {
+        x: viewport.left,
+        y: viewport.top,
+      };
+    },
+    zoomPercent: () => viewport.scale.x,
+    vpBounds: () => {
+      const vp = viewport.getVisibleBounds();
+      return new PIXI.Rectangle(vp.x, vp.y, vp.width, vp.height);
+    },
+    follow: (ctr: PIXI.Container, opt?: IFollowOptions) => {
+      viewport.follow(ctr, opt);
+    },
+    addFilter: (...filters: PIXI.Filter[]) => {
+      viewport.filters = filters;
+    },
+    clamp: (options?: IClampOptions) => viewport.clamp(options),
+  };
+};
+
+export interface ICamera {
+  animate: (options: IAnimateOptions) => Viewport;
+  centerPos: () => Position;
+  zeroPos: () => Position;
+  zoomPercent: () => number;
+  vpBounds: () => PIXI.Rectangle;
+  follow: (ctr: PIXI.Container, opt?: IFollowOptions) => void;
+  addFilter: (...filters: PIXI.Filter[]) => void;
+  clamp: (options?: IClampOptions) => void;
+}

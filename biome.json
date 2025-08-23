@@ -1,0 +1,29 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
+	"formatter": {
+		"indentStyle": "space",
+		"lineWidth": 100
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"lineWidth": 120
+		}
+	},
+	"json": {
+		"formatter": {
+			"enabled": false
+		}
+	},
+	"files": {
+  		"includes": [
+			"**", 
+			"!**/public", 
+			"!**/*.generated.js", 
+			"!**/node_modules", 
+			"!**/build", 
+			"!**/wailsjs", 
+			"!**/dist"
+		]
+	}
+}
