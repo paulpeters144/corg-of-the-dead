@@ -4,6 +4,7 @@ import type { ISystem } from "./system.agg";
 
 export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
   const input = di.input()
+  const bus = di.eventBus()
   const oda = di.entityStore().first(OdaEntity);
   if (!oda) throw new Error('create cam orb with no oda entity')
   return {
@@ -11,6 +12,10 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
     update: (_: number) => {
       if (input.shoot.is.pressed && !oda.isShooting) {
         oda.setShoot();
+        bus.fire('camShake', {
+          duration: 50,
+          magnitude: 3,
+        })
       }
     }
   }

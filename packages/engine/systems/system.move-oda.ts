@@ -130,7 +130,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
 
       const collideArea = entityStore
         .getAll(BoundaryBox)
-        .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 65)
+        .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 150)
         .sort((a, b) => {
           const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
           const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
@@ -140,7 +140,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
 
       const trafficDrums = entityStore
         .getAll(TrafficDrumEntity)
-        .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 65)
+        .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 150)
         .sort((a, b) => {
           const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
           const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;

@@ -1,4 +1,3 @@
-import * as PIXI from 'pixi.js'
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
@@ -12,6 +11,7 @@ import { TrafficDrumEntity } from '../../entity/entity.traffic-drum';
 import { ZLayer } from '../../types/enums';
 import { createPlayZIndexSystem } from '../../systems/system.player-zindex';
 import { createPlayerShootSystem } from '../../systems/system.player-shoot';
+import { createCamControlSystem } from '../../systems/system.cam-control';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -57,9 +57,11 @@ export const openingScene = (di: IDiContainer): IScene => {
       }
 
       entityStore.first(OdaEntity)?.ctr.position.set(100, 300);
+      entityStore.first(OdaEntity)?.setIdle();
 
       systemAgg.add(
         createPlayerShootSystem(di),
+        createCamControlSystem(di),
         createPlayZIndexSystem(di),
         createBackgrounParalaxSystem(di),
         createMoveOdaSystem(di),
@@ -75,17 +77,7 @@ export const openingScene = (di: IDiContainer): IScene => {
     },
 
     update: (delta: number) => {
-
-      const orb = entityStore.first(CameraOrbEntity)
-      if (!orb) return
-
       systemAgg.update(delta)
-
-      camera.follow(orb.ctr, {
-        speed: 8,
-        acceleration: 50,
-        radius: 0,
-      })
     },
 
     dispose: () => { },
