@@ -2,7 +2,8 @@ import * as PIXI from 'pixi.js'
 import type { ISystem } from './system.agg';
 import type { IDiContainer } from '../util/di-container';
 import { OdaEntity } from '../entity/entity.oda';
-import type { Entity } from '../entity/entity';
+import { BoundaryBox } from '../entity/entity.boundary-box';
+import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 
 
 export const collides = (rect1: PIXI.Rectangle) => {
@@ -54,15 +55,11 @@ interface IUpdatePosProps {
   delta: number;
 }
 
-interface IUpdatePosResult {
-  nextPos: PIXI.Rectangle;
-}
-
-export const getNextPosition = (props: IUpdatePosProps): IUpdatePosResult => {
+export const getNextPosition = (props: IUpdatePosProps): PIXI.Point | null => {
   const { entityRect, delta, collideArea, speed, input } = props;
 
   const currPos = entityRect.clone();
-  const nextPos = currPos.clone();
+  const nextPos = entityRect.clone();
 
   // --- Horizontal movement first ---
   if (input.right) {
@@ -98,31 +95,62 @@ export const getNextPosition = (props: IUpdatePosProps): IUpdatePosResult => {
     }
   }
 
-  return { nextPos: nextPos };
-};
+  if (currPos.x === nextPos.x && currPos.y === nextPos.y)
+    return null
 
+  const result = new PIXI.Point();
+
+  if (currPos.x !== nextPos.x) {
+    result.x = nextPos.x - currPos.x
+  }
+  if (currPos.y !== nextPos.y) {
+    result.y = nextPos.y - currPos.y
+  }
+
+  return result;
+};
 
 export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
   const input = di.input()
   const entityStore = di.entityStore()
   const oda = entityStore.first(OdaEntity)
   if (!oda) throw new Error('no Oda for move-oda-system')
+
   return {
     name: () => "move-oda-system",
     update: (delta: number) => {
-      const speed = 8.45;
-      const horzIncrease = 1.75;
+      if (oda.isShooting) return;
 
-      const upPressed = input.up.is.pressed
-      const dnPressed = input.down.is.pressed
-      const rtPressed = input.right.is.pressed
-      const ltPressed = input.left.is.pressed
+      const upPressed = input.up.is.pressed && !input.down.is.pressed
+      const dnPressed = input.down.is.pressed && !input.up.is.pressed
+      const rtPressed = input.right.is.pressed && !input.left.is.pressed
+      const ltPressed = input.left.is.pressed && !input.right.is.pressed
 
       const isIdle = !upPressed && !dnPressed && !rtPressed && !ltPressed
 
-      const { nextPos } = getNextPosition({
-        entityRect: oda.rect,
-        collideArea: [],
+      const collideArea = entityStore
+        .getAll(BoundaryBox)
+        .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 65)
+        .sort((a, b) => {
+          const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
+          const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
+          return distA - distB; // put the closest to the front
+        })
+        .map((o) => o.rect);
+
+      const trafficDrums = entityStore
+        .getAll(TrafficDrumEntity)
+        .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 65)
+        .sort((a, b) => {
+          const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
+          const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
+          return distA - distB; // put the closest to the front
+        })
+        .map((o) => o.rect);
+
+      const nextMove = getNextPosition({
+        entityRect: oda.moveRect,
+        collideArea: [...collideArea, ...trafficDrums],
         input: {
           up: upPressed,
           right: rtPressed,
@@ -136,23 +164,21 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
         delta: delta
       })
 
-      const moved = oda.ctr.x !== nextPos.x || oda.ctr.y !== nextPos.y
+      if (nextMove !== null) {
+        oda.ctr.x += nextMove.x
+        oda.ctr.y += nextMove.y
+      }
+
+      const moved = !!nextMove
 
       if (moved && !oda.isRunning) {
-
         oda.setRunning();
       }
-
-      if (isIdle && oda.isRunning) {
-        console.log('[.setIdle()]', 'HIT!!!')
+      if (!moved && oda.isRunning) {
         oda.setIdle()
       }
-
-      if (oda.ctr.x !== nextPos.x) {
-        oda.ctr.x = nextPos.x;
-      }
-      if (oda.ctr.y !== nextPos.y) {
-        oda.ctr.y = nextPos.y;
+      if (isIdle && oda.isRunning) {
+        oda.setIdle()
       }
 
       if (ltPressed && oda.isFacingRight) oda.faceLeft()

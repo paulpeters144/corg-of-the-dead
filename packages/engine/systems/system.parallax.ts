@@ -32,7 +32,7 @@ export const createBackgrounParalaxSystem = (di: IDiContainer): ISystem => {
       bg2.position.set(bg1.x - bg2.width, bg1.y);
 
       baseX = camZeroPos.x + 1100;
-      fg1.position.set(baseX * parallaxFactor * 0.6, camZeroPos.y * parallaxFactor * 0.6 - 20);
+      fg1.position.set(baseX * parallaxFactor * 0.6, camZeroPos.y * parallaxFactor * 0.6 - 85);
       fg2.position.set(fg1.x - fg2.width, fg1.y);
       fg3.position.set(fg2.x - fg3.width, fg2.y);
     }

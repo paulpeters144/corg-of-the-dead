@@ -10,6 +10,6 @@ export class CameraOrbEntity extends Entity {
     graphic.pivot.x = graphic.width / 2;
     graphic.pivot.y = graphic.height / 2;
     super(graphic);
-    // this.ctr.visible = false;
+    this.ctr.visible = false;
   }
 }

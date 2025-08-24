@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js'
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
@@ -6,33 +7,11 @@ import { OdaEntity } from '../../entity/entity.oda';
 import { BgEntity, createBackgrounParalaxSystem } from '../../systems/system.parallax';
 import { createMoveOdaSystem } from '../../systems/system.move-oda';
 import { CameraOrbEntity } from '../../entity/entity.camera-orb';
-import type { ISystem } from '../../systems/system.agg';
-
-const createCamOrbSystem = (di: IDiContainer): ISystem => {
-  const oda = di.entityStore().first(OdaEntity);
-  const orb = di.entityStore().first(CameraOrbEntity);
-  if (!oda) throw new Error('create cam orb with no oda entity')
-  if (!orb) throw new Error('created cam orb with no orb')
-  const orbOffSet = 30;
-  return {
-    name: () => 'cam-orb-system',
-    update: (_: number) => {
-      if (oda.isFacingRight) {
-        orb.ctr.position.set(
-          oda.ctr.x + oda.ctr.width + orbOffSet,
-          oda.ctr.y + (oda.ctr.height / 2)
-        )
-      }
-
-      if (!oda.isFacingRight) {
-        orb.ctr.position.set(
-          oda.ctr.x - orbOffSet,
-          oda.ctr.y + (oda.ctr.height / 2)
-        )
-      }
-    }
-  }
-}
+import { createCamOrbSystem } from '../../systems/system.cam-orb';
+import { TrafficDrumEntity } from '../../entity/entity.traffic-drum';
+import { ZLayer } from '../../types/enums';
+import { createPlayZIndexSystem } from '../../systems/system.player-zindex';
+import { createPlayerShootSystem } from '../../systems/system.player-shoot';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -43,7 +22,7 @@ export const openingScene = (di: IDiContainer): IScene => {
 
   return {
     load: async () => {
-      await assetLoader.preload('atlasDemo', 'odaIdle', 'bg1', 'fg1');
+      await assetLoader.preload('atlasDemo', 'odaIdle', 'bg1', 'fg1', 'trafficDrum');
 
       entityStore.add(
         new BgEntity(assetLoader.createSprite('bg1')),
@@ -55,32 +34,44 @@ export const openingScene = (di: IDiContainer): IScene => {
 
       const tilemap = getTileMap(assetLoader);
       gameRef.addChild(tilemap.ctr)
+      entityStore.add(...tilemap.boundaryBoxes)
       tilemap.ctr.cullable = true;
 
       entityStore.add(
         new OdaEntity({ spriteSheet: assetLoader.getTexture('odaIdle') }),
         new CameraOrbEntity(),
       );
-      entityStore.first(OdaEntity)?.ctr.position.set(500, 200);
+
+      const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y)
+      for (let i = 0; i < sortedTrafficDrums.length; i++) {
+        const pos = sortedTrafficDrums[i];
+        const spriteSheet = { spriteSheet: assetLoader.getTexture('trafficDrum') };
+        const trafficDrum = new TrafficDrumEntity(spriteSheet)
+        trafficDrum.ctr.position.set(
+          pos.x - trafficDrum.ctr.width * .5,
+          pos.y - trafficDrum.ctr.height * .85,
+        );
+        trafficDrum.ctr.zIndex = ZLayer.m1 + (i * 0.001)
+
+        entityStore.add(trafficDrum)
+      }
+
+      entityStore.first(OdaEntity)?.ctr.position.set(100, 300);
 
       systemAgg.add(
+        createPlayerShootSystem(di),
+        createPlayZIndexSystem(di),
         createBackgrounParalaxSystem(di),
         createMoveOdaSystem(di),
         createCamOrbSystem(di),
       )
 
-      setTimeout(() => {
-        camera.clamp({
-          left: tilemap.ctr.x,
-          top: tilemap.ctr.y,
-          right: tilemap.ctr.width - 40,
-          bottom: tilemap.ctr.height,
-        });
-      }, 500)
-
-      setTimeout(() => {
-        entityStore.first(OdaEntity)?.anim.gotoAndPlay(0)
-      }, 1000)
+      camera.clamp({
+        left: tilemap.ctr.x,
+        top: tilemap.ctr.y,
+        right: tilemap.ctr.width - 40,
+        bottom: tilemap.ctr.height,
+      });
     },
 
     update: (delta: number) => {

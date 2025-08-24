@@ -2,8 +2,9 @@
 import * as PIXI from 'pixi.js';
 import type { Position } from '../types/types';
 import { Entity } from './entity';
+import { ZLayer } from '../types/enums';
 
-const spriteAnimKeys = ['idle', 'running'] as const;
+const spriteAnimKeys = ['idle', 'running', 'shoot'] as const;
 type AnimKey = (typeof spriteAnimKeys)[number];
 
 const spriteSheetRowDic: {
@@ -15,7 +16,8 @@ const spriteSheetRowDic: {
   };
 } = {
   idle: { row: 0, frames: 8, animSpeed: 0.025, idx: 0 },
-  running: { row: 1, frames: 8, animSpeed: 0.20, idx: 0 },
+  running: { row: 1, frames: 8, animSpeed: 0.15, idx: 0 },
+  shoot: { row: 2, frames: 3, animSpeed: 0.15, idx: 0 },
 };
 
 export type AnimMapType = {
@@ -54,9 +56,26 @@ export class OdaEntity extends Entity {
   }
   animMap: { [key in AnimKey]: PIXI.AnimatedSprite };
 
-  get rect(): PIXI.Rectangle {
+  get hitDetectRect(): PIXI.Rectangle {
     const anim = this.anim;
-    return new PIXI.Rectangle(this.ctr.x, this.ctr.y, anim.width, anim.height);
+    const shrinkOffset = 15;
+    return new PIXI.Rectangle(
+      this.ctr.x + shrinkOffset,
+      this.ctr.y + anim.height * .7,
+      anim.width - shrinkOffset * 2,
+      anim.height - shrinkOffset * 3
+    );
+  }
+
+  get moveRect(): PIXI.Rectangle {
+    const anim = this.anim;
+    const shrinkOffset = 15;
+    return new PIXI.Rectangle(
+      this.ctr.x + shrinkOffset,
+      this.ctr.y + anim.height * .75,
+      anim.width - shrinkOffset * 2,
+      anim.height - shrinkOffset * 3.25
+    );
   }
 
   get center(): Position {
@@ -90,6 +109,11 @@ export class OdaEntity extends Entity {
     return this.anim.playing;
   }
 
+  get isShooting(): boolean {
+    if (this.activeAnimation !== 'shoot') return false;
+    return this.anim.playing;
+  }
+
   constructor(props: { spriteSheet: PIXI.Texture }) {
     super(new PIXI.Container());
     this.animMap = createAnimations(props.spriteSheet);
@@ -100,6 +124,7 @@ export class OdaEntity extends Entity {
       this.ctr.addChild(anim);
     });
     this.ctr.children[0].visible = true;
+    this.ctr.zIndex = ZLayer.m1;
   }
 
   setIdle() {
@@ -112,6 +137,13 @@ export class OdaEntity extends Entity {
     this._setAllAnimsInvisible();
     this.ctr.children[spriteSheetRowDic.running.idx].visible = true;
     this.anim.gotoAndPlay(0);
+  }
+
+  setShoot() {
+    this._setAllAnimsInvisible();
+    this.ctr.children[spriteSheetRowDic.shoot.idx].visible = true;
+    this.anim.gotoAndPlay(0);
+    this.anim.loop = false;
   }
 
   faceLeft() {

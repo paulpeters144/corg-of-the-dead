@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js'
 import jsonMetaDataUrl from '@package/assets/levels/demo/test.json';
-import { NonTraverseArea } from '../../entity/entity.non-traverse';
+import { BoundaryBox } from '../../entity/entity.boundary-box';
 
-const LayerNameArr = ['o-1', 'l-1', 'l-2', 'l-3', 'l-4'] as const;
+const LayerNameArr = ['l-1', 'traffic-drums', 'boundary-boxes'] as const;
 
 export type LayerName = (typeof LayerNameArr)[number];
 
@@ -113,20 +113,32 @@ export const createTiledMap = (props: { metaData: TiledMapMetaData; atlas: PIXI.
     return layerContainer;
   };
 
-  const nonTraversable: NonTraverseArea[] = [];
-
+  const boundaryBoxes: BoundaryBox[] = [];
+  const trafficDrumPos: PIXI.Point[] = []
   for (const layer of metaData.layers) {
     if (layer.type === 'tilelayer') {
       const layerCtr = createTileLayer(layer);
       ctr.addChild(layerCtr);
     }
-    if (layer.type === 'objectgroup') {
+    if (layer.type === 'objectgroup' && layer.name === 'boundary-boxes') {
       for (const obj of layer.objects) {
         const r = new PIXI.Rectangle(obj.x, obj.y, obj.width, obj.height);
-        const nonTranverse = new NonTraverseArea({ rect: r });
-        nonTraversable.push(nonTranverse);
+        const box = new BoundaryBox({ rect: r });
+        boundaryBoxes.push(box);
+      }
+    }
+    if (layer.type == 'objectgroup' && layer.name === 'traffic-drums') {
+      for (const obj of layer.objects) {
+        const point = new PIXI.Point(obj.x, obj.y)
+        trafficDrumPos.push(point);
       }
     }
   }
-  return { ctr, metaData };
+
+  return {
+    ctr,
+    metaData,
+    boundaryBoxes,
+    trafficDrumPos,
+  };
 };

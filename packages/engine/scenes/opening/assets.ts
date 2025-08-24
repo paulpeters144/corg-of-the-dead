@@ -1,6 +1,6 @@
 // import bunnyUrl from '@package/assets/images/bunny.png';
-import * as PIXI from 'pixi.js';
-
+// import * as PIXI from 'pixi.js';
+//
 // const assetMap = {
 //   bunny: bunnyUrl,
 // };
@@ -16,32 +16,32 @@ import * as PIXI from 'pixi.js';
 //     }
 //   }
 // };
-
-export interface IAssetLoader {
-  createSprite: (name: AssetName) => PIXI.Sprite;
-  preload: (...names: AssetName[]) => Promise<void>;
-  getTexture: (name: AssetName) => PIXI.Texture;
-}
-
-export const createAssetLoader = (): IAssetLoader => {
-  const textures: Record<string, PIXI.Texture> = {};
-  assertNoMissingAssetName();
-
-  return {
-    createSprite: (name: AssetName) => new PIXI.Sprite(textures[name]),
-    getTexture: (name: AssetName) => textures[name],
-    preload: async (...assetNames: AssetName[]) => {
-      PIXI.Assets.reset();
-      for (const key of assetNames) {
-        const path = assetMap[key];
-        PIXI.Assets.add({ alias: key, src: path });
-      }
-      const assets = await PIXI.Assets.load(assetNames);
-      for (const key of Object.keys(assets)) {
-        if (!assets[key]) continue;
-        textures[key] = assets[key];
-        textures[key].source.scaleMode = 'nearest';
-      }
-    },
-  };
-};
+//
+// export interface IAssetLoader {
+//   createSprite: (name: AssetName) => PIXI.Sprite;
+//   preload: (...names: AssetName[]) => Promise<void>;
+//   getTexture: (name: AssetName) => PIXI.Texture;
+// }
+//
+// export const createAssetLoader = (): IAssetLoader => {
+//   const textures: Record<string, PIXI.Texture> = {};
+//   assertNoMissingAssetName();
+//
+//   return {
+//     createSprite: (name: AssetName) => new PIXI.Sprite(textures[name]),
+//     getTexture: (name: AssetName) => textures[name],
+//     preload: async (...assetNames: AssetName[]) => {
+//       PIXI.Assets.reset();
+//       for (const key of assetNames) {
+//         const path = assetMap[key];
+//         PIXI.Assets.add({ alias: key, src: path });
+//       }
+//       const assets = await PIXI.Assets.load(assetNames);
+//       for (const key of Object.keys(assets)) {
+//         if (!assets[key]) continue;
+//         textures[key] = assets[key];
+//         textures[key].source.scaleMode = 'nearest';
+//       }
+//     },
+//   };
+// };
