@@ -14,7 +14,7 @@ export class BoundaryBox extends Entity {
     };
   }
 
-  constructor(props: { rect: PIXI.Rectangle; }) {
+  constructor(props: { rect: PIXI.Rectangle }) {
     const { rect } = props;
     const graphic = new PIXI.Graphics().rect(0, 0, rect.width, rect.height).fill({ color: 'black' });
     graphic.visible = false;

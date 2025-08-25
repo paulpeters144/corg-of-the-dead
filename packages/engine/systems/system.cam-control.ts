@@ -1,7 +1,6 @@
-
-import { CameraOrbEntity } from "../entity/entity.camera-orb";
-import type { IDiContainer } from "../util/di-container";
-import type { ISystem } from "./system.agg";
+import { CameraOrbEntity } from '../entity/entity.camera-orb';
+import type { IDiContainer } from '../util/di-container';
+import type { ISystem } from './system.agg';
 
 interface CamShakeEvent {
   duration?: number;
@@ -14,8 +13,8 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
   const bus = di.eventBus();
   const entityStore = di.entityStore();
 
-  const orb = entityStore.first(CameraOrbEntity)
-  if (!orb) throw new Error('need cam orb')
+  const orb = entityStore.first(CameraOrbEntity);
+  if (!orb) throw new Error('need cam orb');
 
   let shaking = false;
   let elapsed = 0;
@@ -23,7 +22,7 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
   let magnitude = 0;
   let originalPos = { x: 0, y: 0 };
 
-  bus.on("camShake", (e: CamShakeEvent) => {
+  bus.on('camShake', (e: CamShakeEvent) => {
     shaking = true;
     elapsed = 0;
     duration = e.duration ?? 500;
@@ -33,7 +32,7 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
   });
 
   return {
-    name: () => "cam-shake-system",
+    name: () => 'cam-shake-system',
 
     update: (delta: number) => {
       delta *= 100;
@@ -42,7 +41,7 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
           speed: 8,
           acceleration: 50,
           radius: 0,
-        })
+        });
 
         return;
       }
@@ -61,7 +60,6 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
       const progress = elapsed / duration;
       const decay = 1 - progress;
 
-
       const offsetX = (Math.random() * 2 - 1) * magnitude * decay;
       const offsetY = (Math.random() * 2 - 1) * magnitude * decay;
 
@@ -75,4 +73,3 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
     },
   };
 };
-

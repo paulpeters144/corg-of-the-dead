@@ -1,5 +1,5 @@
-import * as PIXI from 'pixi.js'
 import jsonMetaDataUrl from '@package/assets/levels/demo/test.json';
+import * as PIXI from 'pixi.js';
 import { BoundaryBox } from '../../entity/entity.boundary-box';
 
 const LayerNameArr = ['l-1', 'traffic-drums', 'boundary-boxes'] as const;
@@ -67,7 +67,7 @@ export interface TiledMapMetaData {
 
 export const fetchTileMapMetaData = (): TiledMapMetaData => {
   try {
-    return jsonMetaDataUrl as TiledMapMetaData
+    return jsonMetaDataUrl as TiledMapMetaData;
   } catch (error) {
     console.error(error);
     throw error;
@@ -114,7 +114,7 @@ export const createTiledMap = (props: { metaData: TiledMapMetaData; atlas: PIXI.
   };
 
   const boundaryBoxes: BoundaryBox[] = [];
-  const trafficDrumPos: PIXI.Point[] = []
+  const trafficDrumPos: PIXI.Point[] = [];
   for (const layer of metaData.layers) {
     if (layer.type === 'tilelayer') {
       const layerCtr = createTileLayer(layer);
@@ -127,9 +127,9 @@ export const createTiledMap = (props: { metaData: TiledMapMetaData; atlas: PIXI.
         boundaryBoxes.push(box);
       }
     }
-    if (layer.type == 'objectgroup' && layer.name === 'traffic-drums') {
+    if (layer.type === 'objectgroup' && layer.name === 'traffic-drums') {
       for (const obj of layer.objects) {
-        const point = new PIXI.Point(obj.x, obj.y)
+        const point = new PIXI.Point(obj.x, obj.y);
         trafficDrumPos.push(point);
       }
     }

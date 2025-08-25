@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js'
+import * as PIXI from 'pixi.js';
 export const playerHeadsUpDisplay = () => {
-  const odaHealthBar = new PIXI.Graphics();
-}
+  const _odaHealthBar = new PIXI.Graphics();
+};

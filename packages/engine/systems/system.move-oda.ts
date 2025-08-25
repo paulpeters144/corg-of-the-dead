@@ -1,10 +1,9 @@
-import * as PIXI from 'pixi.js'
-import type { ISystem } from './system.agg';
-import type { IDiContainer } from '../util/di-container';
-import { OdaEntity } from '../entity/entity.oda';
+import * as PIXI from 'pixi.js';
 import { BoundaryBox } from '../entity/entity.boundary-box';
+import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
-
+import type { IDiContainer } from '../util/di-container';
+import type { ISystem } from './system.agg';
 
 export const collides = (rect1: PIXI.Rectangle) => {
   const topOf = (rect2: PIXI.Rectangle): boolean => {
@@ -46,12 +45,12 @@ interface IUpdatePosProps {
   entityRect: PIXI.Rectangle;
   collideArea: PIXI.Rectangle[];
   input: {
-    up: boolean
-    right: boolean
-    left: boolean
-    down: boolean
+    up: boolean;
+    right: boolean;
+    left: boolean;
+    down: boolean;
   };
-  speed: { x: number, y: number };
+  speed: { x: number; y: number };
   delta: number;
 }
 
@@ -95,38 +94,37 @@ export const getNextMoveAmount = (props: IUpdatePosProps): PIXI.Point | null => 
     }
   }
 
-  if (currPos.x === nextPos.x && currPos.y === nextPos.y)
-    return null
+  if (currPos.x === nextPos.x && currPos.y === nextPos.y) return null;
 
   const result = new PIXI.Point();
 
   if (currPos.x !== nextPos.x) {
-    result.x = nextPos.x - currPos.x
+    result.x = nextPos.x - currPos.x;
   }
   if (currPos.y !== nextPos.y) {
-    result.y = nextPos.y - currPos.y
+    result.y = nextPos.y - currPos.y;
   }
 
   return result;
 };
 
 export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
-  const input = di.input()
-  const entityStore = di.entityStore()
-  const oda = entityStore.first(OdaEntity)
-  if (!oda) throw new Error('no Oda for move-oda-system')
+  const input = di.input();
+  const entityStore = di.entityStore();
+  const oda = entityStore.first(OdaEntity);
+  if (!oda) throw new Error('no Oda for move-oda-system');
 
   return {
-    name: () => "move-oda-system",
+    name: () => 'move-oda-system',
     update: (delta: number) => {
       if (oda.isShooting) return;
 
-      const upPressed = input.up.is.pressed && !input.down.is.pressed
-      const dnPressed = input.down.is.pressed && !input.up.is.pressed
-      const rtPressed = input.right.is.pressed && !input.left.is.pressed
-      const ltPressed = input.left.is.pressed && !input.right.is.pressed
+      const upPressed = input.up.is.pressed && !input.down.is.pressed;
+      const dnPressed = input.down.is.pressed && !input.up.is.pressed;
+      const rtPressed = input.right.is.pressed && !input.left.is.pressed;
+      const ltPressed = input.left.is.pressed && !input.right.is.pressed;
 
-      const isIdle = !upPressed && !dnPressed && !rtPressed && !ltPressed
+      const isIdle = !upPressed && !dnPressed && !rtPressed && !ltPressed;
 
       const collideArea = entityStore
         .getAll(BoundaryBox)
@@ -159,29 +157,29 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
         },
         speed: {
           x: 15,
-          y: 8.75
+          y: 8.75,
         },
-        delta: delta
-      })
+        delta: delta,
+      });
 
       if (nextMoveAmount !== null) {
         oda.move(nextMoveAmount);
       }
 
-      const moved = !!nextMoveAmount
+      const moved = !!nextMoveAmount;
 
       if (moved && !oda.isRunning) {
         oda.setRunning();
       }
       if (!moved && oda.isRunning) {
-        oda.setIdle()
+        oda.setIdle();
       }
       if (isIdle && oda.isRunning) {
-        oda.setIdle()
+        oda.setIdle();
       }
 
-      if (ltPressed && oda.isFacingRight) oda.faceLeft()
-      if (rtPressed && !oda.isFacingRight) oda.faceRight()
-    }
-  }
-}
+      if (ltPressed && oda.isFacingRight) oda.faceLeft();
+      if (rtPressed && !oda.isFacingRight) oda.faceRight();
+    },
+  };
+};

@@ -1,4 +1,4 @@
-import type { IInput } from "@package/engine/util/control/input.control";
+import type { IInput } from '@package/engine/util/control/input.control';
 
 export const adaptToWeb = (input: IInput) => {
   if (typeof window === 'undefined') {

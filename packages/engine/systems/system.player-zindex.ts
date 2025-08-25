@@ -1,10 +1,8 @@
-
-import * as PIXI from 'pixi.js'
-import type { ISystem } from './system.agg';
-import type { IDiContainer } from '../util/di-container';
+import type * as PIXI from 'pixi.js';
 import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
-
+import type { IDiContainer } from '../util/di-container';
+import type { ISystem } from './system.agg';
 
 export const collides = (rect1: PIXI.Rectangle) => {
   const topOf = (rect2: PIXI.Rectangle): boolean => {
@@ -46,12 +44,12 @@ interface IUpdatePosProps {
   entityRect: PIXI.Rectangle;
   collideArea: PIXI.Rectangle[];
   input: {
-    up: boolean
-    right: boolean
-    left: boolean
-    down: boolean
+    up: boolean;
+    right: boolean;
+    left: boolean;
+    down: boolean;
   };
-  speed: { x: number, y: number };
+  speed: { x: number; y: number };
   delta: number;
 }
 
@@ -102,15 +100,13 @@ export const getNextPosition = (props: IUpdatePosProps): IUpdatePosResult => {
   return { nextPos: nextPos };
 };
 
-
 export const createPlayZIndexSystem = (di: IDiContainer): ISystem => {
-  const entityStore = di.entityStore()
-  const oda = entityStore.first(OdaEntity)
-  if (!oda) throw new Error('no Oda for move-oda-system')
+  const entityStore = di.entityStore();
+  const oda = entityStore.first(OdaEntity);
+  if (!oda) throw new Error('no Oda for move-oda-system');
   return {
-    name: () => "set-zindex-system",
+    name: () => 'set-zindex-system',
     update: (_: number) => {
-
       const closestObj = entityStore
         .getAll(TrafficDrumEntity)
         .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 65)
@@ -118,18 +114,19 @@ export const createPlayZIndexSystem = (di: IDiContainer): ISystem => {
           const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
           const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
           return distA - distB; // put the closest to the front
-        })?.at(0);
+        })
+        ?.at(0);
 
       // if bottom is blow oda, then increase oda's zindex
       // else decrease oda's zindex
 
-      if (!closestObj) return
+      if (!closestObj) return;
 
       if (oda.moveRect.bottom > closestObj.rect.bottom) {
-        oda.ctr.zIndex = closestObj.ctr.zIndex + 0.0001
+        oda.ctr.zIndex = closestObj.ctr.zIndex + 0.0001;
       } else {
-        oda.ctr.zIndex = closestObj.ctr.zIndex - 0.0001
+        oda.ctr.zIndex = closestObj.ctr.zIndex - 0.0001;
       }
-    }
-  }
-}
+    },
+  };
+};

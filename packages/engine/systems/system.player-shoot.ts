@@ -1,13 +1,12 @@
-import { OdaEntity } from "../entity/entity.oda";
-import type { IEntityStore } from "../entity/entity.store";
-import type { IInput } from "../util/control/input.control";
-import type { IDiContainer } from "../util/di-container";
-import type { ISystem } from "./system.agg";
+import { OdaEntity } from '../entity/entity.oda';
+import type { IInput } from '../util/control/input.control';
+import type { IDiContainer } from '../util/di-container';
+import type { ISystem } from './system.agg';
 
 let shotFired = false;
 let lastShot = 0;
-const _handleNonAutomaticFiring = (props: { oda: OdaEntity, input: IInput }) => {
-  const { oda, input } = props
+const _handleNonAutomaticFiring = (props: { oda: OdaEntity; input: IInput }) => {
+  const { oda, input } = props;
   if (!oda.gun) return;
 
   const now = performance.now();
@@ -26,10 +25,10 @@ const _handleNonAutomaticFiring = (props: { oda: OdaEntity, input: IInput }) => 
   if (shotFired && input.shoot.is.released) {
     shotFired = false;
   }
-}
+};
 
-const _handleAutomaticFiring = (props: { oda: OdaEntity, input: IInput }) => {
-  const { oda, input } = props
+const _handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }) => {
+  const { oda, input } = props;
   if (!oda.gun) return;
 
   const now = performance.now();
@@ -43,26 +42,25 @@ const _handleAutomaticFiring = (props: { oda: OdaEntity, input: IInput }) => {
     //   magnitude: 3,
     // })
   }
-}
+};
 
 export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
-  const input = di.input()
-  const bus = di.eventBus()
+  const input = di.input();
+  const _bus = di.eventBus();
   const oda = di.entityStore().first(OdaEntity);
-  if (!oda) throw new Error('create cam orb with no oda entity')
+  if (!oda) throw new Error('create cam orb with no oda entity');
   return {
     name: () => 'player-shoot-system',
     update: (_: number) => {
       if (!oda.gun) return;
 
       if (oda.gun.isAutomatic) {
-        _handleAutomaticFiring({ oda, input })
+        _handleAutomaticFiring({ oda, input });
       }
-
 
       if (!oda.gun.isAutomatic) {
-        _handleNonAutomaticFiring({ oda, input })
+        _handleNonAutomaticFiring({ oda, input });
       }
-    }
-  }
-}
+    },
+  };
+};

@@ -1,8 +1,7 @@
-
 import * as PIXI from 'pixi.js';
+import { ZLayer } from '../types/enums';
 import type { Position } from '../types/types';
 import { Entity } from './entity';
-import { ZLayer } from '../types/enums';
 
 const spriteAnimKeys = ['idle'] as const;
 type AnimKey = (typeof spriteAnimKeys)[number];
@@ -20,7 +19,7 @@ const spriteSheetRowDic: {
 
 export type AnimMapType = {
   [key in AnimKey]: PIXI.AnimatedSprite;
-}
+};
 
 const createAnimations = (texture: PIXI.Texture): AnimMapType => {
   const result: { [key in string]: PIXI.AnimatedSprite } = {};
@@ -44,7 +43,7 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
     result[key] = animatedSprite;
   }
   return result as { [key in AnimKey]: PIXI.AnimatedSprite };
-}
+};
 
 // -=-=-=-=-=-=-=-=-=-CLASS IMPL-=-=-=-=-=-=-=-=-=-=-
 
@@ -61,10 +60,11 @@ export class TrafficDrumEntity extends Entity {
     const xBuffer = 5;
     const yBuffer = 25;
     return new PIXI.Rectangle(
-      this.ctr.x + (xBuffer * .6),
+      this.ctr.x + xBuffer * 0.6,
       this.ctr.y + yBuffer,
       anim.width - xBuffer,
-      anim.height - yBuffer)
+      anim.height - yBuffer,
+    );
   }
 
   get center(): Position {
@@ -82,12 +82,14 @@ export class TrafficDrumEntity extends Entity {
   constructor(props: { spriteSheet: PIXI.Texture }) {
     super(new PIXI.Container());
     this.animMap = createAnimations(props.spriteSheet);
-    Object.keys(this.animMap).map((k, i) => {
+    const keysMap = Object.keys(this.animMap);
+    for (let i = 0; i < keysMap.length; i++) {
+      const k = keysMap[i];
       const key = k as AnimKey;
       spriteSheetRowDic[key].idx = i;
       const anim = this.animMap[key];
       this.ctr.addChild(anim);
-    });
+    }
     this.ctr.children[0].visible = true;
     this.ctr.zIndex = ZLayer.m1;
   }
@@ -99,18 +101,17 @@ export class TrafficDrumEntity extends Entity {
     }
     if (this._health <= 82) {
     } else if (this._health <= 64) {
-      this.anim.gotoAndStop(1)
+      this.anim.gotoAndStop(1);
     } else if (this._health <= 46) {
-      this.anim.gotoAndStop(2)
+      this.anim.gotoAndStop(2);
     } else if (this._health <= 28) {
-      this.anim.gotoAndStop(3)
+      this.anim.gotoAndStop(3);
     } else if (this._health <= 10) {
-      this.anim.gotoAndStop(4)
+      this.anim.gotoAndStop(4);
     } else {
-      this.anim.gotoAndStop(0)
+      this.anim.gotoAndStop(0);
     }
     const died = this._health <= 0;
-    return died
+    return died;
   }
 }
-

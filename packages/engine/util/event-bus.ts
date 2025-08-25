@@ -23,7 +23,7 @@ export type EventMap = {
     duration?: number;
     magnitude?: number;
     frequency?: number;
-  }
+  };
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: use of any is needed here

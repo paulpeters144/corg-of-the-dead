@@ -1,9 +1,8 @@
-
 import * as PIXI from 'pixi.js';
-import type { Position } from '../types/types';
-import { Entity } from './entity';
 import { ZLayer } from '../types/enums';
+import type { Position } from '../types/types';
 import type { IOdaGun } from './eneity.oda-gun';
+import { Entity } from './entity';
 
 const spriteAnimKeys = ['idle', 'running', 'shoot'] as const;
 type AnimKey = (typeof spriteAnimKeys)[number];
@@ -23,7 +22,7 @@ const spriteSheetRowDic: {
 
 export type AnimMapType = {
   [key in AnimKey]: PIXI.AnimatedSprite;
-}
+};
 
 const createAnimations = (texture: PIXI.Texture): AnimMapType => {
   const result: { [key in string]: PIXI.AnimatedSprite } = {};
@@ -46,7 +45,7 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
     result[key] = animatedSprite;
   }
   return result as { [key in AnimKey]: PIXI.AnimatedSprite };
-}
+};
 
 // -=-=-=-=-=-=-=-=-=-CLASS IMPL-=-=-=-=-=-=-=-=-=-=-
 
@@ -65,9 +64,9 @@ export class OdaEntity extends Entity {
     const shrinkOffset = 15;
     return new PIXI.Rectangle(
       this.ctr.x + shrinkOffset,
-      this.ctr.y + anim.height * .7,
+      this.ctr.y + anim.height * 0.7,
       anim.width - shrinkOffset * 2,
-      anim.height - shrinkOffset * 3
+      anim.height - shrinkOffset * 3,
     );
   }
 
@@ -76,9 +75,9 @@ export class OdaEntity extends Entity {
     const shrinkOffset = 15;
     return new PIXI.Rectangle(
       this.ctr.x + shrinkOffset,
-      this.ctr.y + anim.height * .75,
+      this.ctr.y + anim.height * 0.75,
       anim.width - shrinkOffset * 2,
-      anim.height - shrinkOffset * 3.25
+      anim.height - shrinkOffset * 3.25,
     );
   }
 
@@ -120,12 +119,16 @@ export class OdaEntity extends Entity {
   constructor(props: { spriteSheet: PIXI.Texture }) {
     super(new PIXI.Container());
     this.animMap = createAnimations(props.spriteSheet);
-    Object.keys(this.animMap).map((k, i) => {
+
+    const keysMap = Object.keys(this.animMap);
+    for (let i = 0; i < keysMap.length; i++) {
+      const k = keysMap[i];
       const key = k as AnimKey;
       spriteSheetRowDic[key].idx = i;
       const anim = this.animMap[key];
       this.ctr.addChild(anim);
-    });
+    }
+
     this.ctr.children[0].visible = true;
     this.ctr.zIndex = ZLayer.m1;
   }
@@ -158,7 +161,7 @@ export class OdaEntity extends Entity {
 
     if (this.gun) {
       const gun = this.gun.sprite;
-      gun.anchor.set(0.24, 0)
+      gun.anchor.set(0.24, 0);
       gun.scale.set(-1, 1);
     }
   }
@@ -172,7 +175,7 @@ export class OdaEntity extends Entity {
 
     if (this.gun) {
       const gun = this.gun.sprite;
-      gun.anchor.set(0, 0)
+      gun.anchor.set(0, 0);
       gun.scale.set(1, 1);
     }
   }
@@ -195,4 +198,3 @@ export class OdaEntity extends Entity {
     for (let i = 0; i < this.ctr.children.length; i++) this.ctr.children[i].visible = false;
   }
 }
-
