@@ -3,6 +3,7 @@ import * as PIXI from 'pixi.js';
 import type { Position } from '../types/types';
 import { Entity } from './entity';
 import { ZLayer } from '../types/enums';
+import type { IOdaGun } from './eneity.oda-gun';
 
 const spriteAnimKeys = ['idle', 'running', 'shoot'] as const;
 type AnimKey = (typeof spriteAnimKeys)[number];
@@ -50,11 +51,14 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
 // -=-=-=-=-=-=-=-=-=-CLASS IMPL-=-=-=-=-=-=-=-=-=-=-
 
 export class OdaEntity extends Entity {
+  gun: IOdaGun | undefined;
+
+  animMap: { [key in AnimKey]: PIXI.AnimatedSprite };
+
   get anim(): PIXI.AnimatedSprite {
     const result = this.ctr.children.find((c) => c.visible) as PIXI.AnimatedSprite;
     return result ? result : this.animMap.idle;
   }
-  animMap: { [key in AnimKey]: PIXI.AnimatedSprite };
 
   get hitDetectRect(): PIXI.Rectangle {
     const anim = this.anim;
@@ -102,7 +106,6 @@ export class OdaEntity extends Entity {
     const m = 'at least one anim must be active for shelby at all times';
     throw new Error(m);
   }
-
 
   get isRunning(): boolean {
     if (this.activeAnimation !== 'running') return false;
@@ -152,6 +155,12 @@ export class OdaEntity extends Entity {
       c.anchor.set(1, 0);
       c.scale.set(-1, 1);
     }
+
+    if (this.gun) {
+      const gun = this.gun.sprite;
+      gun.anchor.set(0.24, 0)
+      gun.scale.set(-1, 1);
+    }
   }
 
   faceRight() {
@@ -159,6 +168,26 @@ export class OdaEntity extends Entity {
       const c = child as PIXI.AnimatedSprite;
       c.anchor.set(0, 0);
       c.scale.set(1, 1);
+    }
+
+    if (this.gun) {
+      const gun = this.gun.sprite;
+      gun.anchor.set(0, 0)
+      gun.scale.set(1, 1);
+    }
+  }
+
+  setGun(gun: IOdaGun) {
+    this.gun = gun;
+    this.animMap.shoot.animationSpeed = gun.animationSpeed;
+  }
+
+  move(amount: PIXI.Point) {
+    this.ctr.x += amount.x;
+    this.ctr.y += amount.y;
+    if (this.gun) {
+      this.gun.sprite.x = this.ctr.x + 20;
+      this.gun.sprite.y = this.ctr.y + 28;
     }
   }
 

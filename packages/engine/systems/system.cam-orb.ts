@@ -8,7 +8,7 @@ export const createCamOrbSystem = (di: IDiContainer): ISystem => {
   const orb = di.entityStore().first(CameraOrbEntity);
   if (!oda) throw new Error('create cam orb with no oda entity')
   if (!orb) throw new Error('created cam orb with no orb')
-  const orbOffSet = 50;
+  const orbOffSet = 25;
   return {
     name: () => 'cam-orb-system',
     update: (_: number) => {

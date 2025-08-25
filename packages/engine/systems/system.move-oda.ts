@@ -55,7 +55,7 @@ interface IUpdatePosProps {
   delta: number;
 }
 
-export const getNextPosition = (props: IUpdatePosProps): PIXI.Point | null => {
+export const getNextMoveAmount = (props: IUpdatePosProps): PIXI.Point | null => {
   const { entityRect, delta, collideArea, speed, input } = props;
 
   const currPos = entityRect.clone();
@@ -148,7 +148,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
         })
         .map((o) => o.rect);
 
-      const nextMove = getNextPosition({
+      const nextMoveAmount = getNextMoveAmount({
         entityRect: oda.moveRect,
         collideArea: [...collideArea, ...trafficDrums],
         input: {
@@ -164,12 +164,11 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
         delta: delta
       })
 
-      if (nextMove !== null) {
-        oda.ctr.x += nextMove.x
-        oda.ctr.y += nextMove.y
+      if (nextMoveAmount !== null) {
+        oda.move(nextMoveAmount);
       }
 
-      const moved = !!nextMove
+      const moved = !!nextMoveAmount
 
       if (moved && !oda.isRunning) {
         oda.setRunning();

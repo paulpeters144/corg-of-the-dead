@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js'
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
@@ -12,6 +13,8 @@ import { ZLayer } from '../../types/enums';
 import { createPlayZIndexSystem } from '../../systems/system.player-zindex';
 import { createPlayerShootSystem } from '../../systems/system.player-shoot';
 import { createCamControlSystem } from '../../systems/system.cam-control';
+import { OdaFirstGunEntity } from '../../entity/eneity.oda-gun';
+import { createSetPlayerGunPosSystem } from '../../systems/system.set-gun-pos';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -22,7 +25,10 @@ export const openingScene = (di: IDiContainer): IScene => {
 
   return {
     load: async () => {
-      await assetLoader.preload('atlasDemo', 'odaIdle', 'bg1', 'fg1', 'trafficDrum');
+      await assetLoader.preload(
+        'atlasDemo', 'odaIdle', 'bg1',
+        'fg1', 'trafficDrum', 'firstRifle', 'blueShot', 'weirdGun'
+      );
 
       entityStore.add(
         new BgEntity(assetLoader.createSprite('bg1')),
@@ -40,6 +46,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       entityStore.add(
         new OdaEntity({ spriteSheet: assetLoader.getTexture('odaIdle') }),
         new CameraOrbEntity(),
+        new OdaFirstGunEntity({ texture: assetLoader.getTexture('firstRifle') })
       );
 
       const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y)
@@ -56,8 +63,20 @@ export const openingScene = (di: IDiContainer): IScene => {
         entityStore.add(trafficDrum)
       }
 
-      entityStore.first(OdaEntity)?.ctr.position.set(100, 300);
+
+      const oda = entityStore.first(OdaEntity)!;
+      oda.setIdle()
+
+      setTimeout(() => {
+        oda.move(new PIXI.Point(100, 300));
+        odaGun.ctr.zIndex = 999
+
+      }, 50)
+
       entityStore.first(OdaEntity)?.setIdle();
+
+      const odaGun = entityStore.first(OdaFirstGunEntity)!
+      entityStore.first(OdaEntity)?.setGun(odaGun)
 
       systemAgg.add(
         createPlayerShootSystem(di),
@@ -66,6 +85,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         createBackgrounParalaxSystem(di),
         createMoveOdaSystem(di),
         createCamOrbSystem(di),
+        createSetPlayerGunPosSystem(di),
       )
 
       camera.clamp({
