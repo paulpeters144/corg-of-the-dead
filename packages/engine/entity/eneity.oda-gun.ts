@@ -1,9 +1,15 @@
 import * as PIXI from 'pixi.js';
 import { Entity } from './entity';
 
+export type GunName = "rifle" | "shotgun";
+
 export interface IOdaGun {
-  sprite: PIXI.Sprite;
+  rect: PIXI.Rectangle;
+  sprite: PIXI.Sprite
+  icon: PIXI.Sprite;
+  name: GunName;
   ammo: number;
+  range: number;
   fireRate: number;
   damage: number;
   isAutomatic: boolean;
@@ -11,38 +17,45 @@ export interface IOdaGun {
   animationSpeed: number;
 }
 
-export class OdaFirstGunEntity extends Entity implements IOdaGun {
-  ammo = 100;
-  fireRate = 50;
-  damage = 10;
-  isAutomatic = false;
-  spread = 1;
-  animationSpeed = 0.18;
-
-  get sprite(): PIXI.Sprite {
-    return this.ctr as PIXI.Sprite;
-  }
-
-  constructor(props: { texture: PIXI.Texture }) {
-    const sprite = new PIXI.Sprite(props.texture);
-    super(sprite);
-  }
+interface gunProps2 {
+  sprite: PIXI.Sprite;
+  icon: PIXI.Sprite,
+  name: GunName;
+  ammo: number;
+  fireRate: number;
+  range: number;
+  damage: number;
+  isAutomatic: boolean;
+  spread: number;
+  animationSpeed: number;
 }
 
-export class OdaShotgunEntity extends Entity implements IOdaGun {
-  ammo = 8;
-  fireRate = 50;
-  damage = 25;
-  isAutomatic = false;
-  spread = 5;
-  animationSpeed = 0.15;
+export class OdaGunEntity extends Entity implements IOdaGun {
+  icon: PIXI.Sprite;
+  name: GunName;
+  fireRate: number;
+  ammo: number;
+  range: number;
+  damage: number;
+  isAutomatic: boolean;
+  spread: number;
+  animationSpeed: number;
 
   get sprite(): PIXI.Sprite {
     return this.ctr as PIXI.Sprite;
   }
 
-  constructor(props: { texture: PIXI.Texture }) {
-    const sprite = new PIXI.Sprite(props.texture);
+  constructor(props: gunProps2) {
+    const sprite = props.sprite;
     super(sprite);
+    this.icon = props.icon;
+    this.ammo = props.ammo;
+    this.fireRate = props.fireRate;
+    this.range = props.range;
+    this.damage = props.damage;
+    this.isAutomatic = props.isAutomatic;
+    this.spread = props.spread;
+    this.animationSpeed = props.animationSpeed;
+    this.name = props.name;
   }
 }

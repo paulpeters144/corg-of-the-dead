@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { OdaFirstGunEntity } from '../../entity/eneity.oda-gun';
+import { OdaGunEntity } from '../../entity/eneity.oda-gun';
 import { CameraOrbEntity } from '../../entity/entity.camera-orb';
 import { OdaEntity } from '../../entity/entity.oda';
 import { TrafficDrumEntity } from '../../entity/entity.traffic-drum';
@@ -15,6 +15,9 @@ import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
+import { HeadsUpDisplayEntity } from '../../entity/entity.hud';
+import { createHeadsUpDisplaySystem } from '../../systems/system.heads-up-display';
+import { createGunExplosianSystem } from '../../systems/system.gun-explosian';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -22,6 +25,7 @@ export const openingScene = (di: IDiContainer): IScene => {
   const camera = di.camera();
   const entityStore = di.entityStore();
   const systemAgg = di.systemAgg();
+  const gunFactory = di.gunFactory();
 
   return {
     load: async () => {
@@ -31,9 +35,14 @@ export const openingScene = (di: IDiContainer): IScene => {
         'bg1',
         'fg1',
         'trafficDrum',
-        'firstRifle',
-        'blueShot',
-        'weirdGun',
+        'rifle1',
+        'rifle1Icon',
+        'rifle1Explosian',
+        'rifle1Flash',
+        'shotty1',
+        'shotty1Icon',
+        'weirdGun1',
+        'odaHudIcon'
       );
 
       entityStore.add(
@@ -49,11 +58,21 @@ export const openingScene = (di: IDiContainer): IScene => {
       entityStore.add(...tilemap.boundaryBoxes);
       tilemap.ctr.cullable = true;
 
+      const odasGun = gunFactory.create({ name: 'rifle' });
+
       entityStore.add(
         new OdaEntity({ spriteSheet: assetLoader.getTexture('odaIdle') }),
         new CameraOrbEntity(),
-        new OdaFirstGunEntity({ texture: assetLoader.getTexture('firstRifle') }),
+        odasGun,
+        new HeadsUpDisplayEntity({
+          odaIcon: assetLoader.createSprite('odaHudIcon'),
+          weaponIcon: odasGun.icon,
+        })
       );
+
+      entityStore.first(HeadsUpDisplayEntity)?.setAmmo(
+        entityStore.first(OdaGunEntity)?.ammo || 0
+      )
 
       const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y);
       for (let i = 0; i < sortedTrafficDrums.length; i++) {
@@ -62,26 +81,32 @@ export const openingScene = (di: IDiContainer): IScene => {
         const trafficDrum = new TrafficDrumEntity(spriteSheet);
         trafficDrum.ctr.position.set(pos.x - trafficDrum.ctr.width * 0.5, pos.y - trafficDrum.ctr.height * 0.85);
         trafficDrum.ctr.zIndex = ZLayer.m1 + i * 0.001;
-
         entityStore.add(trafficDrum);
       }
+
+      // setTimeout(() => {
+      //   entityStore.getAll(TrafficDrumEntity).map(t => {
+      //     const rect = t.hitRect;
+      //     gameRef.addChild(new PIXI.Graphics()
+      //       .rect(rect.x, rect.y, rect.width, rect.height))
+      //       .fill({ color: 'yellow' });
+      //   })
+      // }, 10_000)
 
       const oda = entityStore.first(OdaEntity);
       oda?.setIdle();
 
       setTimeout(() => {
         oda?.move(new PIXI.Point(100, 300));
-        if (odaGun) {
-          odaGun.ctr.zIndex = 999;
-        }
+        odasGun.ctr.zIndex = 999;
       }, 50);
 
       entityStore.first(OdaEntity)?.setIdle();
 
-      const odaGun = entityStore.first(OdaFirstGunEntity);
-      if (odaGun) entityStore.first(OdaEntity)?.setGun(odaGun);
+      entityStore.first(OdaEntity)?.setGun(odasGun);
 
       systemAgg.add(
+        createHeadsUpDisplaySystem(di),
         createPlayerShootSystem(di),
         createCamControlSystem(di),
         createPlayZIndexSystem(di),
@@ -89,6 +114,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         createMoveOdaSystem(di),
         createCamOrbSystem(di),
         createSetPlayerGunPosSystem(di),
+        createGunExplosianSystem(di),
       );
 
       camera.clamp({
@@ -100,10 +126,11 @@ export const openingScene = (di: IDiContainer): IScene => {
     },
 
     update: (delta: number) => {
+      camera.update(delta);
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

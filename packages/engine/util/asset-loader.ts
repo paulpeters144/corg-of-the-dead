@@ -1,13 +1,20 @@
+import * as PIXI from 'pixi.js';
+
 import odaIdleUrl from '@package/assets/images/actors/player/oda_idle_anim_2.png';
-import blueShotUrl from '@package/assets/images/actors/weapons/blue-shotty.png';
-import firstRifle from '@package/assets/images/actors/weapons/first-rifle.png';
-import wirdGunUrl from '@package/assets/images/actors/weapons/weird-gun.png';
+import shotty_1_Url from '@package/assets/images/actors/weapons/shotty-1.png';
+import shotty_1_icon_url from '@package/assets/images/actors/weapons/shotty-1-icon.png';
+import rifle_1_url from '@package/assets/images/actors/weapons/rifle-1.png';
+import rifle_1_icon_url from '@package/assets/images/actors/weapons/rifle-1-icon.png';
+import rifle_1_flash_url from '@package/assets/images/actors/weapons/rifle-1-flash.png';
+import rifle_1_explosian_url from '@package/assets/images/actors/weapons/rifle-1-explosian.png';
+import weird_gun_1_url from '@package/assets/images/actors/weapons/weird-gun-1.png';
+import weird_gun_1_icon_url from '@package/assets/images/actors/weapons/weird-gun-1-icon.png';
 import bunnyUrl from '@package/assets/images/bunny.png';
 import trafficDrumUrl from '@package/assets/images/objects/traffic_drum.png';
 import atlasDemoUrl from '@package/assets/levels/demo/Background_CityRuins_Streets.png';
 import bg1Url from '@package/assets/levels/demo/bg-1.png';
 import fg1Url from '@package/assets/levels/demo/fg-1.png';
-import * as PIXI from 'pixi.js';
+import odaHudIconUrl from '@package/assets/images/ui/oda-hud-icon.png'
 
 const assetMap = {
   bunny: bunnyUrl,
@@ -16,9 +23,15 @@ const assetMap = {
   trafficDrum: trafficDrumUrl,
   fg1: fg1Url,
   bg1: bg1Url,
-  firstRifle: firstRifle,
-  blueShot: blueShotUrl,
-  weirdGun: wirdGunUrl,
+  odaHudIcon: odaHudIconUrl,
+  rifle1: rifle_1_url,
+  rifle1Icon: rifle_1_icon_url,
+  rifle1Explosian: rifle_1_explosian_url,
+  rifle1Flash: rifle_1_flash_url,
+  shotty1: shotty_1_Url,
+  shotty1Icon: shotty_1_icon_url,
+  weirdGun1: weird_gun_1_url,
+  weirdGun1Icon: weird_gun_1_icon_url,
 };
 
 export const assetFilePath = [
@@ -28,9 +41,15 @@ export const assetFilePath = [
   'bg1',
   'fg1',
   'trafficDrum',
-  'firstRifle',
-  'blueShot',
-  'weirdGun',
+  'rifle1',
+  'rifle1Icon',
+  'rifle1Explosian',
+  'rifle1Flash',
+  'shotty1',
+  'shotty1Icon',
+  'weirdGun1',
+  'weirdGun1Icon',
+  'odaHudIcon',
 ] as const;
 export type AssetName = (typeof assetFilePath)[number];
 

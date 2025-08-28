@@ -38,7 +38,7 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
       delta *= 100;
       if (!shaking) {
         camera.follow(orb.ctr, {
-          speed: 8,
+          speed: 5,
           acceleration: 50,
           radius: 0,
         });

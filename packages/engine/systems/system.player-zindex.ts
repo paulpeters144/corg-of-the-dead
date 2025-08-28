@@ -122,7 +122,7 @@ export const createPlayZIndexSystem = (di: IDiContainer): ISystem => {
 
       if (!closestObj) return;
 
-      if (oda.moveRect.bottom > closestObj.rect.bottom) {
+      if (oda.moveRect.bottom > closestObj.moveRect.bottom) {
         oda.ctr.zIndex = closestObj.ctr.zIndex + 0.0001;
       } else {
         oda.ctr.zIndex = closestObj.ctr.zIndex - 0.0001;

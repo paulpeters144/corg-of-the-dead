@@ -55,7 +55,7 @@ export class TrafficDrumEntity extends Entity {
     return result ? result : this.animMap.idle;
   }
 
-  get rect(): PIXI.Rectangle {
+  get moveRect(): PIXI.Rectangle {
     const anim = this.anim;
     const xBuffer = 5;
     const yBuffer = 25;
@@ -66,6 +66,23 @@ export class TrafficDrumEntity extends Entity {
       anim.height - yBuffer,
     );
   }
+
+  get hitRect(): PIXI.Rectangle {
+    const anim = this.anim;
+    const xBuffer = 10;
+    const yBuffer = this.anim.currentFrame === 0 ? 1 :
+      this.anim.currentFrame === 1 ? 5 :
+        this.anim.currentFrame === 2 ? 5 :
+          this.anim.currentFrame === 3 ? 5 :
+            this.anim.currentFrame === 4 ? 10 : 0;
+    return new PIXI.Rectangle(
+      this.ctr.x + xBuffer * 0.6,
+      this.ctr.y + yBuffer,
+      anim.width - xBuffer,
+      anim.height - yBuffer,
+    );
+  }
+
 
   get center(): Position {
     return {
@@ -82,6 +99,7 @@ export class TrafficDrumEntity extends Entity {
   constructor(props: { spriteSheet: PIXI.Texture }) {
     super(new PIXI.Container());
     this.animMap = createAnimations(props.spriteSheet);
+
     const keysMap = Object.keys(this.animMap);
     for (let i = 0; i < keysMap.length; i++) {
       const k = keysMap[i];
@@ -90,6 +108,7 @@ export class TrafficDrumEntity extends Entity {
       const anim = this.animMap[key];
       this.ctr.addChild(anim);
     }
+
     this.ctr.children[0].visible = true;
     this.ctr.zIndex = ZLayer.m1;
   }
@@ -99,14 +118,14 @@ export class TrafficDrumEntity extends Entity {
     if (this._health < 0) {
       this._health = 0;
     }
-    if (this._health <= 82) {
-    } else if (this._health <= 64) {
+    if (this._health >= 82) {
+    } else if (this._health >= 64) {
       this.anim.gotoAndStop(1);
-    } else if (this._health <= 46) {
+    } else if (this._health >= 46) {
       this.anim.gotoAndStop(2);
-    } else if (this._health <= 28) {
+    } else if (this._health >= 28) {
       this.anim.gotoAndStop(3);
-    } else if (this._health <= 10) {
+    } else if (this._health >= 10) {
       this.anim.gotoAndStop(4);
     } else {
       this.anim.gotoAndStop(0);

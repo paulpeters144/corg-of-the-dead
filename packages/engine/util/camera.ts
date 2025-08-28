@@ -13,19 +13,20 @@ export const createCamera = (
     screenHeight: gameConstants.virtualGameHeight,
     passiveWheel: false,
     events: appRef.renderer.events,
+    noTicker: true,
   });
 
   viewport.addChild(gameRef);
   appRef.stage.addChild(viewport);
 
-  viewport.decelerate({
-    friction: 0.98,
-    minSpeed: 10,
-    bounce: 0,
-  });
+  // viewport.decelerate({
+  //   friction: 0.98,
+  //   minSpeed: 10,
+  //   bounce: 0,
+  // });
 
   viewport.clampZoom({
-    minScale: 0.9,
+    minScale: 0.1,
     maxScale: 10,
   });
 
@@ -50,6 +51,7 @@ export const createCamera = (
       viewport.filters = filters;
     },
     clamp: (options?: IClampOptions) => viewport.clamp(options),
+    update: (delta: number) => viewport.update(delta * 1.15)
   };
 };
 
@@ -62,4 +64,5 @@ export interface ICamera {
   follow: (ctr: PIXI.Container, opt?: IFollowOptions) => void;
   addFilter: (...filters: PIXI.Filter[]) => void;
   clamp: (options?: IClampOptions) => void;
+  update: (delta: number) => void;
 }

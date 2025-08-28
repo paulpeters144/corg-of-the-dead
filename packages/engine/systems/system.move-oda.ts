@@ -117,7 +117,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
   return {
     name: () => 'move-oda-system',
     update: (delta: number) => {
-      if (oda.isShooting) return;
+      if (input.shoot.is.pressed) return;
 
       const upPressed = input.up.is.pressed && !input.down.is.pressed;
       const dnPressed = input.down.is.pressed && !input.up.is.pressed;
@@ -144,7 +144,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
           const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
           return distA - distB; // put the closest to the front
         })
-        .map((o) => o.rect);
+        .map((o) => o.moveRect);
 
       const nextMoveAmount = getNextMoveAmount({
         entityRect: oda.moveRect,

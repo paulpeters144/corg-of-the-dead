@@ -1,4 +1,5 @@
 import type * as PIXI from 'pixi.js';
+import type { IOdaGun } from '../entity/eneity.oda-gun';
 
 type Callback<T> = (payload: T) => void;
 // biome-ignore lint/suspicious/noExplicitAny: use of any is needed here
@@ -19,10 +20,11 @@ export interface IEventBus {
 export type EventMap = {
   eventName: { count: number };
   shotFired: { cords: PIXI.Rectangle; facingRight: boolean };
+  odaShot: Omit<IOdaGun, 'icon' | 'sprite'>,
+  shotHit: { gunName: string; area: PIXI.Rectangle },
   camShake: {
     duration?: number;
     magnitude?: number;
-    frequency?: number;
   };
 };
 
