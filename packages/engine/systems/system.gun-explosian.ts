@@ -50,7 +50,18 @@ export const createGunExplosianSystem = (di: IDiContainer): ISystem => {
     const anim = new PIXI.AnimatedSprite({ textures: shotMissTextures });
     anim.animationSpeed = 0.35;
     gameRef.addChild(anim);
-    anim.position.set(oda.isFacingRight ? e.area.left - 15 : e.area.right - 15, e.area.y);
+
+    const randX = (Math.random() - 0.5) * 15;
+    const randY = (Math.random() - 0.5) * 15;
+
+    if (oda.isFacingRight) {
+      anim.scale.x = 1;
+      anim.position.set(e.area.left - 15 + randX, e.area.y + randY);
+    } else {
+      anim.scale.x = -1;
+      anim.position.set(e.area.right + 15 + randX, e.area.y + randY);
+    }
+
     anim.zIndex = 9999;
     anim.gotoAndPlay(0);
     anim.loop = false;
