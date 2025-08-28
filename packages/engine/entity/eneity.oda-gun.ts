@@ -3,10 +3,16 @@ import { Entity } from './entity';
 
 export type GunName = 'rifle' | 'shotgun';
 
+type assets = {
+  flash: PIXI.Texture;
+  icon: PIXI.Texture;
+  impact: PIXI.Texture;
+};
+
 export interface IOdaGun {
   rect: PIXI.Rectangle;
   sprite: PIXI.Sprite;
-  icon: PIXI.Sprite;
+  assets: assets;
   name: GunName;
   ammo: number;
   range: number;
@@ -19,7 +25,7 @@ export interface IOdaGun {
 
 interface gunProps2 {
   sprite: PIXI.Sprite;
-  icon: PIXI.Sprite;
+  assets: assets;
   name: GunName;
   ammo: number;
   fireRate: number;
@@ -31,7 +37,6 @@ interface gunProps2 {
 }
 
 export class OdaGunEntity extends Entity implements IOdaGun {
-  icon: PIXI.Sprite;
   name: GunName;
   fireRate: number;
   ammo: number;
@@ -40,6 +45,7 @@ export class OdaGunEntity extends Entity implements IOdaGun {
   isAutomatic: boolean;
   spread: number;
   animationSpeed: number;
+  assets: assets;
 
   get sprite(): PIXI.Sprite {
     return this.ctr as PIXI.Sprite;
@@ -48,7 +54,6 @@ export class OdaGunEntity extends Entity implements IOdaGun {
   constructor(props: gunProps2) {
     const sprite = props.sprite;
     super(sprite);
-    this.icon = props.icon;
     this.ammo = props.ammo;
     this.fireRate = props.fireRate;
     this.range = props.range;
@@ -57,5 +62,6 @@ export class OdaGunEntity extends Entity implements IOdaGun {
     this.spread = props.spread;
     this.animationSpeed = props.animationSpeed;
     this.name = props.name;
+    this.assets = props.assets;
   }
 }

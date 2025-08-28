@@ -37,7 +37,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         'trafficDrum',
         'rifle1',
         'rifle1Icon',
-        'rifle1Explosian',
+        'rifle1Impact',
         'rifle1Flash',
         'shotty1',
         'shotty1Icon',
@@ -66,7 +66,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         odasGun,
         new HeadsUpDisplayEntity({
           odaIcon: assetLoader.createSprite('odaHudIcon'),
-          weaponIcon: odasGun.icon,
+          weaponIcon: new PIXI.Sprite(odasGun.assets.icon),
         }),
       );
 

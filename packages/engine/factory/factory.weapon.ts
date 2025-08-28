@@ -14,7 +14,11 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
     if (props.name === 'rifle') {
       return new OdaGunEntity({
         sprite: assetLoader.createSprite('rifle1'),
-        icon: assetLoader.createSprite('rifle1Icon'),
+        assets: {
+          flash: assetLoader.getTexture('rifle1Flash'),
+          icon: assetLoader.getTexture('rifle1Icon'),
+          impact: assetLoader.getTexture('rifle1Impact'),
+        },
         ammo: 250,
         damage: 25,
         fireRate: 150,
@@ -28,7 +32,11 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
     if (props.name === 'shotgun') {
       return new OdaGunEntity({
         sprite: assetLoader.createSprite('shotty1'),
-        icon: assetLoader.createSprite('shotty1Icon'),
+        assets: {
+          flash: assetLoader.getTexture('rifle1Flash'),
+          icon: assetLoader.getTexture('rifle1Icon'),
+          impact: assetLoader.getTexture('rifle1Impact'), // TODO: need correct impact texture
+        },
         ammo: 200,
         damage: 50,
         fireRate: 250,

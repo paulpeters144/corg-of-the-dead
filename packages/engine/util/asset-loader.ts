@@ -1,6 +1,6 @@
 import odaIdleUrl from '@package/assets/images/actors/player/oda_idle_anim_2.png';
 import rifle_1_url from '@package/assets/images/actors/weapons/rifle-1.png';
-import rifle_1_explosian_url from '@package/assets/images/actors/weapons/rifle-1-explosian.png';
+import rifle_1_impact_url from '@package/assets/images/actors/weapons/rifle-1-explosian.png';
 import rifle_1_flash_url from '@package/assets/images/actors/weapons/rifle-1-flash.png';
 import rifle_1_icon_url from '@package/assets/images/actors/weapons/rifle-1-icon.png';
 import shotty_1_Url from '@package/assets/images/actors/weapons/shotty-1.png';
@@ -25,7 +25,7 @@ const assetMap = {
   odaHudIcon: odaHudIconUrl,
   rifle1: rifle_1_url,
   rifle1Icon: rifle_1_icon_url,
-  rifle1Explosian: rifle_1_explosian_url,
+  rifle1Impact: rifle_1_impact_url,
   rifle1Flash: rifle_1_flash_url,
   shotty1: shotty_1_Url,
   shotty1Icon: shotty_1_icon_url,
@@ -42,7 +42,7 @@ export const assetFilePath = [
   'trafficDrum',
   'rifle1',
   'rifle1Icon',
-  'rifle1Explosian',
+  'rifle1Impact',
   'rifle1Flash',
   'shotty1',
   'shotty1Icon',

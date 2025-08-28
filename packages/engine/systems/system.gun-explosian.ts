@@ -8,7 +8,9 @@ export const createGunExplosianSystem = (di: IDiContainer): ISystem => {
   const gameRef = di.gameRef();
   const oda = di.entityStore().first(OdaEntity);
 
-  const texture = di.assetLoader().getTexture('rifle1Explosian');
+  if (!oda?.gun) throw new Error('oda gun not found');
+
+  const texture = oda.gun.assets.impact;
 
   const size = 32;
   const textures = Array.from({ length: 5 }, (_, i) => {
