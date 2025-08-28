@@ -38,6 +38,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         'rifle1',
         'rifle1Icon',
         'rifle1Impact',
+        'missedShot',
         'rifle1Flash',
         'shotty1',
         'shotty1Icon',

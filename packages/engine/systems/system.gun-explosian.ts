@@ -6,16 +6,15 @@ import type { ISystem } from './system.agg';
 export const createGunExplosianSystem = (di: IDiContainer): ISystem => {
   const bus = di.eventBus();
   const gameRef = di.gameRef();
+  const assetLoader = di.assetLoader();
   const oda = di.entityStore().first(OdaEntity);
 
-  if (!oda?.gun) throw new Error('oda gun not found');
+  if (!oda || !oda.gun) throw new Error('oda gun not found');
 
-  const texture = oda.gun.assets.impact;
-
-  const size = 32;
-  const textures = Array.from({ length: 5 }, (_, i) => {
+  let size = 32;
+  const shotHitTextures = Array.from({ length: 5 }, (_, i) => {
     const t = new PIXI.Texture({
-      source: texture.source,
+      source: oda.gun?.assets.impact.source,
       frame: new PIXI.Rectangle(size * i, 0, size, size),
     });
     t.source.scaleMode = 'nearest';
@@ -24,7 +23,31 @@ export const createGunExplosianSystem = (di: IDiContainer): ISystem => {
 
   bus.on('shotHit', (e) => {
     if (!oda) return;
-    const anim = new PIXI.AnimatedSprite({ textures });
+    const anim = new PIXI.AnimatedSprite({ textures: shotHitTextures });
+    anim.animationSpeed = 0.35;
+    gameRef.addChild(anim);
+    anim.position.set(oda.isFacingRight ? e.area.left - 15 : e.area.right - 15, e.area.y);
+    anim.zIndex = 9999;
+    anim.gotoAndPlay(0);
+    anim.loop = false;
+    setTimeout(() => {
+      gameRef.removeChild(anim);
+    }, 150);
+  });
+
+  size = 16;
+  const shotMissTextures = Array.from({ length: 5 }, (_, i) => {
+    const t = new PIXI.Texture({
+      source: assetLoader.getTexture('missedShot').source,
+      frame: new PIXI.Rectangle(size * i, 0, size, size),
+    });
+    t.source.scaleMode = 'nearest';
+    return t;
+  });
+
+  bus.on('shotMiss', (e) => {
+    if (!oda) return;
+    const anim = new PIXI.AnimatedSprite({ textures: shotMissTextures });
     anim.animationSpeed = 0.35;
     gameRef.addChild(anim);
     anim.position.set(oda.isFacingRight ? e.area.left - 15 : e.area.right - 15, e.area.y);

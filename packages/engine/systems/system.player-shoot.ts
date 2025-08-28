@@ -181,6 +181,13 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
           duration: 250,
           magnitude: 8,
         });
+      } else {
+        const furthestRect = rectArr.reduce((prev, curr) => {
+          const prevDist = Math.abs(oda.center.x - prev.x);
+          const currDist = Math.abs(oda.center.x - curr.x);
+          return prevDist > currDist ? prev : curr;
+        });
+        bus.fire('shotMiss', { gunName: oda.gun.name, area: furthestRect });
       }
       // applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun })
     },

@@ -1,4 +1,5 @@
 import odaIdleUrl from '@package/assets/images/actors/player/oda_idle_anim_2.png';
+import missedShotUrl from '@package/assets/images/actors/weapons/missed-shot.png';
 import rifle_1_url from '@package/assets/images/actors/weapons/rifle-1.png';
 import rifle_1_impact_url from '@package/assets/images/actors/weapons/rifle-1-explosian.png';
 import rifle_1_flash_url from '@package/assets/images/actors/weapons/rifle-1-flash.png';
@@ -13,6 +14,7 @@ import odaHudIconUrl from '@package/assets/images/ui/oda-hud-icon.png';
 import atlasDemoUrl from '@package/assets/levels/demo/Background_CityRuins_Streets.png';
 import bg1Url from '@package/assets/levels/demo/bg-1.png';
 import fg1Url from '@package/assets/levels/demo/fg-1.png';
+
 import * as PIXI from 'pixi.js';
 
 const assetMap = {
@@ -31,6 +33,7 @@ const assetMap = {
   shotty1Icon: shotty_1_icon_url,
   weirdGun1: weird_gun_1_url,
   weirdGun1Icon: weird_gun_1_icon_url,
+  missedShot: missedShotUrl,
 };
 
 export const assetFilePath = [
@@ -49,6 +52,7 @@ export const assetFilePath = [
   'weirdGun1',
   'weirdGun1Icon',
   'odaHudIcon',
+  'missedShot',
 ] as const;
 export type AssetName = (typeof assetFilePath)[number];
 
@@ -72,8 +76,17 @@ export const createAssetLoader = (): IAssetLoader => {
   assertNoMissingAssetName();
 
   return {
-    createSprite: (name: AssetName) => new PIXI.Sprite(textures[name]),
-    getTexture: (name: AssetName) => textures[name],
+    createSprite: (name: AssetName) => {
+      const texture = textures[name];
+      if (!texture) throw new Error(`asset was not preloaded: "${name}"`);
+      const result = new PIXI.Sprite(texture);
+      return result;
+    },
+    getTexture: (name: AssetName) => {
+      const result = textures[name];
+      if (!result) throw new Error(`asset was not preloaded: "${name}"`);
+      return textures[name];
+    },
     preload: async (...assetNames: AssetName[]) => {
       PIXI.Assets.reset();
       for (const key of assetNames) {
