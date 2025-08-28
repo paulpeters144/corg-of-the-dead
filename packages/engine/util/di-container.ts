@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { createEntityStore, type IEntityStore } from '../entity/entity.store';
+import { createGunFactory, type IGunFactory } from '../factory/factory.weapon';
 import { createSceneEngine, type ISceneEngine } from '../scenes/scene-engine';
 import { createSystemAgg, type ISystemAgg } from '../systems/system.agg';
 import { createAssetLoader, type IAssetLoader } from './asset-loader';
@@ -7,7 +8,6 @@ import { createCamera, type ICamera } from './camera';
 import { createInputController, type IInput } from './control/input.control';
 import { createEventBus, type IEventBus } from './event-bus';
 import { getGameConstants, type IGameConstants } from './game.constants';
-import { createGunFactory, type IGunFactory } from '../factory/factory.weapon';
 
 export interface IDiContainer {
   appRef: () => PIXI.Application;
@@ -88,10 +88,10 @@ const diContainer = (): IDiContainer => {
 
   const gunFactory = () => {
     if (!_gunFactory) {
-      _gunFactory = createGunFactory(assetLoader())
+      _gunFactory = createGunFactory(assetLoader());
     }
     return _gunFactory;
-  }
+  };
 
   const sceneEngine = () => {
     if (!_sceneEngine) {

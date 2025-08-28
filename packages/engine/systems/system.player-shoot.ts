@@ -1,13 +1,11 @@
-import * as PIXI from 'pixi.js'
+import * as PIXI from 'pixi.js';
 import type { IOdaGun } from '../entity/eneity.oda-gun';
 import { OdaEntity } from '../entity/entity.oda';
-import type { IInput } from '../util/control/input.control';
-import type { IDiContainer } from '../util/di-container';
-import type { IEventBus } from '../util/event-bus';
-import type { ISystem } from './system.agg';
 import type { IEntityStore } from '../entity/entity.store';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
-import type { Entity } from '../entity/entity';
+import type { IInput } from '../util/control/input.control';
+import type { IDiContainer } from '../util/di-container';
+import type { ISystem } from './system.agg';
 
 // bus.fire('camShake', {
 //   duration: ,
@@ -16,23 +14,21 @@ import type { Entity } from '../entity/entity';
 
 const createRectangleGraphic = (props: {
   range: number;
-  faceDirection: "right" | "left";
+  faceDirection: 'right' | 'left';
   size: number;
   spread: number;
   oda: OdaEntity;
 }) => {
   const { range, oda, faceDirection, size, spread } = props;
   if (spread % 2 === 0) {
-    throw Error("spread must be an odd number");
+    throw Error('spread must be an odd number');
   }
 
   const rectArr: PIXI.Rectangle[] = [];
   for (let i = 0; i < range; i++) {
     const currentSpread = 1 + Math.floor(((spread - 1) * i) / (range - 1));
     const halfSpread = Math.floor(currentSpread / 2);
-    const x = faceDirection === "right"
-      ? i * (size + 1)
-      : -i * (size + 1);
+    const x = faceDirection === 'right' ? i * (size + 1) : -i * (size + 1);
     for (let ii = -halfSpread; ii <= halfSpread; ii++) {
       const rect = new PIXI.Rectangle(oda.center.x + x, oda.center.y, size, size);
       rectArr.push(rect);
@@ -54,8 +50,8 @@ const createOdaGunEvent = (odaGun: IOdaGun) => {
     range: odaGun.range,
     spread: odaGun.spread,
     animationSpeed: odaGun.animationSpeed,
-  }
-}
+  };
+};
 
 let shotFired = false;
 let lastShot = 0;
@@ -97,20 +93,14 @@ const _handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boole
   return false;
 };
 
-const applyDebugGraphics = (props: {
-  gameRef: PIXI.Container,
-  rectArea: PIXI.Rectangle[],
-  odaGun: IOdaGun,
-}) => {
-  const { gameRef, rectArea, odaGun } = props;
+const _applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: PIXI.Rectangle[]; odaGun: IOdaGun }) => {
+  const { gameRef, rectArea } = props;
   const graphicArea: PIXI.Graphics[] = [];
 
   for (let i = 0; i < rectArea.length; i++) {
     const area = rectArea[i];
     const { x, y, width, height } = area;
-    const graphic = new PIXI.Graphics()
-      .rect(x, y, width, height)
-      .fill({ color: 'green' });
+    const graphic = new PIXI.Graphics().rect(x, y, width, height).fill({ color: 'green' });
     graphicArea.push(graphic);
   }
 
@@ -118,30 +108,25 @@ const applyDebugGraphics = (props: {
 
   setTimeout(() => {
     gameRef.removeChild(...graphicArea);
-  }, 3000)
-}
+  }, 3000);
+};
 
-const handleShotDamage = (props: {
-  oda: OdaEntity,
-  rangeArea: PIXI.Rectangle[],
-  entityStore: IEntityStore,
-}) => {
+const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; entityStore: IEntityStore }) => {
   const { oda, rangeArea, entityStore } = props;
 
-  const hittableEntities = [...entityStore.getAll(TrafficDrumEntity)]
-    .sort((a, b) => {
-      const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
-      const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
-      return distA - distB;
-    })
+  const hittableEntities = [...entityStore.getAll(TrafficDrumEntity)].sort((a, b) => {
+    const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
+    const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
+    return distA - distB;
+  });
 
-  const hitEntity = hittableEntities.find(hittableEntity =>
-    rangeArea.some(areaRect => areaRect.intersects(hittableEntity.hitRect))
+  const hitEntity = hittableEntities.find((hittableEntity) =>
+    rangeArea.some((areaRect) => areaRect.intersects(hittableEntity.hitRect)),
   );
 
-  let hitAreaRect: PIXI.Rectangle | undefined;
+  let _hitAreaRect: PIXI.Rectangle | undefined;
   if (hitEntity) {
-    hitAreaRect = rangeArea.find(rect => rect.intersects(hitEntity.hitRect));
+    _hitAreaRect = rangeArea.find((rect) => rect.intersects(hitEntity.hitRect));
   }
 
   const died = hitEntity?.recieveDamage(oda.gun?.damage || 0);
@@ -150,7 +135,7 @@ const handleShotDamage = (props: {
   }
 
   return hitEntity?.hitRect;
-}
+};
 
 export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
   const input = di.input();
@@ -168,16 +153,16 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
       if (!oda.gun) return;
       let shotFired = false;
       if (oda.gun.isAutomatic) {
-        shotFired = _handleAutomaticFiring({ oda: oda, input: input, });
+        shotFired = _handleAutomaticFiring({ oda: oda, input: input });
       }
       if (!oda.gun.isAutomatic) {
-        shotFired = _handleNonAutomaticFiring({ oda: oda, input: input, });
+        shotFired = _handleNonAutomaticFiring({ oda: oda, input: input });
       }
 
       if (!shotFired) return;
 
       oda.gun.ammo--;
-      bus.fire('odaShot', createOdaGunEvent(oda.gun))
+      bus.fire('odaShot', createOdaGunEvent(oda.gun));
       const flash = assetLoader.createSprite('rifle1Flash');
       applyGunFlash({ oda, gameRef, flash });
 
@@ -187,29 +172,29 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         size: 15,
         oda,
         spread: 1,
-        faceDirection: isFacingRight ? "right" : "left",
+        faceDirection: isFacingRight ? 'right' : 'left',
       });
-      const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore })
+      const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
       if (hitArea) {
         bus.fire('shotHit', { gunName: oda.gun.name, area: hitArea });
         bus.fire('camShake', {
           duration: 250,
           magnitude: 8,
-        })
+        });
       }
       // applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun })
     },
   };
-}
-
-  ;
-const applyGunFlash = (props: { oda: OdaEntity, flash: PIXI.Sprite, gameRef: PIXI.Container }) => {
+};
+const applyGunFlash = (props: { oda: OdaEntity; flash: PIXI.Sprite; gameRef: PIXI.Container }) => {
   const { oda, flash, gameRef } = props;
 
   const odaGunRect = oda.gun?.rect;
   if (odaGunRect) {
-    flash.y = odaGunRect.top + (odaGunRect.height * .5 - flash.height * .5);
-    setTimeout(() => { gameRef.removeChild(flash) }, 75);
+    flash.y = odaGunRect.top + (odaGunRect.height * 0.5 - flash.height * 0.5);
+    setTimeout(() => {
+      gameRef.removeChild(flash);
+    }, 75);
     if (oda.isFacingRight) {
       flash.x = odaGunRect.right;
     } else {
@@ -217,8 +202,8 @@ const applyGunFlash = (props: { oda: OdaEntity, flash: PIXI.Sprite, gameRef: PIX
       flash.scale.set(-1, 1);
       flash.x -= flash.width;
     }
-    flash.zIndex = 9999
+    flash.zIndex = 9999;
 
     gameRef.addChild(flash);
   }
-}
+};

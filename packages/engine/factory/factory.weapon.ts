@@ -1,8 +1,8 @@
-import { OdaGunEntity } from "../entity/eneity.oda-gun";
-import type { IAssetLoader } from "../util/asset-loader";
+import { OdaGunEntity } from '../entity/eneity.oda-gun';
+import type { IAssetLoader } from '../util/asset-loader';
 
 interface CreateGunProps {
-  name: "rifle" | "shotgun",
+  name: 'rifle' | 'shotgun';
 }
 
 export interface IGunFactory {
@@ -10,9 +10,8 @@ export interface IGunFactory {
 }
 
 export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
-
   const create = (props: CreateGunProps) => {
-    if (props.name === "rifle") {
+    if (props.name === 'rifle') {
       return new OdaGunEntity({
         sprite: assetLoader.createSprite('rifle1'),
         icon: assetLoader.createSprite('rifle1Icon'),
@@ -24,9 +23,9 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         spread: 1,
         animationSpeed: 0.5,
         name: props.name,
-      })
+      });
     }
-    if (props.name === "shotgun") {
+    if (props.name === 'shotgun') {
       return new OdaGunEntity({
         sprite: assetLoader.createSprite('shotty1'),
         icon: assetLoader.createSprite('shotty1Icon'),
@@ -38,10 +37,10 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         spread: 5,
         animationSpeed: 0.15,
         name: props.name,
-      })
+      });
     }
-    throw new Error(`unknonw gun: ${props.name}`)
-  }
+    throw new Error(`unknonw gun: ${props.name}`);
+  };
 
-  return { create }
-}
+  return { create };
+};

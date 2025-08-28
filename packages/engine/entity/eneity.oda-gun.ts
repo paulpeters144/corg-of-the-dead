@@ -1,11 +1,11 @@
-import * as PIXI from 'pixi.js';
+import type * as PIXI from 'pixi.js';
 import { Entity } from './entity';
 
-export type GunName = "rifle" | "shotgun";
+export type GunName = 'rifle' | 'shotgun';
 
 export interface IOdaGun {
   rect: PIXI.Rectangle;
-  sprite: PIXI.Sprite
+  sprite: PIXI.Sprite;
   icon: PIXI.Sprite;
   name: GunName;
   ammo: number;
@@ -19,7 +19,7 @@ export interface IOdaGun {
 
 interface gunProps2 {
   sprite: PIXI.Sprite;
-  icon: PIXI.Sprite,
+  icon: PIXI.Sprite;
   name: GunName;
   ammo: number;
   fireRate: number;

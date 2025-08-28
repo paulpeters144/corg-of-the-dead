@@ -70,11 +70,18 @@ export class TrafficDrumEntity extends Entity {
   get hitRect(): PIXI.Rectangle {
     const anim = this.anim;
     const xBuffer = 10;
-    const yBuffer = this.anim.currentFrame === 0 ? 1 :
-      this.anim.currentFrame === 1 ? 5 :
-        this.anim.currentFrame === 2 ? 5 :
-          this.anim.currentFrame === 3 ? 5 :
-            this.anim.currentFrame === 4 ? 10 : 0;
+    const yBuffer =
+      this.anim.currentFrame === 0
+        ? 1
+        : this.anim.currentFrame === 1
+          ? 5
+          : this.anim.currentFrame === 2
+            ? 5
+            : this.anim.currentFrame === 3
+              ? 5
+              : this.anim.currentFrame === 4
+                ? 10
+                : 0;
     return new PIXI.Rectangle(
       this.ctr.x + xBuffer * 0.6,
       this.ctr.y + yBuffer,
@@ -82,7 +89,6 @@ export class TrafficDrumEntity extends Entity {
       anim.height - yBuffer,
     );
   }
-
 
   get center(): Position {
     return {

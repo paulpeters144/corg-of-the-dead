@@ -1,20 +1,19 @@
-import * as PIXI from 'pixi.js';
-
 import odaIdleUrl from '@package/assets/images/actors/player/oda_idle_anim_2.png';
+import rifle_1_url from '@package/assets/images/actors/weapons/rifle-1.png';
+import rifle_1_explosian_url from '@package/assets/images/actors/weapons/rifle-1-explosian.png';
+import rifle_1_flash_url from '@package/assets/images/actors/weapons/rifle-1-flash.png';
+import rifle_1_icon_url from '@package/assets/images/actors/weapons/rifle-1-icon.png';
 import shotty_1_Url from '@package/assets/images/actors/weapons/shotty-1.png';
 import shotty_1_icon_url from '@package/assets/images/actors/weapons/shotty-1-icon.png';
-import rifle_1_url from '@package/assets/images/actors/weapons/rifle-1.png';
-import rifle_1_icon_url from '@package/assets/images/actors/weapons/rifle-1-icon.png';
-import rifle_1_flash_url from '@package/assets/images/actors/weapons/rifle-1-flash.png';
-import rifle_1_explosian_url from '@package/assets/images/actors/weapons/rifle-1-explosian.png';
 import weird_gun_1_url from '@package/assets/images/actors/weapons/weird-gun-1.png';
 import weird_gun_1_icon_url from '@package/assets/images/actors/weapons/weird-gun-1-icon.png';
 import bunnyUrl from '@package/assets/images/bunny.png';
 import trafficDrumUrl from '@package/assets/images/objects/traffic_drum.png';
+import odaHudIconUrl from '@package/assets/images/ui/oda-hud-icon.png';
 import atlasDemoUrl from '@package/assets/levels/demo/Background_CityRuins_Streets.png';
 import bg1Url from '@package/assets/levels/demo/bg-1.png';
 import fg1Url from '@package/assets/levels/demo/fg-1.png';
-import odaHudIconUrl from '@package/assets/images/ui/oda-hud-icon.png'
+import * as PIXI from 'pixi.js';
 
 const assetMap = {
   bunny: bunnyUrl,

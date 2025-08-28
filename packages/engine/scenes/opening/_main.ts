@@ -1,10 +1,13 @@
 import * as PIXI from 'pixi.js';
 import { OdaGunEntity } from '../../entity/eneity.oda-gun';
 import { CameraOrbEntity } from '../../entity/entity.camera-orb';
+import { HeadsUpDisplayEntity } from '../../entity/entity.hud';
 import { OdaEntity } from '../../entity/entity.oda';
 import { TrafficDrumEntity } from '../../entity/entity.traffic-drum';
 import { createCamControlSystem } from '../../systems/system.cam-control';
 import { createCamOrbSystem } from '../../systems/system.cam-orb';
+import { createGunExplosianSystem } from '../../systems/system.gun-explosian';
+import { createHeadsUpDisplaySystem } from '../../systems/system.heads-up-display';
 import { createMoveOdaSystem } from '../../systems/system.move-oda';
 import { BgEntity, createBackgrounParalaxSystem } from '../../systems/system.parallax';
 import { createPlayerShootSystem } from '../../systems/system.player-shoot';
@@ -15,9 +18,6 @@ import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
-import { HeadsUpDisplayEntity } from '../../entity/entity.hud';
-import { createHeadsUpDisplaySystem } from '../../systems/system.heads-up-display';
-import { createGunExplosianSystem } from '../../systems/system.gun-explosian';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -42,7 +42,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         'shotty1',
         'shotty1Icon',
         'weirdGun1',
-        'odaHudIcon'
+        'odaHudIcon',
       );
 
       entityStore.add(
@@ -67,12 +67,10 @@ export const openingScene = (di: IDiContainer): IScene => {
         new HeadsUpDisplayEntity({
           odaIcon: assetLoader.createSprite('odaHudIcon'),
           weaponIcon: odasGun.icon,
-        })
+        }),
       );
 
-      entityStore.first(HeadsUpDisplayEntity)?.setAmmo(
-        entityStore.first(OdaGunEntity)?.ammo || 0
-      )
+      entityStore.first(HeadsUpDisplayEntity)?.setAmmo(entityStore.first(OdaGunEntity)?.ammo || 0);
 
       const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y);
       for (let i = 0; i < sortedTrafficDrums.length; i++) {
@@ -130,7 +128,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => { },
+    dispose: () => {},
   };
 };
 

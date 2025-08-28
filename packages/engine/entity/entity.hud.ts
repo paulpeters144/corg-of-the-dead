@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
-import { Entity } from './entity';
 import { ZLayer } from '../types/enums';
+import { Entity } from './entity';
 
 interface HudProps {
   odaIcon: PIXI.Sprite;
@@ -26,12 +26,12 @@ export class HeadsUpDisplayEntity extends Entity {
 
     this.headBarMainGraphic = new PIXI.Graphics()
       .rect(0, 0, this.maxHealthBarWidth, 8)
-      .fill({ color: 'yellow', alpha: 0.8 })
+      .fill({ color: 'yellow', alpha: 0.8 });
 
     this.maxHealthGraphic = new PIXI.Graphics()
       .rect(0, 0, this.maxHealthBarWidth, 10)
       .fill({ color: 'yellow', alpha: 0.2 })
-      .stroke({ width: 2.15, color: 'white' })
+      .stroke({ width: 2.15, color: 'white' });
 
     this.weaponIcon = props.weaponIcon;
     this.weaponIconBgGraphic = new PIXI.Graphics()
@@ -45,7 +45,7 @@ export class HeadsUpDisplayEntity extends Entity {
         fill: { color: 'white' },
       }),
       text: '89',
-    })
+    });
     this.ammoText.resolution = 4;
 
     ctr.addChild(
@@ -58,16 +58,15 @@ export class HeadsUpDisplayEntity extends Entity {
     );
 
     this.maxHealthGraphic.x = this.odaIcon.x + this.odaIcon.width;
-    this.maxHealthGraphic.y = 8
-    this.headBarMainGraphic.x = this.maxHealthGraphic.x
+    this.maxHealthGraphic.y = 8;
+    this.headBarMainGraphic.x = this.maxHealthGraphic.x;
     this.headBarMainGraphic.y = this.maxHealthGraphic.y + 1;
-
 
     this.weaponIconBgGraphic.y = this.odaIcon.y + this.odaIcon.height + 3;
     this.weaponIconBgGraphic.x = 3;
 
-    this.weaponIcon.y = this.weaponIconBgGraphic.y + ((this.weaponIconBgGraphic.height - this.weaponIcon.height) / 2);
-    this.weaponIcon.x = this.weaponIconBgGraphic.x + ((this.weaponIconBgGraphic.width - this.weaponIcon.width) / 2);
+    this.weaponIcon.y = this.weaponIconBgGraphic.y + (this.weaponIconBgGraphic.height - this.weaponIcon.height) / 2;
+    this.weaponIcon.x = this.weaponIconBgGraphic.x + (this.weaponIconBgGraphic.width - this.weaponIcon.width) / 2;
 
     this.ammoText.x = 25;
     this.ammoText.y = 30;
@@ -80,6 +79,6 @@ export class HeadsUpDisplayEntity extends Entity {
   }
 
   setAmmo(ammo: number | string) {
-    this.ammoText.text = `${ammo}`
+    this.ammoText.text = `${ammo}`;
   }
 }

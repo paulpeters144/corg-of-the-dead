@@ -20,8 +20,8 @@ export interface IEventBus {
 export type EventMap = {
   eventName: { count: number };
   shotFired: { cords: PIXI.Rectangle; facingRight: boolean };
-  odaShot: Omit<IOdaGun, 'icon' | 'sprite'>,
-  shotHit: { gunName: string; area: PIXI.Rectangle },
+  odaShot: Omit<IOdaGun, 'icon' | 'sprite'>;
+  shotHit: { gunName: string; area: PIXI.Rectangle };
   camShake: {
     duration?: number;
     magnitude?: number;

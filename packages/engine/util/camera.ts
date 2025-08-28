@@ -51,7 +51,7 @@ export const createCamera = (
       viewport.filters = filters;
     },
     clamp: (options?: IClampOptions) => viewport.clamp(options),
-    update: (delta: number) => viewport.update(delta * 1.15)
+    update: (delta: number) => viewport.update(delta * 1.15),
   };
 };
 
