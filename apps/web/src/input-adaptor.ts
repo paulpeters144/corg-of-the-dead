@@ -28,7 +28,7 @@ export const adaptToWeb = (input: IInput) => {
         input.jump.press();
         break;
       case 'x':
-        input.run.press();
+        input.walk.press();
         break;
       case 'c':
         input.shoot.press();
@@ -60,7 +60,7 @@ export const adaptToWeb = (input: IInput) => {
         input.jump.release();
         break;
       case 'x':
-        input.run.release();
+        input.walk.release();
         break;
       case 'c':
         input.shoot.release();

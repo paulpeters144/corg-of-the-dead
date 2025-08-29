@@ -4,7 +4,7 @@ import type { Position } from '../types/types';
 import type { IOdaGun } from './eneity.oda-gun';
 import { Entity } from './entity';
 
-const spriteAnimKeys = ['idle', 'running', 'shoot'] as const;
+const spriteAnimKeys = ['idle', 'running', 'shoot', 'walk'] as const;
 type AnimKey = (typeof spriteAnimKeys)[number];
 
 const spriteSheetRowDic: {
@@ -18,6 +18,7 @@ const spriteSheetRowDic: {
   idle: { row: 0, frames: 8, animSpeed: 0.025, idx: 0 },
   running: { row: 1, frames: 8, animSpeed: 0.15, idx: 0 },
   shoot: { row: 2, frames: 3, animSpeed: 0.15, idx: 0 },
+  walk: { row: 3, frames: 5, animSpeed: 0.12, idx: 0 }
 };
 
 export type AnimMapType = {
@@ -111,8 +112,18 @@ export class OdaEntity extends Entity {
     return this.anim.playing;
   }
 
+  get isIdle(): boolean {
+    if (this.activeAnimation !== 'idle') return false;
+    return this.anim.playing;
+  }
+
   get isShooting(): boolean {
     if (this.activeAnimation !== 'shoot') return false;
+    return this.anim.playing;
+  }
+
+  get isWalking(): boolean {
+    if (this.activeAnimation !== 'walk') return false;
     return this.anim.playing;
   }
 
@@ -142,6 +153,12 @@ export class OdaEntity extends Entity {
   setRunning() {
     this._setAllAnimsInvisible();
     this.ctr.children[spriteSheetRowDic.running.idx].visible = true;
+    this.anim.gotoAndPlay(0);
+  }
+
+  setWalking() {
+    this._setAllAnimsInvisible();
+    this.ctr.children[spriteSheetRowDic.walk.idx].visible = true;
     this.anim.gotoAndPlay(0);
   }
 

@@ -96,6 +96,27 @@ export const createSetPlayerGunPosSystem = (di: IDiContainer): ISystem => {
               break;
           }
           break;
+
+        case 'walk':
+          oda.gun.sprite.y = oda.ctr.y + 17;
+          switch (oda.anim.currentFrame) {
+            case 0:
+              oda.gun.sprite.x = oda.ctr.x + (facingRight ? 20 : 20);
+              break;
+            case 1:
+              oda.gun.sprite.x = oda.ctr.x + (facingRight ? 20 : 20);
+              break;
+            case 2:
+              oda.gun.sprite.x = oda.ctr.x + (facingRight ? 20 : 20);
+              break;
+            case 3:
+              oda.gun.sprite.x = oda.ctr.x + (facingRight ? 20 : 20);
+              break;
+            case 4:
+              oda.gun.sprite.x = oda.ctr.x + (facingRight ? 20 : 20);
+              break;
+          }
+          break;
       }
     },
   };

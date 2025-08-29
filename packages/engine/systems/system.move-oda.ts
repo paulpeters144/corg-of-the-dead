@@ -4,6 +4,78 @@ import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
+import type { IInput } from '../util/control/input.control';
+
+const createRollMechanic = (input: IInput) => {
+  let lastRoll = 0;
+
+  let lastPressUp = 0;
+  let lastPressRight = 0;
+  let lastPressDown = 0;
+  let lastPressLeft = 0;
+
+  let prevPressedUp = false;
+  let prevPressedRight = false;
+  let prevPressedDown = false;
+  let prevPressedLeft = false;
+
+  const didRoll = (): "up" | "rt" | "dn" | "lt" | undefined => {
+    if (!input.walk.is.pressed) return undefined;
+
+    const now = performance.now();
+    if (now - lastRoll < 100) return;
+
+    if (input.up.is.pressed && !prevPressedUp) {
+      if (now - lastPressUp < 250) {
+        lastRoll = now;
+        lastPressUp = 0;
+        prevPressedUp = true;
+        return "up";
+      }
+      lastPressUp = now;
+    }
+    prevPressedUp = input.up.is.pressed;
+
+    if (input.right.is.pressed && !prevPressedRight) {
+      if (now - lastPressRight < 250) {
+        lastRoll = now;
+        lastPressRight = 0;
+        prevPressedRight = true;
+        return "rt";
+      }
+      lastPressRight = now;
+    }
+    prevPressedRight = input.right.is.pressed;
+
+    if (input.down.is.pressed && !prevPressedDown) {
+      if (now - lastPressDown < 250) {
+        lastRoll = now;
+        lastPressDown = 0;
+        prevPressedDown = true;
+        return "dn";
+      }
+      lastPressDown = now;
+    }
+    prevPressedDown = input.down.is.pressed;
+
+    if (input.left.is.pressed && !prevPressedLeft) {
+      if (now - lastPressLeft < 250) {
+        lastRoll = now;
+        lastPressLeft = 0;
+        prevPressedLeft = true;
+        return "lt";
+      }
+      lastPressLeft = now;
+    }
+    prevPressedLeft = input.left.is.pressed;
+
+    return undefined;
+  };
+
+  return { didRoll };
+};
+
+
 
 export const collides = (rect1: PIXI.Rectangle) => {
   const topOf = (rect2: PIXI.Rectangle): boolean => {
@@ -49,6 +121,7 @@ interface IUpdatePosProps {
     right: boolean;
     left: boolean;
     down: boolean;
+    walking: boolean;
   };
   speed: { x: number; y: number };
   delta: number;
@@ -61,11 +134,12 @@ export const getNextMoveAmount = (props: IUpdatePosProps): PIXI.Point | null => 
   const nextPos = entityRect.clone();
 
   // --- Horizontal movement first ---
+  let moveAmount = speed.x * delta * (input.walking ? 0.6 : 1)
   if (input.right) {
-    nextPos.x += speed.x * delta;
+    nextPos.x += moveAmount;
   }
   if (input.left) {
-    nextPos.x -= speed.x * delta;
+    nextPos.x -= moveAmount;
   }
 
   for (const rect of collideArea.filter((c) => c.intersects(nextPos))) {
@@ -78,11 +152,12 @@ export const getNextMoveAmount = (props: IUpdatePosProps): PIXI.Point | null => 
   }
 
   // --- Vertical movement second ---
+  moveAmount = speed.y * delta * (input.walking ? 0.6 : 1)
   if (input.down) {
-    nextPos.y += speed.y * delta;
+    nextPos.y += moveAmount;
   }
   if (input.up) {
-    nextPos.y -= speed.y * delta;
+    nextPos.y -= moveAmount;
   }
 
   for (const rect of collideArea.filter((c) => c.intersects(nextPos))) {
@@ -114,17 +189,18 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
   const oda = entityStore.first(OdaEntity);
   if (!oda) throw new Error('no Oda for move-oda-system');
 
+  const rollMechanic = createRollMechanic(input);
+
   return {
     name: () => 'move-oda-system',
     update: (delta: number) => {
-      if (input.shoot.is.pressed) return;
+      // if (input.shoot.is.pressed) return;
 
       const upPressed = input.up.is.pressed && !input.down.is.pressed;
       const dnPressed = input.down.is.pressed && !input.up.is.pressed;
       const rtPressed = input.right.is.pressed && !input.left.is.pressed;
       const ltPressed = input.left.is.pressed && !input.right.is.pressed;
 
-      const isIdle = !upPressed && !dnPressed && !rtPressed && !ltPressed;
 
       const collideArea = entityStore
         .getAll(BoundaryBox)
@@ -154,6 +230,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
           right: rtPressed,
           down: dnPressed,
           left: ltPressed,
+          walking: oda.isWalking,
         },
         speed: {
           x: 15,
@@ -166,20 +243,42 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
         oda.move(nextMoveAmount);
       }
 
+      const rollDirection = rollMechanic.didRoll();
+      if (rollDirection) {
+        console.log('[rollDirection]', rollDirection)
+      }
+
+      if (!upPressed && !dnPressed && !rtPressed && !ltPressed) {
+        oda.setIdle();
+        return;
+      }
+      if (oda.isWalking && input.walk.is.pressed) return;
+
       const moved = !!nextMoveAmount;
 
-      if (moved && !oda.isRunning) {
+      const isWalking = oda.isWalking;
+      const isRunning = oda.isRunning;
+      const isMoving = isWalking || isRunning;
+      const isShooting = input.shoot.is.pressed;
+
+      if (!moved && isMoving) {
+        oda.setIdle();
+      } else if (moved && !isMoving && !isShooting) {
+        oda.setRunning();
+      } else if (moved && isShooting && (isRunning || oda.isIdle)) {
+        oda.setWalking();
+      } else if (!isShooting && oda.isWalking) {
         oda.setRunning();
       }
-      if (!moved && oda.isRunning) {
-        oda.setIdle();
-      }
-      if (isIdle && oda.isRunning) {
-        oda.setIdle();
+
+      if (isRunning) {
+        if (ltPressed && oda.isFacingRight) oda.faceLeft();
+        if (rtPressed && !oda.isFacingRight) oda.faceRight();
       }
 
-      if (ltPressed && oda.isFacingRight) oda.faceLeft();
-      if (rtPressed && !oda.isFacingRight) oda.faceRight();
+      if (input.walk.is.pressed && !oda.isWalking) {
+        oda.setWalking();
+      }
     },
   };
 };

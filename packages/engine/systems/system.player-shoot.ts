@@ -7,11 +7,6 @@ import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
 
-// bus.fire('camShake', {
-//   duration: ,
-//   magnitude: 3,
-// })
-
 const createRectangleGraphic = (props: {
   range: number;
   faceDirection: 'right' | 'left';
@@ -85,7 +80,7 @@ const _handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boole
   if (now - lastShot < oda.gun.fireRate) return false;
 
   if (input.shoot.is.pressed && !oda.isShooting) {
-    oda.setShoot();
+    // oda.setShoot();
     lastShot = performance.now();
 
     return true;
@@ -93,7 +88,7 @@ const _handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boole
   return false;
 };
 
-const _applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: PIXI.Rectangle[]; odaGun: IOdaGun }) => {
+const applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: PIXI.Rectangle[]; odaGun: IOdaGun }) => {
   const { gameRef, rectArea } = props;
   const graphicArea: PIXI.Graphics[] = [];
 
@@ -201,11 +196,11 @@ const applyGunFlash = (props: { oda: OdaEntity; flash: PIXI.Sprite; gameRef: PIX
     flash.y = odaGunRect.top + (odaGunRect.height * 0.5 - flash.height * 0.5);
     setTimeout(() => {
       gameRef.removeChild(flash);
-    }, 75);
+    }, 50);
     if (oda.isFacingRight) {
-      flash.x = odaGunRect.right;
+      flash.x = odaGunRect.right + 3;
     } else {
-      flash.x = odaGunRect.left;
+      flash.x = odaGunRect.left - 5;
       flash.scale.set(-1, 1);
       flash.x -= flash.width;
     }

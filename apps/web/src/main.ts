@@ -52,7 +52,7 @@ const main = () => {
   };
 
   const resizer = () => resizeApp({ appRef, canvas, virtSize });
-  setTimeout(resizer, 150);
+  window.onload = () => setTimeout(resizer, 150);
   window.onresize = () => resizer();
 
   gameEngine.run();
