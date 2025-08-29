@@ -1,17 +1,6 @@
 import { createButtonState, type IBtnState } from './button-state';
 
-const inputEventArr = [
-  'up',
-  'right',
-  'down',
-  'left',
-  'run',
-  'shoot',
-  'jump',
-  'walk',
-  'start',
-  'select',
-] as const;
+const inputEventArr = ['up', 'right', 'down', 'left', 'run', 'shoot', 'jump', 'walk', 'start', 'select'] as const;
 
 type inputType = (typeof inputEventArr)[number];
 

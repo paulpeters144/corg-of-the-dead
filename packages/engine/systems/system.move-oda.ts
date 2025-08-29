@@ -2,9 +2,9 @@ import * as PIXI from 'pixi.js';
 import { BoundaryBox } from '../entity/entity.boundary-box';
 import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
+import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
-import type { IInput } from '../util/control/input.control';
 
 const createRollMechanic = (input: IInput) => {
   let lastRoll = 0;
@@ -19,7 +19,7 @@ const createRollMechanic = (input: IInput) => {
   let prevPressedDown = false;
   let prevPressedLeft = false;
 
-  const didRoll = (): "up" | "rt" | "dn" | "lt" | undefined => {
+  const didRoll = (): 'up' | 'rt' | 'dn' | 'lt' | undefined => {
     if (!input.walk.is.pressed) return undefined;
 
     const now = performance.now();
@@ -30,7 +30,7 @@ const createRollMechanic = (input: IInput) => {
         lastRoll = now;
         lastPressUp = 0;
         prevPressedUp = true;
-        return "up";
+        return 'up';
       }
       lastPressUp = now;
     }
@@ -41,7 +41,7 @@ const createRollMechanic = (input: IInput) => {
         lastRoll = now;
         lastPressRight = 0;
         prevPressedRight = true;
-        return "rt";
+        return 'rt';
       }
       lastPressRight = now;
     }
@@ -52,7 +52,7 @@ const createRollMechanic = (input: IInput) => {
         lastRoll = now;
         lastPressDown = 0;
         prevPressedDown = true;
-        return "dn";
+        return 'dn';
       }
       lastPressDown = now;
     }
@@ -63,7 +63,7 @@ const createRollMechanic = (input: IInput) => {
         lastRoll = now;
         lastPressLeft = 0;
         prevPressedLeft = true;
-        return "lt";
+        return 'lt';
       }
       lastPressLeft = now;
     }
@@ -74,8 +74,6 @@ const createRollMechanic = (input: IInput) => {
 
   return { didRoll };
 };
-
-
 
 export const collides = (rect1: PIXI.Rectangle) => {
   const topOf = (rect2: PIXI.Rectangle): boolean => {
@@ -134,7 +132,7 @@ export const getNextMoveAmount = (props: IUpdatePosProps): PIXI.Point | null => 
   const nextPos = entityRect.clone();
 
   // --- Horizontal movement first ---
-  let moveAmount = speed.x * delta * (input.walking ? 0.6 : 1)
+  let moveAmount = speed.x * delta * (input.walking ? 0.6 : 1);
   if (input.right) {
     nextPos.x += moveAmount;
   }
@@ -152,7 +150,7 @@ export const getNextMoveAmount = (props: IUpdatePosProps): PIXI.Point | null => 
   }
 
   // --- Vertical movement second ---
-  moveAmount = speed.y * delta * (input.walking ? 0.6 : 1)
+  moveAmount = speed.y * delta * (input.walking ? 0.6 : 1);
   if (input.down) {
     nextPos.y += moveAmount;
   }
@@ -201,7 +199,6 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
       const rtPressed = input.right.is.pressed && !input.left.is.pressed;
       const ltPressed = input.left.is.pressed && !input.right.is.pressed;
 
-
       const collideArea = entityStore
         .getAll(BoundaryBox)
         .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 150)
@@ -245,7 +242,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
 
       const rollDirection = rollMechanic.didRoll();
       if (rollDirection) {
-        console.log('[rollDirection]', rollDirection)
+        console.log('[rollDirection]', rollDirection);
       }
 
       if (!upPressed && !dnPressed && !rtPressed && !ltPressed) {

@@ -88,7 +88,7 @@ const _handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boole
   return false;
 };
 
-const applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: PIXI.Rectangle[]; odaGun: IOdaGun }) => {
+const _applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: PIXI.Rectangle[]; odaGun: IOdaGun }) => {
   const { gameRef, rectArea } = props;
   const graphicArea: PIXI.Graphics[] = [];
 
