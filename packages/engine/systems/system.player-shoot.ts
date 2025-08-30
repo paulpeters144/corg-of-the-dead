@@ -12,9 +12,9 @@ const createRectangleGraphic = (props: {
   faceDirection: 'right' | 'left';
   size?: number;
   spread: number;
-  oda: OdaEntity;
+  shotFromPos: PIXI.Point;
 }) => {
-  const { range, oda, faceDirection, size = 8, spread } = props;
+  const { range, shotFromPos, faceDirection, size = 12, spread } = props;
 
   if (spread % 2 === 0) {
     throw Error('spread must be an odd number');
@@ -23,7 +23,7 @@ const createRectangleGraphic = (props: {
   const rectArr: PIXI.Rectangle[] = [];
 
   for (let i = 1; i < range; i++) {
-    if (i < 4) continue;
+    if (i < 3) continue;
 
     const currentSpread = 1 + Math.floor(((spread - 1) * i) / (range - 1));
     const halfSpread = Math.floor(currentSpread / 2);
@@ -31,8 +31,8 @@ const createRectangleGraphic = (props: {
     const x = faceDirection === 'right' ? i * (size + 1) : -i * (size + 1);
 
     for (let ii = -halfSpread; ii <= halfSpread; ii++) {
-      const y = oda.center.y + ii * (size + 1); // <-- apply vertical offset
-      const rect = new PIXI.Rectangle(oda.center.x + x, y, size, size);
+      const y = shotFromPos.y + ii * (size + 1); // <-- apply vertical offset
+      const rect = new PIXI.Rectangle(shotFromPos.x + x, y, size, size);
       rectArr.push(rect);
     }
   }
@@ -125,11 +125,6 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
     rangeArea.some((areaRect) => areaRect.intersects(hittableEntity.hitRect)),
   );
 
-  let _hitAreaRect: PIXI.Rectangle | undefined;
-  if (hitEntity) {
-    _hitAreaRect = rangeArea.find((rect) => rect.intersects(hitEntity.hitRect));
-  }
-
   const died = hitEntity?.recieveDamage(oda.gun?.damage || 0);
   if (hitEntity && died) {
     entityStore.remove(hitEntity);
@@ -169,24 +164,24 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
       const flash = assetLoader.createSprite('rifle1Flash');
       applyGunFlash({ oda, gameRef, flash });
 
-      bus.fire('camShake', {
-        duration: 100,
-        magnitude: 10,
-      });
+      // bus.fire('camShake', {
+      //   duration: 100,
+      //   magnitude: 5,
+      // });
       const isFacingRight = oda.isFacingRight;
       const { rectArr } = createRectangleGraphic({
-        range: 40,
-        oda,
-        spread: 9,
+        range: oda.gun.range,
+        shotFromPos: new PIXI.Point(oda.center.x, oda.center.y), // TOOD: refact Postitions to be PIXI.Points
+        spread: oda.gun.spread,
         faceDirection: isFacingRight ? 'right' : 'left',
       });
       const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
       if (hitArea) {
         bus.fire('shotHit', { gunName: oda.gun.name, area: hitArea });
-        // bus.fire('camShake', {
-        //   duration: 250,
-        //   magnitude: 8,
-        // });
+        bus.fire('camShake', {
+          duration: 100,
+          magnitude: 3,
+        });
       } else {
         const furthestRect = rectArr.reduce((prev, curr) => {
           const prevDist = Math.abs(oda.center.x - prev.x);
@@ -196,7 +191,7 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         furthestRect.y = oda.center.y;
         bus.fire('shotMiss', { gunName: oda.gun.name, area: furthestRect });
       }
-      // applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun });
+      applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun });
     },
   };
 };
@@ -208,7 +203,7 @@ const applyGunFlash = (props: { oda: OdaEntity; flash: PIXI.Sprite; gameRef: PIX
     flash.y = odaGunRect.top + (odaGunRect.height * 0.5 - flash.height * 0.5);
     setTimeout(() => {
       gameRef.removeChild(flash);
-    }, 50);
+    }, 35);
     if (oda.isFacingRight) {
       flash.x = odaGunRect.right + 3;
     } else {

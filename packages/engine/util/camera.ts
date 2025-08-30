@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import { type IAnimateOptions, type IClampOptions, type IFollowOptions, Viewport } from 'pixi-viewport';
-import type { Position } from '../types/types';
 import type { IGameConstants } from './game.constants';
 
 export const createCamera = (
@@ -32,12 +31,11 @@ export const createCamera = (
 
   return {
     animate: (options: IAnimateOptions) => viewport.animate(options),
-    centerPos: () => ({ x: viewport.center.x, y: viewport.center.y }),
+    centerPos: () => {
+      return new PIXI.Point(viewport.center.x, viewport.center.y)
+    },
     zeroPos: () => {
-      return {
-        x: viewport.left,
-        y: viewport.top,
-      };
+      return new PIXI.Point(viewport.left, viewport.top);
     },
     zoomPercent: () => viewport.scale.x,
     vpBounds: () => {
@@ -51,7 +49,6 @@ export const createCamera = (
       viewport.filters = filters;
     },
     clamp: (options?: IClampOptions) => {
-      console.log('[clamp.options]', options)
       viewport.clamp(options)
     },
     update: (delta: number) => viewport.update(delta * 1.15),
@@ -60,8 +57,8 @@ export const createCamera = (
 
 export interface ICamera {
   animate: (options: IAnimateOptions) => Viewport;
-  centerPos: () => Position;
-  zeroPos: () => Position;
+  centerPos: () => PIXI.Point;
+  zeroPos: () => PIXI.Point;
   zoomPercent: () => number;
   vpBounds: () => PIXI.Rectangle;
   follow: (ctr: PIXI.Container, opt?: IFollowOptions) => void;

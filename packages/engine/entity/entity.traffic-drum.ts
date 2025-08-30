@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
-import type { Position } from '../types/types';
 import { Entity } from './entity';
 
 const spriteAnimKeys = ['idle'] as const;
@@ -90,11 +89,10 @@ export class TrafficDrumEntity extends Entity {
     );
   }
 
-  get center(): Position {
-    return {
-      x: this.ctr.x + this.anim.width / 2,
-      y: this.ctr.y + this.anim.height / 2,
-    };
+  get center(): PIXI.Point {
+    return new PIXI.Point(
+      this.ctr.x + this.anim.width / 2,
+      this.ctr.y + this.anim.height / 2);
   }
 
   private _health: number = 100;

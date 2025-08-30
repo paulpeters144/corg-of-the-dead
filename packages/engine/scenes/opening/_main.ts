@@ -60,7 +60,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       entityStore.add(...tilemap.boundaryBoxes);
       tilemap.ctr.cullable = true;
 
-      const odasGun = gunFactory.create({ name: 'rifle' });
+      const odasGun = gunFactory.create({ name: 'shotgun' });
 
       entityStore.add(
         new OdaEntity({ spriteSheet: assetLoader.getTexture('odaIdle') }),

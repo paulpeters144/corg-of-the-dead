@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import type { Position } from '../types/types';
 import { Entity } from './entity';
 
 export class BoundaryBox extends Entity {
@@ -7,11 +6,11 @@ export class BoundaryBox extends Entity {
   public get rect(): PIXI.Rectangle {
     return new PIXI.Rectangle(this.ctr.x, this.ctr.y, this.ctr.width, this.ctr.height);
   }
-  public get center(): Position {
-    return {
-      x: this.ctr.x + this.ctr.width,
-      y: this.ctr.y + this.ctr.height,
-    };
+  public get center(): PIXI.Point {
+    return new PIXI.Point(
+      this.ctr.x + this.ctr.width,
+      this.ctr.y + this.ctr.height,
+    );
   }
 
   constructor(props: { rect: PIXI.Rectangle }) {

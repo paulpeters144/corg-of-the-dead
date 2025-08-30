@@ -2,7 +2,6 @@ import * as PIXI from 'pixi.js';
 import { BoundaryBox } from '../entity/entity.boundary-box';
 import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
-import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
 

@@ -35,7 +35,7 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
 
       if (!shaking) {
         camera.follow(orb.ctr, {
-          speed: 8,
+          speed: 5,
           acceleration: 50,
           radius: 0,
         });
@@ -46,9 +46,18 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
 
       if (elapsed >= duration) {
         shaking = false;
+
+        // Restore original clamp bounds
+        camera.clamp({
+          left: 0,
+          top: 0,
+          right: 2600,
+          bottom: 448,
+        });
+
         // Resume normal following without any offset
         camera.follow(orb.ctr, {
-          speed: 8,
+          speed: 5,
           acceleration: 50,
           radius: 0,
         });
@@ -64,7 +73,19 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
       // Get the orb's current position (where camera should be following)
       const targetPos = orb.ctr;
 
-      // Apply shake offset to the target position
+      // Option 3: Expand clamp bounds temporarily during shake
+      const originalClamp = { left: 0, top: 0, right: 2600, bottom: 448 };
+      const shakeRadius = (magnitude * 0.5) * decay;
+
+      // Expand clamp bounds by shake magnitude
+      camera.clamp({
+        left: originalClamp.left - shakeRadius,
+        top: originalClamp.top - shakeRadius,
+        right: originalClamp.right + shakeRadius,
+        bottom: originalClamp.bottom + shakeRadius,
+      });
+
+      // Apply shake offset
       camera.animate({
         position: {
           x: targetPos.x + offsetX,

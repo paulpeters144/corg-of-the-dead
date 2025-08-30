@@ -32,7 +32,7 @@ export const createGunExplosianSystem = (di: IDiContainer): ISystem => {
     anim.loop = false;
     setTimeout(() => {
       gameRef.removeChild(anim);
-    }, 150);
+    }, 145);
   });
 
   size = 16;
@@ -72,6 +72,6 @@ export const createGunExplosianSystem = (di: IDiContainer): ISystem => {
 
   return {
     name: () => 'gun-explosian-system',
-    update: (_: number) => {},
+    update: (_: number) => { },
   };
 };

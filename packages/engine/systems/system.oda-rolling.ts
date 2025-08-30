@@ -171,7 +171,6 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
   const entityStore = di.entityStore();
   const oda = entityStore.first(OdaEntity);
   if (!oda) throw new Error('no Oda for move-oda-system');
-  const rollDistance = 85
   let nextRollPos: PIXI.Point | null = null;
 
   const rollMechanic = createRollMechanic(input);
@@ -221,19 +220,19 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
       const rollDirection = rollMechanic.didRoll();
 
       if (rollDirection) oda.setRolling();
-
+      const rollDistance = 75
       switch (rollDirection) {
         case 'up':
           nextRollPos = new PIXI.Point(oda.moveRect.x, oda.moveRect.y - rollDistance);
           break;
         case 'rt':
-          nextRollPos = new PIXI.Point(oda.moveRect.x + rollDistance * 1.2, oda.moveRect.y);
+          nextRollPos = new PIXI.Point(oda.moveRect.x + rollDistance * 1.5, oda.moveRect.y);
           break;
         case 'dn':
           nextRollPos = new PIXI.Point(oda.moveRect.x, oda.moveRect.y + rollDistance);
           break;
         case 'lt':
-          nextRollPos = new PIXI.Point(oda.moveRect.x - rollDistance * 1.2, oda.moveRect.y);
+          nextRollPos = new PIXI.Point(oda.moveRect.x - rollDistance * 1.5, oda.moveRect.y);
           break;
       }
     },
