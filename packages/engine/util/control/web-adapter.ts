@@ -25,7 +25,7 @@ export const adaptToWeb = (input: IInput) => {
         //
         break;
       case 'z':
-        input.jump.press();
+        input.option.press();
         break;
       case 'x':
         input.run.press();
@@ -57,7 +57,7 @@ export const adaptToWeb = (input: IInput) => {
         //
         break;
       case 'z':
-        input.jump.release();
+        input.option.release();
         break;
       case 'x':
         input.run.release();

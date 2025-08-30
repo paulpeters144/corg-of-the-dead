@@ -116,10 +116,10 @@ describe('createInputController', () => {
   it('should allow interaction with each button state', () => {
     const controller = createInputController();
 
-    controller.jump.press();
-    expect(controller.jump.wasPressedOnce).toBe(true);
+    controller.option.press();
+    expect(controller.option.wasPressedOnce).toBe(true);
 
-    controller.jump.release();
-    expect(controller.jump.wasReleasedOnce).toBe(true);
+    controller.option.release();
+    expect(controller.option.wasReleasedOnce).toBe(true);
   });
 });
