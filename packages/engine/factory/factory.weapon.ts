@@ -1,4 +1,4 @@
-import { OdaGunEntity, type GunName } from '../entity/eneity.oda-gun';
+import { type GunName, OdaGunEntity } from '../entity/eneity.oda-gun';
 import { ZLayer } from '../types/enums';
 import type { IAssetLoader } from '../util/asset-loader';
 
@@ -12,7 +12,6 @@ export interface IGunFactory {
 
 export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
   const create = (props: CreateGunProps) => {
-
     if (props.name === 'Rifle') {
       const rifle = new OdaGunEntity({
         sprite: assetLoader.createSprite('rifle1'),

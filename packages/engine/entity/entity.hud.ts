@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
-import { Entity } from './entity';
 import type { IOdaGun } from './eneity.oda-gun';
+import { Entity } from './entity';
 
 interface HudProps {
   odaIcon: PIXI.Sprite;
@@ -75,8 +75,8 @@ export class HeadsUpDisplayEntity extends Entity {
       if (i === 0) continue;
       const gun = gunList[i];
       const text = this._getNewTextInstance();
-      text.text = `${gun.ammo} ${gun.name}`
-      const gunIconSprite = new PIXI.Sprite(gun.assets.icon)
+      text.text = `${gun.ammo} ${gun.name}`;
+      const gunIconSprite = new PIXI.Sprite(gun.assets.icon);
       this.gunListCtr.addChild(gunIconSprite, text);
       const lastPos = {
         x: this.weaponIcon.x,
@@ -85,7 +85,7 @@ export class HeadsUpDisplayEntity extends Entity {
       this.gunListCtr.x = lastPos.x;
       this.gunListCtr.y = lastPos.y + 1;
       text.x = gunIconSprite.x + gunIconSprite.width + 4;
-      text.y = gunIconSprite.y + 5
+      text.y = gunIconSprite.y + 5;
     }
   }
 
