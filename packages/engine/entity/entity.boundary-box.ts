@@ -7,10 +7,7 @@ export class BoundaryBox extends Entity {
     return new PIXI.Rectangle(this.ctr.x, this.ctr.y, this.ctr.width, this.ctr.height);
   }
   public get center(): PIXI.Point {
-    return new PIXI.Point(
-      this.ctr.x + this.ctr.width,
-      this.ctr.y + this.ctr.height,
-    );
+    return new PIXI.Point(this.ctr.x + this.ctr.width, this.ctr.y + this.ctr.height);
   }
 
   constructor(props: { rect: PIXI.Rectangle }) {

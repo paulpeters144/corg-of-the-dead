@@ -75,7 +75,7 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
 
       // Option 3: Expand clamp bounds temporarily during shake
       const originalClamp = { left: 0, top: 0, right: 2600, bottom: 448 };
-      const shakeRadius = (magnitude * 0.5) * decay;
+      const shakeRadius = magnitude * 0.5 * decay;
 
       // Expand clamp bounds by shake magnitude
       camera.clamp({

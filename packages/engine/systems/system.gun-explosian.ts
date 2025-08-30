@@ -72,6 +72,6 @@ export const createGunExplosianSystem = (di: IDiContainer): ISystem => {
 
   return {
     name: () => 'gun-explosian-system',
-    update: (_: number) => { },
+    update: (_: number) => {},
   };
 };

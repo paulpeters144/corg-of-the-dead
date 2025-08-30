@@ -18,7 +18,7 @@ const spriteSheetRowDic: {
   running: { row: 1, frames: 8, animSpeed: 0.15, idx: 0 },
   shoot: { row: 2, frames: 3, animSpeed: 0.15, idx: 0 },
   walk: { row: 3, frames: 5, animSpeed: 0.12, idx: 0 },
-  roll: { row: 4, frames: 1, animSpeed: 0.0, idx: 0 }
+  roll: { row: 4, frames: 1, animSpeed: 0.0, idx: 0 },
 };
 
 export type AnimMapType = {
@@ -83,10 +83,7 @@ export class OdaEntity extends Entity {
   }
 
   get center(): PIXI.Point {
-    return new PIXI.Point(
-      this.ctr.x + this.anim.width / 2,
-      this.ctr.y + this.anim.height / 2,
-    );
+    return new PIXI.Point(this.ctr.x + this.anim.width / 2, this.ctr.y + this.anim.height / 2);
   }
 
   get isFacingRight(): boolean {
@@ -184,7 +181,6 @@ export class OdaEntity extends Entity {
     this.ctr.children[spriteSheetRowDic.roll.idx].visible = true;
     this.anim.gotoAndPlay(0);
   }
-
 
   faceLeft() {
     for (const child of this.ctr.children) {

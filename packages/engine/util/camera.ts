@@ -32,7 +32,7 @@ export const createCamera = (
   return {
     animate: (options: IAnimateOptions) => viewport.animate(options),
     centerPos: () => {
-      return new PIXI.Point(viewport.center.x, viewport.center.y)
+      return new PIXI.Point(viewport.center.x, viewport.center.y);
     },
     zeroPos: () => {
       return new PIXI.Point(viewport.left, viewport.top);
@@ -49,7 +49,7 @@ export const createCamera = (
       viewport.filters = filters;
     },
     clamp: (options?: IClampOptions) => {
-      viewport.clamp(options)
+      viewport.clamp(options);
     },
     update: (delta: number) => viewport.update(delta * 1.15),
   };

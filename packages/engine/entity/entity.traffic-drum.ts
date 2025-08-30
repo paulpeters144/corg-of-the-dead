@@ -90,9 +90,7 @@ export class TrafficDrumEntity extends Entity {
   }
 
   get center(): PIXI.Point {
-    return new PIXI.Point(
-      this.ctr.x + this.anim.width / 2,
-      this.ctr.y + this.anim.height / 2);
+    return new PIXI.Point(this.ctr.x + this.anim.width / 2, this.ctr.y + this.anim.height / 2);
   }
 
   private _health: number = 100;

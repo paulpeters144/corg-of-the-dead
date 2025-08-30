@@ -130,8 +130,8 @@ export const getNextMoveAmount = (props: IUpdatePosProps): PIXI.Point | null => 
   const shouldMoveUp = entityRect.y > endPos.y;
   const shouldMoveDown = entityRect.y < endPos.y;
 
-  let xMoveAmount = speed * delta;
-  let yMoveAmount = speed * delta * 0.75;
+  const xMoveAmount = speed * delta;
+  const yMoveAmount = speed * delta * 0.75;
 
   if (shouldMoveRight) {
     nextPos.x = Math.min(entityRect.x + xMoveAmount, endPos.x);
@@ -159,12 +159,8 @@ export const getNextMoveAmount = (props: IUpdatePosProps): PIXI.Point | null => 
 
   if (currPos.x === nextPos.x && currPos.y === nextPos.y) return null;
 
-  return new PIXI.Point(
-    nextPos.x - currPos.x,
-    nextPos.y - currPos.y
-  );
+  return new PIXI.Point(nextPos.x - currPos.x, nextPos.y - currPos.y);
 };
-
 
 export const createOdaRollSystem = (di: IDiContainer): ISystem => {
   const input = di.input();
@@ -178,7 +174,6 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
   return {
     name: () => 'oda-roll-system',
     update: (delta: number) => {
-
       if (oda.isRolling && nextRollPos) {
         const collideArea = entityStore
           .getAll(BoundaryBox)
@@ -206,7 +201,7 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
           endPos: nextRollPos,
           speed: 30,
           delta: delta,
-        })
+        });
 
         if (nextPos) {
           oda.move(nextPos);
@@ -220,7 +215,7 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
       const rollDirection = rollMechanic.didRoll();
 
       if (rollDirection) oda.setRolling();
-      const rollDistance = 75
+      const rollDistance = 75;
       switch (rollDirection) {
         case 'up':
           nextRollPos = new PIXI.Point(oda.moveRect.x, oda.moveRect.y - rollDistance);
