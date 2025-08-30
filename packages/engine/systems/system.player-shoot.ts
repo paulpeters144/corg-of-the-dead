@@ -112,11 +112,7 @@ const applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: PIXI.Rec
   }, 3000);
 };
 
-const handleShotDamage = (props: {
-  oda: OdaEntity;
-  rangeArea: PIXI.Rectangle[];
-  entityStore: IEntityStore,
-}) => {
+const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; entityStore: IEntityStore }) => {
   const { oda, rangeArea, entityStore } = props;
   if (!oda.gun) throw new Error('shooting with no gun... not a good idea');
   const spread = oda.gun.spread;
@@ -136,7 +132,7 @@ const handleShotDamage = (props: {
       const intersects = entity.rect.intersects(rangeRect);
       if (intersects) {
         const firstEntityXPos = hitTrafficDrums.at(0)?.rect.x || entity.rect.x;
-        const notInArr = !hitTrafficDrums.some(e => e.id === entity.id);
+        const notInArr = !hitTrafficDrums.some((e) => e.id === entity.id);
         const withInXPosBuff = Math.abs(entity.rect.x - firstEntityXPos) < 50;
         if (notInArr && withInXPosBuff) {
           hitTrafficDrums.push(entity);
@@ -153,7 +149,7 @@ const handleShotDamage = (props: {
     }
   }
 
-  return hitTrafficDrums.map(e => e.rect);
+  return hitTrafficDrums.map((e) => e.rect);
 };
 
 export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
@@ -197,8 +193,8 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
 
       const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
       if (hitArea.length > 0) {
-        const gunName = oda.gun.name || "unknown-gun-name"
-        hitArea.map(e => bus.fire('shotHit', { gunName, area: e }))
+        const gunName = oda.gun.name || 'unknown-gun-name';
+        hitArea.map((e) => bus.fire('shotHit', { gunName, area: e }));
         bus.fire('camShake', {
           duration: 100,
           magnitude: 3,

@@ -1,15 +1,11 @@
 import * as PIXI from 'pixi.js';
 import { Entity } from '../entity/entity';
-import type { IDiContainer } from '../util/di-container';
-import type { ISystem } from './system.agg';
 import { ZLayer } from '../types/enums';
 import type { IBtnState } from '../util/control/button-state';
+import type { IDiContainer } from '../util/di-container';
+import type { ISystem } from './system.agg';
 
-const createAnimatedSprite = (props: {
-  texture: PIXI.Texture;
-  size: number;
-  frames: number;
-}) => {
+const createAnimatedSprite = (props: { texture: PIXI.Texture; size: number; frames: number }) => {
   const { texture, size, frames } = props;
   const textures = Array.from({ length: frames }, (_, i) => {
     const t = new PIXI.Texture({
@@ -20,10 +16,9 @@ const createAnimatedSprite = (props: {
     return t;
   });
   return new PIXI.AnimatedSprite({ textures });
-}
+};
 
 class InputEntity extends Entity {
-
   btn: PIXI.AnimatedSprite;
 
   text = new PIXI.Text({
@@ -39,7 +34,7 @@ class InputEntity extends Entity {
     return this.btn.currentFrame === 1;
   }
 
-  constructor(props: { texture: PIXI.Texture, character: string }) {
+  constructor(props: { texture: PIXI.Texture; character: string }) {
     const ctr = new PIXI.Container();
 
     super(ctr);
@@ -50,7 +45,7 @@ class InputEntity extends Entity {
       texture: texture,
       size: 32,
       frames: 2,
-    })
+    });
     ctr.zIndex = ZLayer.t1;
     ctr.addChild(this.btn, this.text);
     this.text.resolution = 3;
@@ -60,14 +55,14 @@ class InputEntity extends Entity {
   setPressed() {
     this.text.x = this.btn.x + 1.5 + (this.btn.width - this.text.width) / 2;
     this.text.y = this.btn.y + (this.btn.height - this.text.height) / 2.25;
-    this.ctr.alpha = 0.85
+    this.ctr.alpha = 0.85;
     this.btn.currentFrame = 1;
   }
 
   setReleased() {
     this.text.x = this.btn.x + 1.5 + (this.btn.width - this.text.width) / 1.85;
     this.text.y = this.btn.y + (this.btn.height - this.text.height) / 2.75;
-    this.ctr.alpha = 0.5
+    this.ctr.alpha = 0.5;
     this.btn.currentFrame = 0;
   }
 }
@@ -88,30 +83,25 @@ export const createInputUISystem = (di: IDiContainer): ISystem => {
     new InputEntity({ texture, character: 'X' }),
   ];
 
-  const getInputEntity = (c: "up" | "rt" | "dn" | "lt" | string) => {
+  const getInputEntity = (c: 'up' | 'rt' | 'dn' | 'lt' | string) => {
     let result: InputEntity | undefined;
 
-    if (c === "up")
-      result = inputEntities.find(e => e.text.text === "⇧")
-    else if (c === "rt")
-      result = inputEntities.find(e => e.text.text === "⇨")
-    else if (c === "dn")
-      result = inputEntities.find(e => e.text.text === "⇩")
-    else if (c === "lt")
-      result = inputEntities.find(e => e.text.text === "⇦")
-    else
-      result = inputEntities.find(e => e.text.text === c)
+    if (c === 'up') result = inputEntities.find((e) => e.text.text === '⇧');
+    else if (c === 'rt') result = inputEntities.find((e) => e.text.text === '⇨');
+    else if (c === 'dn') result = inputEntities.find((e) => e.text.text === '⇩');
+    else if (c === 'lt') result = inputEntities.find((e) => e.text.text === '⇦');
+    else result = inputEntities.find((e) => e.text.text === c);
 
     return result;
-  }
+  };
 
-  const rtInput = getInputEntity("rt");
-  const upInput = getInputEntity("up");
+  const rtInput = getInputEntity('rt');
+  const upInput = getInputEntity('up');
   const ltInput = getInputEntity('lt');
   const dnInput = getInputEntity('dn');
 
   const shootInput = getInputEntity('C');
-  const walkInput = getInputEntity("X")
+  const walkInput = getInputEntity('X');
 
   if (!rtInput) throw new Error('rt');
   if (!upInput) throw new Error('up');
@@ -142,32 +132,23 @@ export const createInputUISystem = (di: IDiContainer): ISystem => {
   rtInput.ctr.x += 22;
   rtInput.ctr.y -= 10;
 
-
-  const hanldePressInput = (props: {
-    btnState: IBtnState,
-    inputEntity: InputEntity,
-  }) => {
+  const hanldePressInput = (props: { btnState: IBtnState; inputEntity: InputEntity }) => {
     const { btnState, inputEntity } = props;
     if (btnState.is.pressed && !inputEntity.isPressed) {
       inputEntity.setPressed();
     } else if (!btnState.is.pressed && inputEntity.isPressed) {
       inputEntity.setReleased();
     }
-  }
+  };
 
   return {
     name: () => 'input-ui-system',
     update: (_: number) => {
       const camZeroPos = camera.zeroPos();
 
-      directionCtr.position.set(
-        camZeroPos.x + camera.vpBounds().width - 20,
-        camZeroPos.y + camera.vpBounds().height);
+      directionCtr.position.set(camZeroPos.x + camera.vpBounds().width - 20, camZeroPos.y + camera.vpBounds().height);
 
-
-      actionBtnCtr.position.set(
-        camZeroPos.x + 15,
-        camZeroPos.y + camera.vpBounds().height);
+      actionBtnCtr.position.set(camZeroPos.x + 15, camZeroPos.y + camera.vpBounds().height);
 
       hanldePressInput({ btnState: input.up, inputEntity: upInput });
       hanldePressInput({ btnState: input.down, inputEntity: dnInput });
