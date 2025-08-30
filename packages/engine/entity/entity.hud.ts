@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
 import { Entity } from './entity';
+import type { IOdaGun } from './eneity.oda-gun';
 
 interface HudProps {
   odaIcon: PIXI.Sprite;
@@ -11,9 +12,9 @@ export class HeadsUpDisplayEntity extends Entity {
   maxHealthBarWidth = 150;
   maxHealthGraphic: PIXI.Graphics;
   headBarMainGraphic: PIXI.Graphics;
+  gunListCtr: PIXI.Container = new PIXI.Container();
   odaIcon: PIXI.Sprite;
   weaponIcon: PIXI.Sprite;
-  weaponIconBgGraphic: PIXI.Graphics;
   ammoText: PIXI.Text;
 
   constructor(props: HudProps) {
@@ -34,26 +35,16 @@ export class HeadsUpDisplayEntity extends Entity {
       .stroke({ width: 2.15, color: 'white' });
 
     this.weaponIcon = props.weaponIcon;
-    this.weaponIconBgGraphic = new PIXI.Graphics()
-      .rect(0, 0, this.weaponIcon.width + 2, this.weaponIcon.height + 2)
-      .fill({ color: 'orange' });
 
-    this.ammoText = new PIXI.Text({
-      style: new PIXI.TextStyle({
-        fontFamily: 'pix',
-        fontSize: 8,
-        fill: { color: 'white' },
-      }),
-    });
-    this.ammoText.resolution = 4;
+    this.ammoText = this._getNewTextInstance();
 
     ctr.addChild(
       this.odaIcon,
       this.maxHealthGraphic,
       this.headBarMainGraphic,
-      this.weaponIconBgGraphic,
       this.weaponIcon,
       this.ammoText,
+      this.gunListCtr,
     );
 
     this.maxHealthGraphic.x = this.odaIcon.x + this.odaIcon.width;
@@ -61,11 +52,8 @@ export class HeadsUpDisplayEntity extends Entity {
     this.headBarMainGraphic.x = this.maxHealthGraphic.x;
     this.headBarMainGraphic.y = this.maxHealthGraphic.y + 1;
 
-    this.weaponIconBgGraphic.y = this.odaIcon.y + this.odaIcon.height + 3;
-    this.weaponIconBgGraphic.x = 3;
-
-    this.weaponIcon.y = this.weaponIconBgGraphic.y + (this.weaponIconBgGraphic.height - this.weaponIcon.height) / 2;
-    this.weaponIcon.x = this.weaponIconBgGraphic.x + (this.weaponIconBgGraphic.width - this.weaponIcon.width) / 2;
+    this.weaponIcon.y = this.odaIcon.y + this.odaIcon.height + 3;
+    this.weaponIcon.x = 3;
 
     this.ammoText.x = 25;
     this.ammoText.y = 30;
@@ -77,7 +65,39 @@ export class HeadsUpDisplayEntity extends Entity {
     this.headBarMainGraphic.width = newHealthSize;
   }
 
-  setGunText(ammo: string) {
-    this.ammoText.text = `${ammo} `;
+  setGunText(text: string) {
+    this.ammoText.text = `${text} `;
+  }
+
+  addGunOptions(gunList: IOdaGun[]) {
+    if (this.gunListCtr.children.length > 0) return;
+    for (let i = 0; i < gunList.length; i++) {
+      if (i === 0) continue;
+      const gun = gunList[i];
+      const text = this._getNewTextInstance();
+      text.text = `${gun.ammo} ${gun.name}`
+      const gunIconSprite = new PIXI.Sprite(gun.assets.icon)
+      this.gunListCtr.addChild(gunIconSprite, text);
+      const lastPos = {
+        x: this.weaponIcon.x,
+        y: this.weaponIcon.y + this.weaponIcon.height + 3,
+      };
+      this.gunListCtr.x = lastPos.x;
+      this.gunListCtr.y = lastPos.y + 1;
+      text.x = gunIconSprite.x + gunIconSprite.width + 4;
+      text.y = gunIconSprite.y + 5
+    }
+  }
+
+  private _getNewTextInstance() {
+    const result = new PIXI.Text({
+      style: new PIXI.TextStyle({
+        fontFamily: 'pix',
+        fontSize: 8,
+        fill: { color: 'white' },
+      }),
+    });
+    result.resolution = 4;
+    return result;
   }
 }

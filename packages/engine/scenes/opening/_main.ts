@@ -62,15 +62,17 @@ export const openingScene = (di: IDiContainer): IScene => {
       entityStore.add(...tilemap.boundaryBoxes);
       tilemap.ctr.cullable = true;
 
-      const odasGun = gunFactory.create({ name: 'shotgun' });
+      const odasShotgun = gunFactory.create({ name: 'Shotgun' });
+      const odasRifle = gunFactory.create({ name: 'Rifle' });
 
       entityStore.add(
         new OdaEntity({ spriteSheet: assetLoader.getTexture('odaIdle') }),
         new CameraOrbEntity(),
-        odasGun,
+        odasRifle,
+        odasShotgun,
         new HeadsUpDisplayEntity({
           odaIcon: assetLoader.createSprite('odaHudIcon'),
-          weaponIcon: new PIXI.Sprite(odasGun.assets.icon),
+          weaponIcon: new PIXI.Sprite(odasRifle.assets.icon),
         }),
       );
 
@@ -87,15 +89,12 @@ export const openingScene = (di: IDiContainer): IScene => {
       }
 
       const oda = entityStore.first(OdaEntity);
+      oda?.gunList.push(odasRifle, odasShotgun);
       oda?.setIdle();
 
       setTimeout(() => {
         oda?.move(new PIXI.Point(100, 300));
-        odasGun.ctr.zIndex = ZLayer.m2;
       }, 50);
-
-      entityStore.first(OdaEntity)?.setIdle();
-      entityStore.first(OdaEntity)?.setGun(odasGun);
 
       systemAgg.add(
         createHeadsUpDisplaySystem(di),
@@ -124,7 +123,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

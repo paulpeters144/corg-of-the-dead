@@ -1,8 +1,9 @@
-import { OdaGunEntity } from '../entity/eneity.oda-gun';
+import { OdaGunEntity, type GunName } from '../entity/eneity.oda-gun';
+import { ZLayer } from '../types/enums';
 import type { IAssetLoader } from '../util/asset-loader';
 
 interface CreateGunProps {
-  name: 'rifle' | 'shotgun';
+  name: GunName;
 }
 
 export interface IGunFactory {
@@ -11,27 +12,31 @@ export interface IGunFactory {
 
 export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
   const create = (props: CreateGunProps) => {
-    if (props.name === 'rifle') {
-      return new OdaGunEntity({
+
+    if (props.name === 'Rifle') {
+      const rifle = new OdaGunEntity({
         sprite: assetLoader.createSprite('rifle1'),
         assets: {
           flash: assetLoader.getTexture('rifle1Flash'),
           icon: assetLoader.getTexture('rifle1Icon'),
           impact: assetLoader.getTexture('rifle1Impact'),
         },
-        ammo: 5250,
-        damage: 50,
+        ammo: 500,
+        damage: 25,
         fireRate: 200,
         range: 30,
         isAutomatic: true,
-        spread: 3,
+        spread: 1,
         animationSpeed: 0.5,
         areaSize: 12,
         name: props.name,
       });
+      rifle.sprite.zIndex = ZLayer.m2;
+      return rifle;
     }
-    if (props.name === 'shotgun') {
-      return new OdaGunEntity({
+
+    if (props.name === 'Shotgun') {
+      const shotgun = new OdaGunEntity({
         sprite: assetLoader.createSprite('shotty1'),
         assets: {
           flash: assetLoader.getTexture('rifle1Flash'),
@@ -48,7 +53,10 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         areaSize: 15,
         name: props.name,
       });
+      shotgun.sprite.zIndex = ZLayer.m2;
+      return shotgun;
     }
+
     throw new Error(`unknonw gun: ${props.name}`);
   };
 

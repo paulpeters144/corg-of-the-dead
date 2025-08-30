@@ -51,9 +51,13 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
 // -=-=-=-=-=-=-=-=-=-CLASS IMPL-=-=-=-=-=-=-=-=-=-=-
 
 export class OdaEntity extends Entity {
-  gun: IOdaGun | undefined;
-
   gunList: IOdaGun[] = [];
+
+  get gun(): IOdaGun {
+    const activeGun = this.gunList.at(0);
+    if (!activeGun) throw new Error('no active gun');
+    return activeGun;
+  }
 
   animMap: { [key in AnimKey]: PIXI.AnimatedSprite };
 
@@ -213,14 +217,7 @@ export class OdaEntity extends Entity {
   }
 
   setGunVisible(value: boolean) {
-    if (this.gun) {
-      this.gun.sprite.visible = value;
-    }
-  }
-
-  setGun(gun: IOdaGun) {
-    this.gun = gun;
-    this.animMap.shoot.animationSpeed = gun.animationSpeed;
+    this.gun.sprite.visible = value;
   }
 
   move(amount: PIXI.Point) {

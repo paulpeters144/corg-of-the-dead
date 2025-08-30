@@ -1,7 +1,7 @@
 import type * as PIXI from 'pixi.js';
 import { Entity } from './entity';
 
-export type GunName = 'rifle' | 'shotgun';
+export type GunName = 'Rifle' | 'Shotgun';
 
 type assets = {
   flash: PIXI.Texture;
@@ -21,7 +21,6 @@ export interface IOdaGun {
   isAutomatic: boolean;
   spread: number;
   animationSpeed: number;
-  active: boolean;
 }
 
 interface gunProps {
@@ -36,7 +35,6 @@ interface gunProps {
   spread: number;
   animationSpeed: number;
   areaSize: number;
-  active?: boolean;
 }
 
 export class OdaGunEntity extends Entity implements IOdaGun {
@@ -50,7 +48,6 @@ export class OdaGunEntity extends Entity implements IOdaGun {
   animationSpeed: number;
   assets: assets;
   areaSize: number;
-  active: boolean;
 
   get sprite(): PIXI.Sprite {
     return this.ctr as PIXI.Sprite;
@@ -69,6 +66,5 @@ export class OdaGunEntity extends Entity implements IOdaGun {
     this.name = props.name;
     this.assets = props.assets;
     this.areaSize = props.areaSize;
-    this.active = !!props.active;
   }
 }
