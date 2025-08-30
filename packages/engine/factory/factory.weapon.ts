@@ -26,6 +26,7 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         isAutomatic: true,
         spread: 3,
         animationSpeed: 0.5,
+        areaSize: 12,
         name: props.name,
       });
     }
@@ -42,8 +43,9 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         fireRate: 350,
         range: 25,
         isAutomatic: false,
-        spread: 5,
+        spread: 7,
         animationSpeed: 0.15,
+        areaSize: 15,
         name: props.name,
       });
     }

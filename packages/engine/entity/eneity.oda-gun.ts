@@ -23,7 +23,7 @@ export interface IOdaGun {
   animationSpeed: number;
 }
 
-interface gunProps2 {
+interface gunProps {
   sprite: PIXI.Sprite;
   assets: assets;
   name: GunName;
@@ -34,6 +34,7 @@ interface gunProps2 {
   isAutomatic: boolean;
   spread: number;
   animationSpeed: number;
+  areaSize: number;
 }
 
 export class OdaGunEntity extends Entity implements IOdaGun {
@@ -46,12 +47,13 @@ export class OdaGunEntity extends Entity implements IOdaGun {
   spread: number;
   animationSpeed: number;
   assets: assets;
+  areaSize: number;
 
   get sprite(): PIXI.Sprite {
     return this.ctr as PIXI.Sprite;
   }
 
-  constructor(props: gunProps2) {
+  constructor(props: gunProps) {
     const sprite = props.sprite;
     super(sprite);
     this.ammo = props.ammo;
@@ -63,5 +65,6 @@ export class OdaGunEntity extends Entity implements IOdaGun {
     this.animationSpeed = props.animationSpeed;
     this.name = props.name;
     this.assets = props.assets;
+    this.areaSize = props.areaSize;
   }
 }

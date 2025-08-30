@@ -112,8 +112,14 @@ const applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: PIXI.Rec
   }, 3000);
 };
 
-const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; entityStore: IEntityStore }) => {
+const handleShotDamage = (props: {
+  oda: OdaEntity;
+  rangeArea: PIXI.Rectangle[];
+  entityStore: IEntityStore,
+}) => {
   const { oda, rangeArea, entityStore } = props;
+  if (!oda.gun) throw new Error('shooting with no gun... not a good idea');
+  const spread = oda.gun.spread;
 
   const hittableEntities = [...entityStore.getAll(TrafficDrumEntity)].sort((a, b) => {
     const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
@@ -121,16 +127,33 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
     return distA - distB;
   });
 
-  const hitEntity = hittableEntities.find((hittableEntity) =>
-    rangeArea.some((areaRect) => areaRect.intersects(hittableEntity.hitRect)),
-  );
+  const hitTrafficDrums: TrafficDrumEntity[] = [];
 
-  const died = hitEntity?.recieveDamage(oda.gun?.damage || 0);
-  if (hitEntity && died) {
-    entityStore.remove(hitEntity);
+  for (let i = 0; i < hittableEntities.length; i++) {
+    const entity = hittableEntities[i];
+    for (let ii = 0; ii < rangeArea.length; ii++) {
+      const rangeRect = rangeArea[ii];
+      const intersects = entity.rect.intersects(rangeRect);
+      if (intersects) {
+        const firstEntityXPos = hitTrafficDrums.at(0)?.rect.x || entity.rect.x;
+        const notInArr = !hitTrafficDrums.some(e => e.id === entity.id);
+        const withInXPosBuff = Math.abs(entity.rect.x - firstEntityXPos) < 50;
+        if (notInArr && withInXPosBuff) {
+          hitTrafficDrums.push(entity);
+        }
+      }
+      if (hitTrafficDrums.length >= spread) break;
+    }
   }
 
-  return hitEntity?.hitRect;
+  for (let i = 0; i < hitTrafficDrums.length; i++) {
+    const entity = hitTrafficDrums[i];
+    if (entity?.recieveDamage(oda.gun?.damage || 0)) {
+      entityStore.remove(entity);
+    }
+  }
+
+  return hitTrafficDrums.map(e => e.rect);
 };
 
 export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
@@ -164,10 +187,6 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
       const flash = assetLoader.createSprite('rifle1Flash');
       applyGunFlash({ oda, gameRef, flash });
 
-      // bus.fire('camShake', {
-      //   duration: 100,
-      //   magnitude: 5,
-      // });
       const isFacingRight = oda.isFacingRight;
       const { rectArr } = createRectangleGraphic({
         range: oda.gun.range,
@@ -175,9 +194,11 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         spread: oda.gun.spread,
         faceDirection: isFacingRight ? 'right' : 'left',
       });
+
       const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
-      if (hitArea) {
-        bus.fire('shotHit', { gunName: oda.gun.name, area: hitArea });
+      if (hitArea.length > 0) {
+        const gunName = oda.gun.name || "unknown-gun-name"
+        hitArea.map(e => bus.fire('shotHit', { gunName, area: e }))
         bus.fire('camShake', {
           duration: 100,
           magnitude: 3,
@@ -191,6 +212,7 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         furthestRect.y = oda.center.y;
         bus.fire('shotMiss', { gunName: oda.gun.name, area: furthestRect });
       }
+
       applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun });
     },
   };

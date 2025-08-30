@@ -19,6 +19,7 @@ import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
+import { createInputUISystem } from '../../systems/system.input-ui';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -45,6 +46,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         'shotty1Icon',
         'weirdGun1',
         'odaHudIcon',
+        'inputBtn',
       );
 
       entityStore.add(
@@ -116,6 +118,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         createCamOrbSystem(di),
         createSetPlayerGunPosSystem(di),
         createGunExplosianSystem(di),
+        createInputUISystem(di),
       );
 
       camera.clamp({
@@ -131,7 +134,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

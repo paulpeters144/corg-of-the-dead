@@ -124,6 +124,10 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
     update: (delta: number) => {
       if (oda.isRolling) return;
 
+      if (input.shoot.is.pressed && !oda.isWalking) {
+        oda.setWalking()
+      }
+
       const upPressed = input.up.is.pressed && !input.down.is.pressed;
       const dnPressed = input.down.is.pressed && !input.up.is.pressed;
       const rtPressed = input.right.is.pressed && !input.left.is.pressed;

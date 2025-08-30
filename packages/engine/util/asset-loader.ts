@@ -11,6 +11,7 @@ import weird_gun_1_icon_url from '@package/assets/images/actors/weapons/weird-gu
 import bunnyUrl from '@package/assets/images/bunny.png';
 import trafficDrumUrl from '@package/assets/images/objects/traffic_drum.png';
 import odaHudIconUrl from '@package/assets/images/ui/oda-hud-icon.png';
+import inputBtnUrl from '@package/assets/images/ui/input-btn.png';
 import atlasDemoUrl from '@package/assets/levels/demo/Background_CityRuins_Streets.png';
 import bg1Url from '@package/assets/levels/demo/bg-1.png';
 import fg1Url from '@package/assets/levels/demo/fg-1.png';
@@ -34,6 +35,7 @@ const assetMap = {
   weirdGun1: weird_gun_1_url,
   weirdGun1Icon: weird_gun_1_icon_url,
   missedShot: missedShotUrl,
+  inputBtn: inputBtnUrl,
 };
 
 export const assetFilePath = [
@@ -52,6 +54,7 @@ export const assetFilePath = [
   'weirdGun1',
   'weirdGun1Icon',
   'odaHudIcon',
+  'inputBtn',
   'missedShot',
 ] as const;
 export type AssetName = (typeof assetFilePath)[number];
