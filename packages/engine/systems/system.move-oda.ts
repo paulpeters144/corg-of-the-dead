@@ -117,13 +117,25 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
   const oda = entityStore.first(OdaEntity);
   if (!oda) throw new Error('no Oda for move-oda-system');
 
-  // const rollMechanic = createRollMechanic(input);
+  const handleOptionPause = () => {
+    if (input.option.is.pressed) {
+      if (oda.anim.playing) {
+        oda.anim.stop();
+      }
+      return true;
+    } else if (input.option.is.released) {
+      if (!oda.anim.playing) {
+        oda.anim.play();
+      }
+    }
+    return false
+  }
 
   return {
     name: () => 'move-oda-system',
     update: (delta: number) => {
       if (oda.isRolling) return;
-
+      if (handleOptionPause()) return;
       if (input.shoot.is.pressed && !oda.isWalking) {
         oda.setWalking();
       }

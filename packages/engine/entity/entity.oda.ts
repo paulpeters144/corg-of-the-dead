@@ -53,6 +53,8 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
 export class OdaEntity extends Entity {
   gun: IOdaGun | undefined;
 
+  gunList: IOdaGun[] = []
+
   animMap: { [key in AnimKey]: PIXI.AnimatedSprite };
 
   get anim(): PIXI.AnimatedSprite {

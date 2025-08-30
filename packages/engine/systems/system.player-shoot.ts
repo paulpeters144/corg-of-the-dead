@@ -167,6 +167,7 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
     update: (_: number) => {
       if (!oda.gun) return;
       if (oda.isRolling) return;
+      if (input.option.is.pressed) return;
 
       let shotFired = false;
       if (oda.gun.isAutomatic) {
@@ -209,7 +210,7 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         bus.fire('shotMiss', { gunName: oda.gun.name, area: furthestRect });
       }
 
-      applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun });
+      // applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun });
     },
   };
 };

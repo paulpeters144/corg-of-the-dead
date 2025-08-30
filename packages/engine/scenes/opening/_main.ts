@@ -74,7 +74,8 @@ export const openingScene = (di: IDiContainer): IScene => {
         }),
       );
 
-      entityStore.first(HeadsUpDisplayEntity)?.setAmmo(entityStore.first(OdaGunEntity)?.ammo || 0);
+      entityStore.first(HeadsUpDisplayEntity)
+        ?.setGunText(`${entityStore.first(OdaGunEntity)?.ammo || 0}`);
 
       const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y);
       for (let i = 0; i < sortedTrafficDrums.length; i++) {
@@ -86,25 +87,15 @@ export const openingScene = (di: IDiContainer): IScene => {
         entityStore.add(trafficDrum);
       }
 
-      // setTimeout(() => {
-      //   entityStore.getAll(TrafficDrumEntity).map(t => {
-      //     const rect = t.hitRect;
-      //     gameRef.addChild(new PIXI.Graphics()
-      //       .rect(rect.x, rect.y, rect.width, rect.height))
-      //       .fill({ color: 'yellow' });
-      //   })
-      // }, 10_000)
-
       const oda = entityStore.first(OdaEntity);
       oda?.setIdle();
 
       setTimeout(() => {
         oda?.move(new PIXI.Point(100, 300));
-        odasGun.ctr.zIndex = 999;
+        odasGun.ctr.zIndex = ZLayer.m2;
       }, 50);
 
       entityStore.first(OdaEntity)?.setIdle();
-
       entityStore.first(OdaEntity)?.setGun(odasGun);
 
       systemAgg.add(
@@ -134,7 +125,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

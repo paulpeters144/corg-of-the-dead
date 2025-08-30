@@ -44,7 +44,6 @@ export class HeadsUpDisplayEntity extends Entity {
         fontSize: 8,
         fill: { color: 'white' },
       }),
-      text: '89',
     });
     this.ammoText.resolution = 4;
 
@@ -78,7 +77,7 @@ export class HeadsUpDisplayEntity extends Entity {
     this.headBarMainGraphic.width = newHealthSize;
   }
 
-  setAmmo(ammo: number | string) {
-    this.ammoText.text = `${ammo}`;
+  setGunText(ammo: string) {
+    this.ammoText.text = `${ammo} `;
   }
 }

@@ -53,7 +53,7 @@ class InputEntity extends Entity {
   }
 
   setPressed() {
-    this.text.x = this.btn.x + 1.5 + (this.btn.width - this.text.width) / 2;
+    this.text.x = this.btn.x + 1.5 + (this.btn.width - this.text.width) / 1.85;
     this.text.y = this.btn.y + (this.btn.height - this.text.height) / 2.25;
     this.ctr.alpha = 0.85;
     this.btn.currentFrame = 1;
@@ -75,12 +75,13 @@ export const createInputUISystem = (di: IDiContainer): ISystem => {
   const texture = assetLoader.getTexture('inputBtn');
 
   const inputEntities = [
-    new InputEntity({ texture, character: '⇧' }), // up
-    new InputEntity({ texture, character: '⇨' }), // right
-    new InputEntity({ texture, character: '⇩' }), // down
-    new InputEntity({ texture, character: '⇦' }), // left
+    new InputEntity({ texture, character: '⇧' }),
+    new InputEntity({ texture, character: '⇨' }),
+    new InputEntity({ texture, character: '⇩' }),
+    new InputEntity({ texture, character: '⇦' }),
     new InputEntity({ texture, character: 'C' }),
     new InputEntity({ texture, character: 'X' }),
+    new InputEntity({ texture, character: 'Z' }),
   ];
 
   const getInputEntity = (c: 'up' | 'rt' | 'dn' | 'lt' | string) => {
@@ -102,6 +103,7 @@ export const createInputUISystem = (di: IDiContainer): ISystem => {
 
   const shootInput = getInputEntity('C');
   const walkInput = getInputEntity('X');
+  const optionInput = getInputEntity('Z');
 
   if (!rtInput) throw new Error('rt');
   if (!upInput) throw new Error('up');
@@ -110,13 +112,15 @@ export const createInputUISystem = (di: IDiContainer): ISystem => {
 
   if (!shootInput) throw new Error('C');
   if (!walkInput) throw new Error('X');
+  if (!optionInput) throw new Error('Z');
 
   const actionBtnCtr = new PIXI.Container();
   actionBtnCtr.zIndex = ZLayer.t1;
-  actionBtnCtr.addChild(shootInput.ctr, walkInput.ctr);
+  actionBtnCtr.addChild(shootInput.ctr, walkInput.ctr, optionInput.ctr);
 
-  walkInput.ctr.x = 0;
-  shootInput.ctr.x = 23;
+  optionInput.ctr.x = 0;
+  walkInput.ctr.x = 23;
+  shootInput.ctr.x = walkInput.ctr.x + 23;
 
   const directionCtr = new PIXI.Container();
   directionCtr.zIndex = ZLayer.t1;
@@ -141,14 +145,36 @@ export const createInputUISystem = (di: IDiContainer): ISystem => {
     }
   };
 
+  let bgGraphic = new PIXI.Graphics()
+    .rect(0, 0, camera.vpBounds().width * 1.6, camera.vpBounds().height * 1.6)
+    .fill({ color: 'black', alpha: 0.35 });
+  bgGraphic.visible = false;
+  bgGraphic.zIndex = ZLayer.t1
+  gameRef.addChild(bgGraphic);
+
   return {
     name: () => 'input-ui-system',
     update: (_: number) => {
       const camZeroPos = camera.zeroPos();
 
-      directionCtr.position.set(camZeroPos.x + camera.vpBounds().width - 20, camZeroPos.y + camera.vpBounds().height);
+      directionCtr.position.set(
+        camZeroPos.x + camera.vpBounds().width - 20,
+        camZeroPos.y + camera.vpBounds().height + 3);
 
-      actionBtnCtr.position.set(camZeroPos.x + 15, camZeroPos.y + camera.vpBounds().height);
+      actionBtnCtr.position.set(
+        camZeroPos.x,
+        camZeroPos.y + camera.vpBounds().height);
+
+      bgGraphic.position.set(
+        camZeroPos.x,
+        camZeroPos.y,
+      );
+
+      if (input.option.is.pressed && !bgGraphic.visible) {
+        bgGraphic.visible = true;
+      } else if (!input.option.is.pressed && bgGraphic.visible) {
+        bgGraphic.visible = false;
+      }
 
       hanldePressInput({ btnState: input.up, inputEntity: upInput });
       hanldePressInput({ btnState: input.down, inputEntity: dnInput });
@@ -157,6 +183,7 @@ export const createInputUISystem = (di: IDiContainer): ISystem => {
 
       hanldePressInput({ btnState: input.shoot, inputEntity: shootInput });
       hanldePressInput({ btnState: input.walk, inputEntity: walkInput });
+      hanldePressInput({ btnState: input.option, inputEntity: optionInput });
     },
   };
 };

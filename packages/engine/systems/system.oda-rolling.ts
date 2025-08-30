@@ -174,6 +174,8 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
   return {
     name: () => 'oda-roll-system',
     update: (delta: number) => {
+      if (input.option.is.pressed) return;
+
       if (oda.isRolling && nextRollPos) {
         const collideArea = entityStore
           .getAll(BoundaryBox)
