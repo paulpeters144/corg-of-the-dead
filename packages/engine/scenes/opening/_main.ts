@@ -74,8 +74,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         }),
       );
 
-      entityStore.first(HeadsUpDisplayEntity)
-        ?.setGunText(`${entityStore.first(OdaGunEntity)?.ammo || 0}`);
+      entityStore.first(HeadsUpDisplayEntity)?.setGunText(`${entityStore.first(OdaGunEntity)?.ammo || 0}`);
 
       const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y);
       for (let i = 0; i < sortedTrafficDrums.length; i++) {
@@ -125,7 +124,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => { },
+    dispose: () => {},
   };
 };
 

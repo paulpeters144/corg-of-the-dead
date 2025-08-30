@@ -128,8 +128,8 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
         oda.anim.play();
       }
     }
-    return false
-  }
+    return false;
+  };
 
   return {
     name: () => 'move-oda-system',

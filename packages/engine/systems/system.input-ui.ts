@@ -145,11 +145,11 @@ export const createInputUISystem = (di: IDiContainer): ISystem => {
     }
   };
 
-  let bgGraphic = new PIXI.Graphics()
+  const bgGraphic = new PIXI.Graphics()
     .rect(0, 0, camera.vpBounds().width * 1.6, camera.vpBounds().height * 1.6)
     .fill({ color: 'black', alpha: 0.35 });
   bgGraphic.visible = false;
-  bgGraphic.zIndex = ZLayer.t1
+  bgGraphic.zIndex = ZLayer.t1;
   gameRef.addChild(bgGraphic);
 
   return {
@@ -159,16 +159,12 @@ export const createInputUISystem = (di: IDiContainer): ISystem => {
 
       directionCtr.position.set(
         camZeroPos.x + camera.vpBounds().width - 20,
-        camZeroPos.y + camera.vpBounds().height + 3);
-
-      actionBtnCtr.position.set(
-        camZeroPos.x,
-        camZeroPos.y + camera.vpBounds().height);
-
-      bgGraphic.position.set(
-        camZeroPos.x,
-        camZeroPos.y,
+        camZeroPos.y + camera.vpBounds().height + 3,
       );
+
+      actionBtnCtr.position.set(camZeroPos.x, camZeroPos.y + camera.vpBounds().height);
+
+      bgGraphic.position.set(camZeroPos.x, camZeroPos.y);
 
       if (input.option.is.pressed && !bgGraphic.visible) {
         bgGraphic.visible = true;
