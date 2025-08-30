@@ -50,7 +50,10 @@ export const createCamera = (
     addFilter: (...filters: PIXI.Filter[]) => {
       viewport.filters = filters;
     },
-    clamp: (options?: IClampOptions) => viewport.clamp(options),
+    clamp: (options?: IClampOptions) => {
+      console.log('[clamp.options]', options)
+      viewport.clamp(options)
+    },
     update: (delta: number) => viewport.update(delta * 1.15),
   };
 };

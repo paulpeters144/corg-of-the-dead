@@ -18,6 +18,7 @@ import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
+import { createOdaRollSystem } from '../../systems/system.oda-rolling';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -106,6 +107,7 @@ export const openingScene = (di: IDiContainer): IScene => {
 
       systemAgg.add(
         createHeadsUpDisplaySystem(di),
+        createOdaRollSystem(di),
         createPlayerShootSystem(di),
         createCamControlSystem(di),
         createPlayZIndexSystem(di),
@@ -129,7 +131,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

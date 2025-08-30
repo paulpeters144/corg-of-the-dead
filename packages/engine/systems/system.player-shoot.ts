@@ -152,6 +152,8 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
     name: () => 'player-shoot-system',
     update: (_: number) => {
       if (!oda.gun) return;
+      if (oda.isRolling) return;
+
       let shotFired = false;
       if (oda.gun.isAutomatic) {
         shotFired = _handleAutomaticFiring({ oda: oda, input: input });
@@ -167,6 +169,10 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
       const flash = assetLoader.createSprite('rifle1Flash');
       applyGunFlash({ oda, gameRef, flash });
 
+      bus.fire('camShake', {
+        duration: 100,
+        magnitude: 10,
+      });
       const isFacingRight = oda.isFacingRight;
       const { rectArr } = createRectangleGraphic({
         range: 40,
@@ -177,10 +183,10 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
       const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
       if (hitArea) {
         bus.fire('shotHit', { gunName: oda.gun.name, area: hitArea });
-        bus.fire('camShake', {
-          duration: 250,
-          magnitude: 8,
-        });
+        // bus.fire('camShake', {
+        //   duration: 250,
+        //   magnitude: 8,
+        // });
       } else {
         const furthestRect = rectArr.reduce((prev, curr) => {
           const prevDist = Math.abs(oda.center.x - prev.x);
@@ -190,7 +196,7 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         furthestRect.y = oda.center.y;
         bus.fire('shotMiss', { gunName: oda.gun.name, area: furthestRect });
       }
-      applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun });
+      // applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun });
     },
   };
 };

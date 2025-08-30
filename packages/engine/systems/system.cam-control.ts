@@ -35,7 +35,7 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
 
       if (!shaking) {
         camera.follow(orb.ctr, {
-          speed: 5,
+          speed: 8,
           acceleration: 50,
           radius: 0,
         });
@@ -46,21 +46,25 @@ export const createCamControlSystem = (di: IDiContainer): ISystem => {
 
       if (elapsed >= duration) {
         shaking = false;
+        // Resume normal following without any offset
         camera.follow(orb.ctr, {
-          speed: 5,
+          speed: 8,
           acceleration: 50,
           radius: 0,
         });
         return;
       }
 
+      // Calculate shake offset
       const progress = elapsed / duration;
       const decay = 1 - progress;
       const offsetX = (Math.random() * 2 - 1) * magnitude * decay;
       const offsetY = (Math.random() * 2 - 1) * magnitude * decay;
 
+      // Get the orb's current position (where camera should be following)
       const targetPos = orb.ctr;
 
+      // Apply shake offset to the target position
       camera.animate({
         position: {
           x: targetPos.x + offsetX,

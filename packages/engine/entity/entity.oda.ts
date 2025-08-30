@@ -4,7 +4,7 @@ import type { Position } from '../types/types';
 import type { IOdaGun } from './eneity.oda-gun';
 import { Entity } from './entity';
 
-const spriteAnimKeys = ['idle', 'running', 'shoot', 'walk'] as const;
+const spriteAnimKeys = ['idle', 'running', 'shoot', 'walk', 'roll'] as const;
 type AnimKey = (typeof spriteAnimKeys)[number];
 
 const spriteSheetRowDic: {
@@ -19,6 +19,7 @@ const spriteSheetRowDic: {
   running: { row: 1, frames: 8, animSpeed: 0.15, idx: 0 },
   shoot: { row: 2, frames: 3, animSpeed: 0.15, idx: 0 },
   walk: { row: 3, frames: 5, animSpeed: 0.12, idx: 0 },
+  roll: { row: 4, frames: 1, animSpeed: 0.0, idx: 0 }
 };
 
 export type AnimMapType = {
@@ -127,6 +128,11 @@ export class OdaEntity extends Entity {
     return this.anim.playing;
   }
 
+  get isRolling(): boolean {
+    if (this.activeAnimation !== 'roll') return false;
+    return this.anim.playing;
+  }
+
   constructor(props: { spriteSheet: PIXI.Texture }) {
     super(new PIXI.Container());
     this.animMap = createAnimations(props.spriteSheet);
@@ -145,29 +151,41 @@ export class OdaEntity extends Entity {
   }
 
   setIdle() {
+    this.setGunVisible(true);
     this._setAllAnimsInvisible();
     this.ctr.children[spriteSheetRowDic.idle.idx].visible = true;
     this.anim.gotoAndPlay(0);
   }
 
   setRunning() {
+    this.setGunVisible(true);
     this._setAllAnimsInvisible();
     this.ctr.children[spriteSheetRowDic.running.idx].visible = true;
     this.anim.gotoAndPlay(0);
   }
 
   setWalking() {
+    this.setGunVisible(true);
     this._setAllAnimsInvisible();
     this.ctr.children[spriteSheetRowDic.walk.idx].visible = true;
     this.anim.gotoAndPlay(0);
   }
 
   setShoot() {
+    this.setGunVisible(true);
     this._setAllAnimsInvisible();
     this.ctr.children[spriteSheetRowDic.shoot.idx].visible = true;
     this.anim.gotoAndPlay(0);
     this.anim.loop = false;
   }
+
+  setRolling() {
+    this.setGunVisible(false);
+    this._setAllAnimsInvisible();
+    this.ctr.children[spriteSheetRowDic.roll.idx].visible = true;
+    this.anim.gotoAndPlay(0);
+  }
+
 
   faceLeft() {
     for (const child of this.ctr.children) {
@@ -194,6 +212,12 @@ export class OdaEntity extends Entity {
       const gun = this.gun.sprite;
       gun.anchor.set(0, 0);
       gun.scale.set(1, 1);
+    }
+  }
+
+  setGunVisible(value: boolean) {
+    if (this.gun) {
+      this.gun.sprite.visible = value;
     }
   }
 
