@@ -135,7 +135,7 @@ export class OdaEntity extends Entity {
     return this.anim.playing;
   }
 
-  constructor(props: { spriteSheet: PIXI.Texture, gunList: IOdaGun[] }) {
+  constructor(props: { spriteSheet: PIXI.Texture; gunList: IOdaGun[] }) {
     super(new PIXI.Container());
     this.gunList = props.gunList;
     this.animMap = createAnimations(props.spriteSheet);
@@ -221,10 +221,10 @@ export class OdaEntity extends Entity {
   setActiveGun(gunName: string) {
     const originalCount = this.gunList.length;
     this.gunCtr.removeChild(this.gun.sprite);
-    const activeGun = this.gunList.find(g => g.name === gunName);
-    if (!activeGun) throw new Error(`gun name not found in gunList: ${gunName}`)
-    const nonAcivtGuns = this.gunList.filter(g => g.name !== gunName).sort();;
-    const proposedNewGunList = [activeGun, ...nonAcivtGuns].filter(g => !!g);
+    const activeGun = this.gunList.find((g) => g.name === gunName);
+    if (!activeGun) throw new Error(`gun name not found in gunList: ${gunName}`);
+    const nonAcivtGuns = this.gunList.filter((g) => g.name !== gunName).sort();
+    const proposedNewGunList = [activeGun, ...nonAcivtGuns].filter((g) => !!g);
     if (originalCount !== proposedNewGunList.length) throw new Error('count is off');
     this.gunList = proposedNewGunList;
     this.gunCtr.zIndex = ZLayer.m2;

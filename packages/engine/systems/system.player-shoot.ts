@@ -3,10 +3,10 @@ import type { IOdaGun } from '../entity/eneity.oda-gun';
 import { OdaEntity } from '../entity/entity.oda';
 import type { IEntityStore } from '../entity/entity.store';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
+import { ZLayer } from '../types/enums';
 import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
-import { ZLayer } from '../types/enums';
 
 const createRectangleGraphic = (props: {
   range: number;
@@ -190,7 +190,7 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         range: oda.gun.range,
         shotFromPos: new PIXI.Point(oda.center.x, oda.center.y), // TOOD: refact Postitions to be PIXI.Points
         spread: oda.gun.spread,
-        faceDirection: isFacingRight ? 'right' : 'left'
+        faceDirection: isFacingRight ? 'right' : 'left',
       });
 
       const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
@@ -199,7 +199,7 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         hitArea.map((e) => bus.fire('shotHit', { gunName, area: e }));
         bus.fire('camShake', { duration: 100, magnitude: 3 });
         const hitRect = getFurthestRectFrom(oda.rect, hitArea);
-        applyTracer({ oda, hitRect, gameRef })
+        applyTracer({ oda, hitRect, gameRef });
       } else {
         const furthestRect = rectArr.reduce((prev, curr) => {
           const prevDist = Math.abs(oda.center.x - prev.x);
@@ -215,11 +215,13 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
   };
 };
 
-const applyTracer = (props: { oda: OdaEntity; hitRect: PIXI.Rectangle; gameRef: PIXI.Container; }) => {
+const applyTracer = (props: { oda: OdaEntity; hitRect: PIXI.Rectangle; gameRef: PIXI.Container }) => {
   const { oda, hitRect, gameRef } = props;
   const gun = oda.gun.sprite;
 
-  let startX, endX, tracerWidth;
+  let startX = 0;
+  let endX = 0;
+  let tracerWidth = 0;
   const startY = gun.y + 15;
 
   if (oda.isFacingRight) {
@@ -233,9 +235,7 @@ const applyTracer = (props: { oda: OdaEntity; hitRect: PIXI.Rectangle; gameRef: 
     startX = endX;
   }
 
-  const graphic = new PIXI.Graphics()
-    .rect(startX, startY, tracerWidth, 1)
-    .fill({ color: 'white', alpha: 0.85 });
+  const graphic = new PIXI.Graphics().rect(startX, startY, tracerWidth, 1).fill({ color: 'white', alpha: 0.85 });
 
   gameRef.addChild(graphic);
   setTimeout(() => gameRef.removeChild(graphic), 50);
@@ -244,14 +244,10 @@ const applyTracer = (props: { oda: OdaEntity; hitRect: PIXI.Rectangle; gameRef: 
 const applyGunFlash = (props: { oda: OdaEntity; flash: PIXI.Sprite; gameRef: PIXI.Container }) => {
   const { oda, flash, gameRef } = props;
   const gun = oda.gun;
-  const odaGunRect = new PIXI.Rectangle(
-    gun.sprite.x,
-    gun.sprite.y,
-    gun.sprite.width,
-    gun.sprite.height);
+  const odaGunRect = new PIXI.Rectangle(gun.sprite.x, gun.sprite.y, gun.sprite.width, gun.sprite.height);
 
   if (!oda.isFacingRight) {
-    odaGunRect.x -= (gun.sprite.width * (1 - 0.25))
+    odaGunRect.x -= gun.sprite.width * (1 - 0.25);
   }
 
   flash.y = odaGunRect.top + (odaGunRect.height * 0.5 - flash.height * 0.5);
@@ -270,18 +266,16 @@ const applyGunFlash = (props: { oda: OdaEntity; flash: PIXI.Sprite; gameRef: PIX
     flash.x = odaGunRect.left;
   }
 
-  if (gun.name === "Raygun") {
+  if (gun.name === 'Raygun') {
     flash.y -= 4;
   }
 
   if (oda.isRolling) {
-    debugger
   }
 
   flash.zIndex = ZLayer.m2;
   gameRef.addChild(flash);
 };
-
 
 const getFurthestRectFrom = (rect: PIXI.Rectangle, rects: PIXI.Rectangle[]): PIXI.Rectangle => {
   if (rects.length === 0) {

@@ -1,19 +1,16 @@
 import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
-import { Entity } from './entity';
 import type { IOdaGun } from './eneity.oda-gun';
-
+import { Entity } from './entity';
 
 export class GunHudInfoEntity extends Entity {
   gunList: IOdaGun[];
   gunGraphics: {
-    name: string,
-    ctr: PIXI.Container,
-    ammoText: PIXI.Text,
+    name: string;
+    ctr: PIXI.Container;
+    ammoText: PIXI.Text;
   }[] = [];
-  selectGraphic = new PIXI.Graphics()
-    .roundRect(0, 0, 50, 21, 1)
-    .stroke({ width: 2, color: 'white' });
+  selectGraphic = new PIXI.Graphics().roundRect(0, 0, 50, 21, 1).stroke({ width: 2, color: 'white' });
   selectedIdx = 0;
 
   private time: number = 0; // for animation
@@ -28,14 +25,12 @@ export class GunHudInfoEntity extends Entity {
     this._setSelectedGraphicInPosition();
     this.selectGraphic.visible = false;
 
-    this.selectGraphic.pivot.set(
-      this.selectGraphic.width / 2,
-      this.selectGraphic.height / 2);
+    this.selectGraphic.pivot.set(this.selectGraphic.width / 2, this.selectGraphic.height / 2);
   }
 
   setNewGunList(gunList: IOdaGun[]) {
     this.gunList = gunList;
-    this.gunGraphics.map(g => this.ctr.removeChild(g.ctr));
+    this.gunGraphics.map((g) => this.ctr.removeChild(g.ctr));
     this.gunGraphics.length = 0;
 
     for (const g of this.gunList) {
@@ -57,25 +52,27 @@ export class GunHudInfoEntity extends Entity {
       }
 
       this.ctr.addChild(ctr);
-      this.gunGraphics.push({ name: g.name, ctr: ctr, ammoText, });
+      this.gunGraphics.push({ name: g.name, ctr: ctr, ammoText });
     }
   }
 
   showGunList() {
-    if (this.gunGraphics.find(g => !g.ctr.visible)) {
-      this.gunGraphics.map(g => (g.ctr.visible = true));
+    if (this.gunGraphics.find((g) => !g.ctr.visible)) {
+      for (const g of this.gunGraphics) g.ctr.visible = true;
+
       this.selectGraphic.visible = true;
     }
   }
 
   hidNonActiveGuns(): string | null {
-    if (this.gunGraphics.every(g => g.ctr.visible)) {
-      this.gunGraphics.slice(1).map(g => (g.ctr.visible = false));
+    if (this.gunGraphics.every((g) => g.ctr.visible)) {
+      for (const g of this.gunGraphics.slice(1)) g.ctr.visible = true;
+
       const selectedGunName = this.gunList.at(this.selectedIdx)?.name ?? null;
       this.selectedIdx = 0;
       this._setSelectedGraphicInPosition();
       this.selectGraphic.visible = false;
-      return selectedGunName
+      return selectedGunName;
     }
     return null;
   }
@@ -114,10 +111,8 @@ export class GunHudInfoEntity extends Entity {
   }
 
   private _setSelectedGraphicInPosition() {
-    this.selectGraphic.x = this.gunGraphics[this.selectedIdx].ctr.x +
-      (this.selectGraphic.width * 0.5);
-    this.selectGraphic.y = this.gunGraphics[this.selectedIdx].ctr.y +
-      (this.selectGraphic.height * 0.433);
+    this.selectGraphic.x = this.gunGraphics[this.selectedIdx].ctr.x + this.selectGraphic.width * 0.5;
+    this.selectGraphic.y = this.gunGraphics[this.selectedIdx].ctr.y + this.selectGraphic.height * 0.433;
   }
 
   private _getNewTextInstance() {
@@ -132,7 +127,6 @@ export class GunHudInfoEntity extends Entity {
     return result;
   }
 }
-
 
 interface HudProps {
   odaIcon: PIXI.Sprite;
@@ -165,18 +159,14 @@ export class HeadsUpDisplayEntity extends Entity {
       .fill({ color: 'yellow', alpha: 0.2 })
       .stroke({ width: 2.15, color: 'white' });
 
-    this.ctr.addChild(
-      this.odaIcon,
-      this.maxHealthGraphic,
-      this.headBarMainGraphic,
-    )
+    this.ctr.addChild(this.odaIcon, this.maxHealthGraphic, this.headBarMainGraphic);
 
     this.maxHealthGraphic.x = this.odaIcon.x + this.odaIcon.width;
     this.maxHealthGraphic.y = 8;
     this.headBarMainGraphic.x = this.maxHealthGraphic.x;
     this.headBarMainGraphic.y = this.maxHealthGraphic.y + 1;
 
-    this.gunInfo = new GunHudInfoEntity({ gunList: props.gunList })
+    this.gunInfo = new GunHudInfoEntity({ gunList: props.gunList });
     this.ctr.addChild(this.gunInfo.ctr);
     this.gunInfo.ctr.y = this.odaIcon.y + this.odaIcon.height + 5;
   }

@@ -14,13 +14,12 @@ export const createHeadsUpDisplaySystem = (di: IDiContainer): ISystem => {
   if (!hud) throw new Error('hud entity not found');
   if (!oda) throw new Error('oda not found');
 
-
   setTimeout(() => {
     hud.setHeathPercent(65);
   }, 1000);
 
   bus.on('odaShot', (e) => {
-    const gun = hud.gunInfo.gunList.find(g => g.name === e.name);
+    const gun = hud.gunInfo.gunList.find((g) => g.name === e.name);
     if (gun) {
       const idxOfGun = hud.gunInfo.gunList.indexOf(gun);
       const ammoText = hud.gunInfo.gunGraphics.at(idxOfGun)?.ammoText;
@@ -42,17 +41,16 @@ export const createHeadsUpDisplaySystem = (di: IDiContainer): ISystem => {
         if (input.up.wasPressedOnce) {
           hud.gunInfo.hoverSelectPrev();
         }
-
       }
       if (input.option.wasReleasedOnce) {
         const selectedGunName = hud.hideGunList();
         if (selectedGunName) {
           oda.setActiveGun(selectedGunName);
           hud.gunInfo.setNewGunList(oda.gunList);
-          const activeGun = oda.gunList.find(g => g.name === selectedGunName);
-          const nonAcivtGuns = oda.gunList.filter(g => g.name !== selectedGunName);
+          const activeGun = oda.gunList.find((g) => g.name === selectedGunName);
+          const nonAcivtGuns = oda.gunList.filter((g) => g.name !== selectedGunName);
           if (activeGun) {
-            oda.gunList = [activeGun, ...nonAcivtGuns.sort()]
+            oda.gunList = [activeGun, ...nonAcivtGuns.sort()];
             hud.gunInfo.gunList = oda.gunList;
           }
         }

@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import { OdaGunEntity } from '../../entity/eneity.oda-gun';
 import { CameraOrbEntity } from '../../entity/entity.camera-orb';
 import { HeadsUpDisplayEntity } from '../../entity/entity.hud';
 import { OdaEntity } from '../../entity/entity.oda';
@@ -68,13 +67,13 @@ export const openingScene = (di: IDiContainer): IScene => {
         gunList: [
           gunFactory.create({ name: 'Rifle' }),
           gunFactory.create({ name: 'Shotgun' }),
-          gunFactory.create({ name: 'Raygun' })
-        ]
+          gunFactory.create({ name: 'Raygun' }),
+        ],
       });
       oda.setIdle();
 
       gameRef.addChild(oda.gunCtr);
-      entityStore.add(oda, new CameraOrbEntity(),);
+      entityStore.add(oda, new CameraOrbEntity());
 
       const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y);
       for (let i = 0; i < sortedTrafficDrums.length; i++) {
@@ -89,12 +88,12 @@ export const openingScene = (di: IDiContainer): IScene => {
       const hud = new HeadsUpDisplayEntity({
         odaIcon: assetLoader.createSprite('odaHudIcon'),
         gunList: oda.gunList,
-      })
+      });
 
       entityStore.add(hud);
 
       setTimeout(() => {
-        oda?.move(new PIXI.Point(1000, 300));
+        oda?.move(new PIXI.Point(100, 300));
       }, 50);
 
       systemAgg.add(
@@ -124,7 +123,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => { },
+    dispose: () => {},
   };
 };
 
