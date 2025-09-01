@@ -53,7 +53,7 @@ const createOdaGunEvent = (odaGun: IOdaGun) => {
     spread: odaGun.spread,
     animationSpeed: odaGun.animationSpeed,
     showTracer: odaGun.tracer,
-    piercing: odaGun.piercing
+    piercing: odaGun.piercing,
   };
 };
 
@@ -250,10 +250,10 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
 };
 
 const applyTracer = (props: {
-  oda: OdaEntity,
+  oda: OdaEntity;
   flash: PIXI.Sprite;
   hitRect: PIXI.Rectangle;
-  gameRef: PIXI.Container,
+  gameRef: PIXI.Container;
 }) => {
   const { oda, flash, hitRect, gameRef } = props;
 
