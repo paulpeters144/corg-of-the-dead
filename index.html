@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>game</title>
+        <style>
+          @font-face {
+            font-family: 'pix'; /* Choose a name for your font */
+            src: url('fonts/Graph-35-pix.ttf') format('truetype'); /* Specify the path to your .ttf file */
+            font-weight: normal; /* Or specify a weight like bold, 400, 700 */
+            font-style: normal; /* Or specify italic */
+          }
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                background-color: black;
+            }
+            #wrapper {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: black;
+            }
+            #game {
+              border: 2px solid white;
+            }
+            .hidden-text {
+              color: transparent; 
+              font-family: pix; 
+              position: absolute;
+              font-size: 1;
+            }
+        </style>
+      <script type="module" crossorigin src="/assets/index-cgIpDLY4.js"></script>
+    </head>
+    <body>
+      <div class="hidden-text">.</div>
+        <div id="wrapper">
+            <canvas id="game"></canvas>
+        </div>
+    </body>
+</html>
