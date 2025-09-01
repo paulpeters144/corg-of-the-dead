@@ -29,6 +29,7 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         animationSpeed: 0.5,
         areaSize: 12,
         name: props.name,
+        tracer: 1,
       });
       rifle.sprite.zIndex = ZLayer.m2;
       return rifle;
@@ -40,16 +41,16 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         assets: {
           flash: assetLoader.getTexture('rifle1Flash'),
           icon: assetLoader.getTexture('shotty1Icon'),
-          impact: assetLoader.getTexture('rifle1Impact'), // TODO: need correct impact texture
+          impact: assetLoader.getTexture('rifle1Impact'),
         },
         ammo: 200,
-        damage: 35,
+        damage: 25,
         fireRate: 350,
-        range: 25,
+        range: 20,
         isAutomatic: false,
         spread: 7,
         animationSpeed: 0.15,
-        areaSize: 15,
+        areaSize: 12,
         name: props.name,
       });
       shotgun.sprite.zIndex = ZLayer.m2;
@@ -62,17 +63,19 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         assets: {
           flash: assetLoader.getTexture('rifle1Flash'),
           icon: assetLoader.getTexture('weirdGun1Icon'),
-          impact: assetLoader.getTexture('rifle1Impact'), // TODO: need correct impact texture
+          impact: assetLoader.getTexture('rifle1Impact'),
         },
         ammo: 200,
-        damage: 35,
+        damage: 50,
         fireRate: 250,
-        range: 25,
+        range: 50,
         isAutomatic: false,
         spread: 1,
         animationSpeed: 0.15,
-        areaSize: 15,
+        areaSize: 8,
         name: props.name,
+        tracer: 5,
+        piercing: true,
       });
       shotgun.sprite.zIndex = ZLayer.m2;
       return shotgun;

@@ -20,7 +20,10 @@ export interface IEventBus {
 export type EventMap = {
   eventName: { count: number };
   shotFired: { cords: PIXI.Rectangle; facingRight: boolean };
-  odaShot: Omit<IOdaGun, 'icon' | 'sprite' | 'assets'>;
+  odaShot: Pick<
+    IOdaGun,
+    'ammo' | 'rect' | 'name' | 'fireRate' | 'damage' | 'isAutomatic' | 'range' | 'spread' | 'showTracer' | 'piercing'
+  >;
   shotHit: { gunName: string; area: PIXI.Rectangle };
   shotMiss: { gunName: string; area: PIXI.Rectangle };
   camShake: {

@@ -21,6 +21,9 @@ export interface IOdaGun {
   isAutomatic: boolean;
   spread: number;
   animationSpeed: number;
+  areaSize: number;
+  piercing: boolean;
+  tracer: number;
 }
 
 interface gunProps {
@@ -34,7 +37,9 @@ interface gunProps {
   isAutomatic: boolean;
   spread: number;
   animationSpeed: number;
-  areaSize: number;
+  areaSize?: number;
+  piercing?: boolean;
+  tracer?: number;
 }
 
 export class OdaGunEntity extends Entity implements IOdaGun {
@@ -48,6 +53,8 @@ export class OdaGunEntity extends Entity implements IOdaGun {
   animationSpeed: number;
   assets: assets;
   areaSize: number;
+  piercing: boolean;
+  tracer: number;
 
   get sprite(): PIXI.Sprite {
     return this.ctr as PIXI.Sprite;
@@ -65,6 +72,8 @@ export class OdaGunEntity extends Entity implements IOdaGun {
     this.animationSpeed = props.animationSpeed;
     this.name = props.name;
     this.assets = props.assets;
-    this.areaSize = props.areaSize;
+    this.areaSize = props.areaSize || 12;
+    this.piercing = !!props.piercing;
+    this.tracer = props.tracer || 0;
   }
 }

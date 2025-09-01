@@ -52,6 +52,8 @@ const createOdaGunEvent = (odaGun: IOdaGun) => {
     range: odaGun.range,
     spread: odaGun.spread,
     animationSpeed: odaGun.animationSpeed,
+    showTracer: odaGun.tracer,
+    piercing: odaGun.piercing
   };
 };
 
@@ -87,7 +89,6 @@ const handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boolea
   if (now - lastShot < oda.gun.fireRate) return false;
 
   if (input.shoot.is.pressed && !oda.isShooting) {
-    // oda.setShoot();
     lastShot = performance.now();
 
     return true;
@@ -117,6 +118,7 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
   const { oda, rangeArea, entityStore } = props;
   if (!oda.gun) throw new Error('shooting with no gun... not a good idea');
   const spread = oda.gun.spread;
+  const isPiercing = oda.gun.piercing;
 
   const hittableEntities = [...entityStore.getAll(TrafficDrumEntity)].sort((a, b) => {
     const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
@@ -126,21 +128,53 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
 
   const hitTrafficDrums: TrafficDrumEntity[] = [];
 
+  const isWithinRangeArea = (entity: TrafficDrumEntity): boolean => {
+    for (let ii = 0; ii < rangeArea.length; ii++) {
+      if (entity.rect.intersects(rangeArea[ii])) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   for (let i = 0; i < hittableEntities.length; i++) {
     const entity = hittableEntities[i];
-    for (let ii = 0; ii < rangeArea.length; ii++) {
-      const rangeRect = rangeArea[ii];
-      const intersects = entity.rect.intersects(rangeRect);
-      if (intersects) {
-        const firstEntityXPos = hitTrafficDrums.at(0)?.rect.x || entity.rect.x;
-        const notInArr = !hitTrafficDrums.some((e) => e.id === entity.id);
-        const withInXPosBuff = Math.abs(entity.rect.x - firstEntityXPos) < 50;
-        if (notInArr && withInXPosBuff) {
+    const notInArr = !hitTrafficDrums.some((e) => e.id === entity.id);
+
+    if (!isWithinRangeArea(entity) || !notInArr) continue;
+
+    if (isPiercing) {
+      hitTrafficDrums.push(entity);
+    } else {
+      if (spread > 1) {
+        let shouldHit = false;
+
+        if (hitTrafficDrums.length === 0) {
+          shouldHit = true;
+        } else {
+          for (const hitEntity of hitTrafficDrums) {
+            const dx = entity.center.x - hitEntity.center.x;
+            const dy = entity.center.y - hitEntity.center.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance <= 50) {
+              shouldHit = true;
+              break;
+            }
+          }
+        }
+
+        if (shouldHit) {
+          hitTrafficDrums.push(entity);
+        }
+      } else {
+        if (hitTrafficDrums.length === 0) {
           hitTrafficDrums.push(entity);
         }
       }
-      if (hitTrafficDrums.length >= spread) break;
     }
+
+    if (!isPiercing && spread === 1 && hitTrafficDrums.length > 0) break;
   }
 
   for (let i = 0; i < hitTrafficDrums.length; i++) {
@@ -152,7 +186,6 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
 
   return hitTrafficDrums.map((e) => e.rect);
 };
-
 export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
   const input = di.input();
   const bus = di.eventBus();
@@ -188,8 +221,9 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
       const isFacingRight = oda.isFacingRight;
       const { rectArr } = createRectangleGraphic({
         range: oda.gun.range,
-        shotFromPos: new PIXI.Point(oda.center.x, oda.center.y), // TOOD: refact Postitions to be PIXI.Points
+        shotFromPos: new PIXI.Point(oda.center.x, oda.center.y),
         spread: oda.gun.spread,
+        size: oda.gun.areaSize,
         faceDirection: isFacingRight ? 'right' : 'left',
       });
 
@@ -199,7 +233,7 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         hitArea.map((e) => bus.fire('shotHit', { gunName, area: e }));
         bus.fire('camShake', { duration: 100, magnitude: 3 });
         const hitRect = getFurthestRectFrom(oda.rect, hitArea);
-        applyTracer({ oda, hitRect, gameRef });
+        if (oda.gun.tracer) applyTracer({ oda, flash, hitRect, gameRef });
       } else {
         const furthestRect = rectArr.reduce((prev, curr) => {
           const prevDist = Math.abs(oda.center.x - prev.x);
@@ -215,27 +249,34 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
   };
 };
 
-const applyTracer = (props: { oda: OdaEntity; hitRect: PIXI.Rectangle; gameRef: PIXI.Container }) => {
-  const { oda, hitRect, gameRef } = props;
-  const gun = oda.gun.sprite;
+const applyTracer = (props: {
+  oda: OdaEntity,
+  flash: PIXI.Sprite;
+  hitRect: PIXI.Rectangle;
+  gameRef: PIXI.Container,
+}) => {
+  const { oda, flash, hitRect, gameRef } = props;
 
   let startX = 0;
   let endX = 0;
   let tracerWidth = 0;
-  const startY = gun.y + 15;
+  const startY = flash.y + 7;
+  const tracerSize = oda.gun.tracer;
 
   if (oda.isFacingRight) {
-    startX = gun.x + 45;
+    startX = flash.x + 25;
     endX = hitRect.x - 30;
     tracerWidth = Math.max(0, endX - startX);
   } else {
-    startX = gun.x - 45;
+    startX = flash.x - 25;
     endX = hitRect.x + hitRect.width + 30;
     tracerWidth = Math.max(0, startX - endX);
     startX = endX;
   }
 
-  const graphic = new PIXI.Graphics().rect(startX, startY, tracerWidth, 1).fill({ color: 'white', alpha: 0.85 });
+  const graphic = new PIXI.Graphics()
+    .rect(startX, startY, tracerWidth, tracerSize)
+    .fill({ color: 'white', alpha: 0.85 });
 
   gameRef.addChild(graphic);
   setTimeout(() => gameRef.removeChild(graphic), 50);

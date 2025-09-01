@@ -80,8 +80,8 @@ export class GunHudInfoEntity extends Entity {
   update(delta: number) {
     if (!this.selectGraphic.visible) return;
 
-    this.time += delta * 0.5; // control animation speed
-    const scale = 1 + Math.sin(this.time) * 0.05; // 5% grow/shrink
+    this.time += delta * 0.5;
+    const scale = 1 + Math.sin(this.time) * 0.05;
     this.selectGraphic.scale.set(scale);
   }
 
