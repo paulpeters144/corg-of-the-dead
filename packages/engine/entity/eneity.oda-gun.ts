@@ -1,7 +1,7 @@
 import type * as PIXI from 'pixi.js';
 import { Entity } from './entity';
 
-export type GunName = 'Rifle' | 'Shotgun';
+export type GunName = 'Rifle' | 'Shotgun' | 'Raygun';
 
 type assets = {
   flash: PIXI.Texture;

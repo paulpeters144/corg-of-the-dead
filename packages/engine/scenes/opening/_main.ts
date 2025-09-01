@@ -46,6 +46,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         'shotty1Icon',
         'weirdGun1',
         'odaHudIcon',
+        'weirdGun1Icon',
         'inputBtn',
       );
 
@@ -62,21 +63,18 @@ export const openingScene = (di: IDiContainer): IScene => {
       entityStore.add(...tilemap.boundaryBoxes);
       tilemap.ctr.cullable = true;
 
-      const odasShotgun = gunFactory.create({ name: 'Shotgun' });
-      const odasRifle = gunFactory.create({ name: 'Rifle' });
+      const oda = new OdaEntity({
+        spriteSheet: assetLoader.getTexture('odaIdle'),
+        gunList: [
+          gunFactory.create({ name: 'Rifle' }),
+          gunFactory.create({ name: 'Shotgun' }),
+          gunFactory.create({ name: 'Raygun' })
+        ]
+      });
+      oda.setIdle();
 
-      entityStore.add(
-        new OdaEntity({ spriteSheet: assetLoader.getTexture('odaIdle') }),
-        new CameraOrbEntity(),
-        odasRifle,
-        odasShotgun,
-        new HeadsUpDisplayEntity({
-          odaIcon: assetLoader.createSprite('odaHudIcon'),
-          weaponIcon: new PIXI.Sprite(odasRifle.assets.icon),
-        }),
-      );
-
-      entityStore.first(HeadsUpDisplayEntity)?.setGunText(`${entityStore.first(OdaGunEntity)?.ammo || 0}`);
+      gameRef.addChild(oda.gunCtr);
+      entityStore.add(oda, new CameraOrbEntity(),);
 
       const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y);
       for (let i = 0; i < sortedTrafficDrums.length; i++) {
@@ -88,17 +86,20 @@ export const openingScene = (di: IDiContainer): IScene => {
         entityStore.add(trafficDrum);
       }
 
-      const oda = entityStore.first(OdaEntity);
-      oda?.gunList.push(odasRifle, odasShotgun);
-      oda?.setIdle();
+      const hud = new HeadsUpDisplayEntity({
+        odaIcon: assetLoader.createSprite('odaHudIcon'),
+        gunList: oda.gunList,
+      })
+
+      entityStore.add(hud);
 
       setTimeout(() => {
-        oda?.move(new PIXI.Point(100, 300));
+        oda?.move(new PIXI.Point(1000, 300));
       }, 50);
 
       systemAgg.add(
-        createHeadsUpDisplaySystem(di),
         createOdaRollSystem(di),
+        createHeadsUpDisplaySystem(di),
         createPlayerShootSystem(di),
         createCamControlSystem(di),
         createPlayZIndexSystem(di),
@@ -123,7 +124,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

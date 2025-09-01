@@ -52,7 +52,7 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
 
 export class OdaEntity extends Entity {
   gunList: IOdaGun[] = [];
-
+  gunCtr = new PIXI.Container();
   get gun(): IOdaGun {
     const activeGun = this.gunList.at(0);
     if (!activeGun) throw new Error('no active gun');
@@ -135,8 +135,9 @@ export class OdaEntity extends Entity {
     return this.anim.playing;
   }
 
-  constructor(props: { spriteSheet: PIXI.Texture }) {
+  constructor(props: { spriteSheet: PIXI.Texture, gunList: IOdaGun[] }) {
     super(new PIXI.Container());
+    this.gunList = props.gunList;
     this.animMap = createAnimations(props.spriteSheet);
 
     const keysMap = Object.keys(this.animMap);
@@ -149,6 +150,7 @@ export class OdaEntity extends Entity {
     }
 
     this.ctr.children[0].visible = true;
+    this.setActiveGun(this.gun.name);
     this.ctr.zIndex = ZLayer.m1;
   }
 
@@ -195,11 +197,9 @@ export class OdaEntity extends Entity {
       c.scale.set(-1, 1);
     }
 
-    if (this.gun) {
-      const gun = this.gun.sprite;
-      gun.anchor.set(0.24, 0);
-      gun.scale.set(-1, 1);
-    }
+    const gun = this.gun.sprite;
+    gun.anchor.set(0.25, 0);
+    gun.scale.set(-1, 1);
   }
 
   faceRight() {
@@ -209,23 +209,40 @@ export class OdaEntity extends Entity {
       c.scale.set(1, 1);
     }
 
-    if (this.gun) {
-      const gun = this.gun.sprite;
-      gun.anchor.set(0, 0);
-      gun.scale.set(1, 1);
-    }
+    const gun = this.gun.sprite;
+    gun.anchor.set(0, 0);
+    gun.scale.set(1, 1);
   }
 
   setGunVisible(value: boolean) {
     this.gun.sprite.visible = value;
   }
 
+  setActiveGun(gunName: string) {
+    const originalCount = this.gunList.length;
+    this.gunCtr.removeChild(this.gun.sprite);
+    const activeGun = this.gunList.find(g => g.name === gunName);
+    if (!activeGun) throw new Error(`gun name not found in gunList: ${gunName}`)
+    const nonAcivtGuns = this.gunList.filter(g => g.name !== gunName).sort();;
+    const proposedNewGunList = [activeGun, ...nonAcivtGuns].filter(g => !!g);
+    if (originalCount !== proposedNewGunList.length) throw new Error('count is off');
+    this.gunList = proposedNewGunList;
+    this.gunCtr.zIndex = ZLayer.m2;
+    this.gunCtr.addChild(this.gun.sprite);
+    this.move(new PIXI.Point(0, 0));
+    this.isFacingRight ? this.faceRight() : this.faceLeft();
+  }
+
   move(amount: PIXI.Point) {
     this.ctr.x += amount.x;
     this.ctr.y += amount.y;
     if (this.gun) {
-      this.gun.sprite.x = this.ctr.x + 20;
-      this.gun.sprite.y = this.ctr.y + 28;
+      if (this.isFacingRight) {
+        this.gun.sprite.x = this.ctr.x + 25;
+      } else {
+        this.gun.sprite.x = this.ctr.x + 18;
+      }
+      this.gun.sprite.y = this.ctr.y + 16;
     }
   }
 

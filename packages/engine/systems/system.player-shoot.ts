@@ -6,6 +6,7 @@ import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
+import { ZLayer } from '../types/enums';
 
 const createRectangleGraphic = (props: {
   range: number;
@@ -56,7 +57,7 @@ const createOdaGunEvent = (odaGun: IOdaGun) => {
 
 let shotFired = false;
 let lastShot = 0;
-const _handleNonAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boolean => {
+const handleNonAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boolean => {
   const { oda, input } = props;
   if (!oda.gun) return false;
   if (oda.gun.ammo <= 0) return false;
@@ -78,7 +79,7 @@ const _handleNonAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): bo
   return false;
 };
 
-const _handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boolean => {
+const handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boolean => {
   const { oda, input } = props;
   if (!oda.gun) return false;
 
@@ -94,7 +95,7 @@ const _handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boole
   return false;
 };
 
-const _applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: PIXI.Rectangle[]; odaGun: IOdaGun }) => {
+export const applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: PIXI.Rectangle[]; odaGun: IOdaGun }) => {
   const { gameRef, rectArea } = props;
   const graphicArea: PIXI.Graphics[] = [];
 
@@ -171,10 +172,10 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
 
       let shotFired = false;
       if (oda.gun.isAutomatic) {
-        shotFired = _handleAutomaticFiring({ oda: oda, input: input });
+        shotFired = handleAutomaticFiring({ oda: oda, input: input });
       }
       if (!oda.gun.isAutomatic) {
-        shotFired = _handleNonAutomaticFiring({ oda: oda, input: input });
+        shotFired = handleNonAutomaticFiring({ oda: oda, input: input });
       }
 
       if (!shotFired) return;
@@ -189,17 +190,16 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
         range: oda.gun.range,
         shotFromPos: new PIXI.Point(oda.center.x, oda.center.y), // TOOD: refact Postitions to be PIXI.Points
         spread: oda.gun.spread,
-        faceDirection: isFacingRight ? 'right' : 'left',
+        faceDirection: isFacingRight ? 'right' : 'left'
       });
 
       const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
       if (hitArea.length > 0) {
         const gunName = oda.gun.name || 'unknown-gun-name';
         hitArea.map((e) => bus.fire('shotHit', { gunName, area: e }));
-        bus.fire('camShake', {
-          duration: 100,
-          magnitude: 3,
-        });
+        bus.fire('camShake', { duration: 100, magnitude: 3 });
+        const hitRect = getFurthestRectFrom(oda.rect, hitArea);
+        applyTracer({ oda, hitRect, gameRef })
       } else {
         const furthestRect = rectArr.reduce((prev, curr) => {
           const prevDist = Math.abs(oda.center.x - prev.x);
@@ -214,24 +214,100 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
     },
   };
 };
+
+const applyTracer = (props: { oda: OdaEntity; hitRect: PIXI.Rectangle; gameRef: PIXI.Container; }) => {
+  const { oda, hitRect, gameRef } = props;
+  const gun = oda.gun.sprite;
+
+  let startX, endX, tracerWidth;
+  const startY = gun.y + 15;
+
+  if (oda.isFacingRight) {
+    startX = gun.x + 45;
+    endX = hitRect.x - 30;
+    tracerWidth = Math.max(0, endX - startX);
+  } else {
+    startX = gun.x - 45;
+    endX = hitRect.x + hitRect.width + 30;
+    tracerWidth = Math.max(0, startX - endX);
+    startX = endX;
+  }
+
+  const graphic = new PIXI.Graphics()
+    .rect(startX, startY, tracerWidth, 1)
+    .fill({ color: 'white', alpha: 0.85 });
+
+  gameRef.addChild(graphic);
+  setTimeout(() => gameRef.removeChild(graphic), 50);
+};
+
 const applyGunFlash = (props: { oda: OdaEntity; flash: PIXI.Sprite; gameRef: PIXI.Container }) => {
   const { oda, flash, gameRef } = props;
+  const gun = oda.gun;
+  const odaGunRect = new PIXI.Rectangle(
+    gun.sprite.x,
+    gun.sprite.y,
+    gun.sprite.width,
+    gun.sprite.height);
 
-  const odaGunRect = oda.gun?.rect;
-  if (odaGunRect) {
-    flash.y = odaGunRect.top + (odaGunRect.height * 0.5 - flash.height * 0.5);
-    setTimeout(() => {
-      gameRef.removeChild(flash);
-    }, 35);
-    if (oda.isFacingRight) {
-      flash.x = odaGunRect.right + 3;
-    } else {
-      flash.x = odaGunRect.left - 5;
-      flash.scale.set(-1, 1);
-      flash.x -= flash.width;
-    }
-    flash.zIndex = 9999;
-
-    gameRef.addChild(flash);
+  if (!oda.isFacingRight) {
+    odaGunRect.x -= (gun.sprite.width * (1 - 0.25))
   }
+
+  flash.y = odaGunRect.top + (odaGunRect.height * 0.5 - flash.height * 0.5);
+
+  setTimeout(() => {
+    gameRef.removeChild(flash);
+  }, 35);
+
+  if (oda.isFacingRight) {
+    flash.scale.set(1, 1);
+    flash.pivot.set(0, 0);
+    flash.x = odaGunRect.right;
+  } else {
+    flash.scale.set(-1, 1);
+    flash.pivot.set(0, 0);
+    flash.x = odaGunRect.left;
+  }
+
+  if (gun.name === "Raygun") {
+    flash.y -= 4;
+  }
+
+  if (oda.isRolling) {
+    debugger
+  }
+
+  flash.zIndex = ZLayer.m2;
+  gameRef.addChild(flash);
+};
+
+
+const getFurthestRectFrom = (rect: PIXI.Rectangle, rects: PIXI.Rectangle[]): PIXI.Rectangle => {
+  if (rects.length === 0) {
+    throw new Error('length of rects need to be larger than 0');
+  }
+
+  const rectCenterX = rect.x + rect.width / 2;
+  const rectCenterY = rect.y + rect.height / 2;
+
+  let furthestRect = rects[0];
+  let maxDistanceSq = 0;
+
+  for (let i = 0; i < rects.length; i++) {
+    const currentRect = rects[i];
+    const currentRectCenterX = currentRect.x + currentRect.width / 2;
+    const currentRectCenterY = currentRect.y + currentRect.height / 2;
+
+    const dx = currentRectCenterX - rectCenterX;
+    const dy = currentRectCenterY - rectCenterY;
+    const distanceSq = dx * dx + dy * dy;
+
+    if (distanceSq > maxDistanceSq) {
+      maxDistanceSq = distanceSq;
+      furthestRect = currentRect;
+    }
+  }
+
+  return furthestRect;
 };

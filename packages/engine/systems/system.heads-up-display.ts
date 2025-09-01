@@ -14,34 +14,51 @@ export const createHeadsUpDisplaySystem = (di: IDiContainer): ISystem => {
   if (!hud) throw new Error('hud entity not found');
   if (!oda) throw new Error('oda not found');
 
+
   setTimeout(() => {
-    hud.setHeathPercent(30);
+    hud.setHeathPercent(65);
   }, 1000);
 
   bus.on('odaShot', (e) => {
-    hud.setGunText(`${e.ammo}`);
+    const gun = hud.gunInfo.gunList.find(g => g.name === e.name);
+    if (gun) {
+      const idxOfGun = hud.gunInfo.gunList.indexOf(gun);
+      const ammoText = hud.gunInfo.gunGraphics.at(idxOfGun)?.ammoText;
+      if (ammoText) ammoText.text = e.ammo.toString();
+    }
   });
 
   return {
     name: () => 'hud-system',
-    update: (_: number) => {
+    update: (delta: number) => {
       const camZeroPos = camera.zeroPos();
       hud.ctr.position.set(camZeroPos.x + 10, camZeroPos.y + 5);
       if (input.option.is.pressed) {
-        const odasGun = oda.gun;
-        if (odasGun) {
-          hud.setGunText(`${odasGun.ammo} ${odasGun.name}`);
+        hud.showGunList();
+
+        if (input.down.wasPressedOnce) {
+          hud.gunInfo.hoverSelectNext();
+        }
+        if (input.up.wasPressedOnce) {
+          hud.gunInfo.hoverSelectPrev();
         }
 
-        hud.addGunOptions(oda.gunList);
       }
       if (input.option.wasReleasedOnce) {
-        const odasGun = oda.gun;
-        if (odasGun) {
-          hud.setGunText(`${odasGun.ammo}`);
-          hud.gunListCtr.removeChildren();
+        const selectedGunName = hud.hideGunList();
+        if (selectedGunName) {
+          oda.setActiveGun(selectedGunName);
+          hud.gunInfo.setNewGunList(oda.gunList);
+          const activeGun = oda.gunList.find(g => g.name === selectedGunName);
+          const nonAcivtGuns = oda.gunList.filter(g => g.name !== selectedGunName);
+          if (activeGun) {
+            oda.gunList = [activeGun, ...nonAcivtGuns.sort()]
+            hud.gunInfo.gunList = oda.gunList;
+          }
         }
       }
+
+      hud.update(delta);
     },
   };
 };

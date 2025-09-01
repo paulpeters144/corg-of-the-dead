@@ -22,7 +22,7 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         },
         ammo: 500,
         damage: 25,
-        fireRate: 200,
+        fireRate: 175,
         range: 30,
         isAutomatic: true,
         spread: 1,
@@ -48,6 +48,28 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
         range: 25,
         isAutomatic: false,
         spread: 7,
+        animationSpeed: 0.15,
+        areaSize: 15,
+        name: props.name,
+      });
+      shotgun.sprite.zIndex = ZLayer.m2;
+      return shotgun;
+    }
+
+    if (props.name === 'Raygun') {
+      const shotgun = new OdaGunEntity({
+        sprite: assetLoader.createSprite('weirdGun1'),
+        assets: {
+          flash: assetLoader.getTexture('rifle1Flash'),
+          icon: assetLoader.getTexture('weirdGun1Icon'),
+          impact: assetLoader.getTexture('rifle1Impact'), // TODO: need correct impact texture
+        },
+        ammo: 200,
+        damage: 35,
+        fireRate: 250,
+        range: 25,
+        isAutomatic: false,
+        spread: 1,
         animationSpeed: 0.15,
         areaSize: 15,
         name: props.name,
