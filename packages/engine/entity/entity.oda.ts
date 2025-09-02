@@ -250,7 +250,3 @@ export class OdaEntity extends Entity {
     for (let i = 0; i < this.ctr.children.length; i++) this.ctr.children[i].visible = false;
   }
 }
-
-class OdaState {
-
-}
