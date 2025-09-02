@@ -56,12 +56,12 @@ const main = async () => {
 
   const startGame = () => {
     setTimeout(() => {
-      const loadgingText = document.getElementById("loading-wrapper");
+      const loadgingText = document.getElementById('loading-wrapper');
       if (loadgingText) {
-        loadgingText.style.display = "none";
+        loadgingText.style.display = 'none';
       }
       resizer();
-      console.log('[fired]')
+      console.log('[fired]');
       appRef.canvas.style.display = 'block';
       appRef.canvas.style.border = '2px solid white';
     }, 250);

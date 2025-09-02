@@ -4,10 +4,7 @@ import { createDiContainer } from './util/di-container';
 
 export { calculator } from './calculator';
 
-export const createEngine = async (props: {
-  canvas: HTMLCanvasElement;
-  inputAdaptor?: (input: IInput) => void,
-}) => {
+export const createEngine = async (props: { canvas: HTMLCanvasElement; inputAdaptor?: (input: IInput) => void }) => {
   const { canvas, inputAdaptor } = props;
   const di = createDiContainer();
 

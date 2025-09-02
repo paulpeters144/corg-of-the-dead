@@ -32,7 +32,7 @@ export type EventMap = {
     animationSpeed: number;
     areaSize: number;
     piercing: boolean;
-  },
+  };
   shotHit: { gunName: string; area: PIXI.Rectangle };
   shotMiss: { gunName: string; area: PIXI.Rectangle };
   camShake: {
