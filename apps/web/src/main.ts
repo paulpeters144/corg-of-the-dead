@@ -37,14 +37,15 @@ const resizeApp = (props: {
 
   canvas.style.width = `${newWidth}px`;
   canvas.style.height = `${newHeight}px`;
-  canvas.style.display = 'block';
   canvas.style.margin = 'auto';
 };
 
-const main = () => {
+const main = async () => {
   const canvas = getCanvas();
-  const gameEngine = createEngine({ canvas, inputAdaptor });
+  const gameEngine = await createEngine({ canvas, inputAdaptor });
   const appRef = gameEngine.appRef();
+
+  appRef.canvas.style.display = 'none';
 
   const virtSize = {
     width: gameEngine.constants().virtualGameWidth,
@@ -52,10 +53,27 @@ const main = () => {
   };
 
   const resizer = () => resizeApp({ appRef, canvas, virtSize });
-  window.onload = () => setTimeout(resizer, 150);
-  window.onresize = () => resizer();
 
-  gameEngine.run();
+  const startGame = () => {
+    setTimeout(() => {
+      const loadgingText = document.getElementById("loading-wrapper");
+      if (loadgingText) {
+        loadgingText.style.display = "none";
+      }
+      resizer();
+      console.log('[fired]')
+      appRef.canvas.style.display = 'block';
+      appRef.canvas.style.border = '2px solid white';
+    }, 250);
+  };
+
+  if (document.readyState === 'complete') {
+    startGame();
+  } else {
+    window.addEventListener('load', startGame);
+  }
+
+  window.onresize = resizer;
 };
 
 main();

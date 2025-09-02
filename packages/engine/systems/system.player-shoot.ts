@@ -43,15 +43,16 @@ const createRectangleGraphic = (props: {
 
 const createOdaGunEvent = (odaGun: IOdaGun) => {
   return {
-    ammo: odaGun.ammo,
     rect: odaGun.rect,
     name: odaGun.name,
+    ammo: odaGun.ammo,
+    range: odaGun.range,
     fireRate: odaGun.fireRate,
     damage: odaGun.damage,
     isAutomatic: odaGun.isAutomatic,
-    range: odaGun.range,
     spread: odaGun.spread,
     animationSpeed: odaGun.animationSpeed,
+    areaSize: odaGun.areaSize,
     showTracer: odaGun.tracer,
     piercing: odaGun.piercing,
   };

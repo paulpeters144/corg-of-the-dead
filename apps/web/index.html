@@ -29,7 +29,6 @@
                 background-color: black;
             }
             #game {
-              border: 2px solid white;
             }
             .hidden-text {
               color: transparent; 
@@ -42,6 +41,13 @@
     </head>
     <body>
       <div class="hidden-text">.</div>
+      <div id="loading-wrapper"
+          style="display: flex; justify-content: center; align-items: center; 
+                  height: 100vh; width: 100vw; background: black;">
+        <div style="color: white; font-family: 'pix'; font-size: 2rem; text-align: center;">
+          Loading...
+        </div>
+      </div>
         <div id="wrapper">
             <canvas id="game"></canvas>
         </div>

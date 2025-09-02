@@ -1,16 +1,19 @@
 {
   "name": "web",
+  "homepage": "https://paulpeters144.github.io/corg-of-the-dead/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@package/assets": "workspace:*",
     "@package/engine": "workspace:*",
+    "gh-pages": "^6.3.0",
     "pixi.js": "^8.12.0"
   },
   "devDependencies": {
