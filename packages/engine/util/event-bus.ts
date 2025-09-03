@@ -1,5 +1,5 @@
 import type * as PIXI from 'pixi.js';
-import type { GunName } from '../entity/eneity.oda-gun';
+import type { GunName } from '../entity/entity.oda-gun';
 
 type Callback<T> = (payload: T) => void;
 // biome-ignore lint/suspicious/noExplicitAny: use of any is needed here

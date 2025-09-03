@@ -22,7 +22,7 @@ export const createSetPlayerGunPosSystem = (di: IDiContainer): ISystem => {
       const facingRight = oda.isFacingRight;
 
       switch (oda.activeAnimation) {
-        case 'idle':
+        case 'gunIdle':
           oda.gun.sprite.y = oda.ctr.y + 17;
           switch (oda.anim.currentFrame) {
             case 0:
@@ -52,7 +52,7 @@ export const createSetPlayerGunPosSystem = (di: IDiContainer): ISystem => {
           }
           break;
 
-        case 'running':
+        case 'gunRun':
           oda.gun.sprite.y = oda.ctr.y + 17;
           switch (oda.anim.currentFrame) {
             case 0:
@@ -82,7 +82,7 @@ export const createSetPlayerGunPosSystem = (di: IDiContainer): ISystem => {
           }
           break;
 
-        case 'shoot':
+        case 'gunShoot':
           oda.gun.sprite.y = oda.ctr.y + 17;
           switch (oda.anim.currentFrame) {
             case 0:
@@ -97,7 +97,7 @@ export const createSetPlayerGunPosSystem = (di: IDiContainer): ISystem => {
           }
           break;
 
-        case 'walk':
+        case 'gunWalk':
           oda.gun.sprite.y = oda.ctr.y + 17;
           switch (oda.anim.currentFrame) {
             case 0:

@@ -3,6 +3,8 @@ import { CameraOrbEntity } from '../../entity/entity.camera-orb';
 import { HeadsUpDisplayEntity } from '../../entity/entity.hud';
 import { OdaEntity } from '../../entity/entity.oda';
 import { TrafficDrumEntity } from '../../entity/entity.traffic-drum';
+import { createPollFactory } from '../../factory/factory.poll';
+import { createGunFactory } from '../../factory/factory.weapon';
 import { createCamControlSystem } from '../../systems/system.cam-control';
 import { createCamOrbSystem } from '../../systems/system.cam-orb';
 import { createGunExplosianSystem } from '../../systems/system.gun-explosian';
@@ -26,7 +28,8 @@ export const openingScene = (di: IDiContainer): IScene => {
   const camera = di.camera();
   const entityStore = di.entityStore();
   const systemAgg = di.systemAgg();
-  const gunFactory = di.gunFactory();
+  const gunFactory = createGunFactory(assetLoader);
+  const pollFactory = createPollFactory(assetLoader);
 
   return {
     load: async () => {
@@ -69,8 +72,9 @@ export const openingScene = (di: IDiContainer): IScene => {
           gunFactory.create({ name: 'Shotgun' }),
           gunFactory.create({ name: 'Raygun' }),
         ],
+        pollList: [pollFactory.create({ name: 'ParkSign' })],
       });
-      oda.setIdle();
+      oda.setIdlePoll();
 
       gameRef.addChild(oda.gunCtr);
       entityStore.add(oda, new CameraOrbEntity());

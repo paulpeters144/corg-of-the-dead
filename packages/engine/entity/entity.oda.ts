@@ -1,9 +1,20 @@
 import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
-import type { IOdaGun } from './eneity.oda-gun';
 import { Entity } from './entity';
+import type { GunName, IOdaGun } from './entity.oda-gun';
+import type { IOdaPoll, PollName } from './entity.oda-poll';
 
-const spriteAnimKeys = ['idle', 'running', 'shoot', 'walk', 'roll'] as const;
+const spriteAnimKeys = [
+  'gunIdle',
+  'gunRun',
+  'gunShoot',
+  'gunWalk',
+  'roll',
+  'pollIdle',
+  'pollSwing',
+  'pollRun',
+] as const;
+
 type AnimKey = (typeof spriteAnimKeys)[number];
 
 const spriteSheetRowDic: {
@@ -14,11 +25,14 @@ const spriteSheetRowDic: {
     idx: number;
   };
 } = {
-  idle: { row: 0, frames: 8, animSpeed: 0.025, idx: 0 },
-  running: { row: 1, frames: 8, animSpeed: 0.15, idx: 0 },
-  shoot: { row: 2, frames: 3, animSpeed: 0.15, idx: 0 },
-  walk: { row: 3, frames: 5, animSpeed: 0.12, idx: 0 },
+  gunIdle: { row: 0, frames: 8, animSpeed: 0.03, idx: 0 },
+  gunRun: { row: 1, frames: 8, animSpeed: 0.15, idx: 0 },
+  gunShoot: { row: 2, frames: 3, animSpeed: 0.15, idx: 0 },
+  gunWalk: { row: 3, frames: 5, animSpeed: 0.12, idx: 0 },
   roll: { row: 4, frames: 1, animSpeed: 0.0, idx: 0 },
+  pollIdle: { row: 5, frames: 8, animSpeed: 0.03, idx: 0 },
+  pollSwing: { row: 6, frames: 3, animSpeed: 0.15, idx: 0 },
+  pollRun: { row: 7, frames: 8, animSpeed: 0.15, idx: 0 },
 };
 
 export type AnimMapType = {
@@ -48,6 +62,8 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
   return result as { [key in AnimKey]: PIXI.AnimatedSprite };
 };
 
+type weapon = { type: 'gun'; name: GunName } | { type: 'poll'; weapon: PollName };
+
 // -=-=-=-=-=-=-=-=-=-CLASS IMPL-=-=-=-=-=-=-=-=-=-=-
 
 export class OdaEntity extends Entity {
@@ -63,7 +79,7 @@ export class OdaEntity extends Entity {
 
   get anim(): PIXI.AnimatedSprite {
     const result = this.ctr.children.find((c) => c.visible) as PIXI.AnimatedSprite;
-    return result ? result : this.animMap.idle;
+    return result ? result : this.animMap.gunIdle;
   }
 
   get hitDetectRect(): PIXI.Rectangle {
@@ -111,22 +127,22 @@ export class OdaEntity extends Entity {
   }
 
   get isRunning(): boolean {
-    if (this.activeAnimation !== 'running') return false;
-    return this.anim.playing;
+    if (!this.anim.playing) return false;
+    return this.activeAnimation.endsWith('Run');
   }
 
   get isIdle(): boolean {
-    if (this.activeAnimation !== 'idle') return false;
-    return this.anim.playing;
+    if (!this.anim.playing) return false;
+    return this.activeAnimation.endsWith('Idle');
   }
 
   get isShooting(): boolean {
-    if (this.activeAnimation !== 'shoot') return false;
+    if (this.activeAnimation !== 'gunShoot') return false;
     return this.anim.playing;
   }
 
   get isWalking(): boolean {
-    if (this.activeAnimation !== 'walk') return false;
+    if (this.activeAnimation !== 'gunWalk') return false;
     return this.anim.playing;
   }
 
@@ -135,7 +151,19 @@ export class OdaEntity extends Entity {
     return this.anim.playing;
   }
 
-  constructor(props: { spriteSheet: PIXI.Texture; gunList: IOdaGun[] }) {
+  get usingGun(): boolean {
+    return this.activeAnimation.startsWith('gun');
+  }
+
+  get usingPoll(): boolean {
+    return this.activeAnimation.startsWith('poll');
+  }
+
+  constructor(props: {
+    spriteSheet: PIXI.Texture;
+    gunList: IOdaGun[];
+    pollList: IOdaPoll[];
+  }) {
     super(new PIXI.Container());
     this.gunList = props.gunList;
     this.animMap = createAnimations(props.spriteSheet);
@@ -150,43 +178,64 @@ export class OdaEntity extends Entity {
     }
 
     this.ctr.children[0].visible = true;
-    this.setActiveGun(this.gun.name);
+    this.setActiveWeapon({ type: 'gun', name: this.gun.name });
     this.ctr.zIndex = ZLayer.m1;
   }
 
-  setIdle() {
-    this.setGunVisible(true);
+  setGunIdle() {
+    this.setWeaponVisible(true);
     this._setAllAnimsInvisible();
-    this.ctr.children[spriteSheetRowDic.idle.idx].visible = true;
+    this.ctr.children[spriteSheetRowDic.gunIdle.idx].visible = true;
     this.anim.gotoAndPlay(0);
   }
 
-  setRunning() {
-    this.setGunVisible(true);
+  setGunRun() {
+    this.setWeaponVisible(true);
     this._setAllAnimsInvisible();
-    this.ctr.children[spriteSheetRowDic.running.idx].visible = true;
+    this.ctr.children[spriteSheetRowDic.gunRun.idx].visible = true;
     this.anim.gotoAndPlay(0);
   }
 
-  setWalking() {
-    this.setGunVisible(true);
+  setGunWalk() {
+    this.setWeaponVisible(true);
     this._setAllAnimsInvisible();
-    this.ctr.children[spriteSheetRowDic.walk.idx].visible = true;
+    this.ctr.children[spriteSheetRowDic.gunWalk.idx].visible = true;
     this.anim.gotoAndPlay(0);
   }
 
   setShoot() {
-    this.setGunVisible(true);
+    this.setWeaponVisible(true);
     this._setAllAnimsInvisible();
-    this.ctr.children[spriteSheetRowDic.shoot.idx].visible = true;
+    this.ctr.children[spriteSheetRowDic.gunShoot.idx].visible = true;
     this.anim.gotoAndPlay(0);
     this.anim.loop = false;
   }
 
   setRolling() {
-    this.setGunVisible(false);
+    this.setWeaponVisible(false);
     this._setAllAnimsInvisible();
     this.ctr.children[spriteSheetRowDic.roll.idx].visible = true;
+    this.anim.gotoAndPlay(0);
+  }
+
+  setPollSwing() {
+    this.setWeaponVisible(false);
+    this._setAllAnimsInvisible();
+    this.ctr.children[spriteSheetRowDic.pollSwing.idx].visible = true;
+    this.anim.gotoAndPlay(0);
+  }
+
+  setIdlePoll() {
+    this.setWeaponVisible(false);
+    this._setAllAnimsInvisible();
+    this.ctr.children[spriteSheetRowDic.pollIdle.idx].visible = true;
+    this.anim.gotoAndPlay(0);
+  }
+
+  setPollRun() {
+    this.setWeaponVisible(false);
+    this._setAllAnimsInvisible();
+    this.ctr.children[spriteSheetRowDic.pollRun.idx].visible = true;
     this.anim.gotoAndPlay(0);
   }
 
@@ -214,23 +263,27 @@ export class OdaEntity extends Entity {
     gun.scale.set(1, 1);
   }
 
-  setGunVisible(value: boolean) {
+  setWeaponVisible(value: boolean) {
     this.gun.sprite.visible = value;
   }
 
-  setActiveGun(gunName: string) {
-    const originalCount = this.gunList.length;
-    this.gunCtr.removeChild(this.gun.sprite);
-    const activeGun = this.gunList.find((g) => g.name === gunName);
-    if (!activeGun) throw new Error(`gun name not found in gunList: ${gunName}`);
-    const nonAcivtGuns = this.gunList.filter((g) => g.name !== gunName).sort();
-    const proposedNewGunList = [activeGun, ...nonAcivtGuns].filter((g) => !!g);
-    if (originalCount !== proposedNewGunList.length) throw new Error('count is off');
-    this.gunList = proposedNewGunList;
-    this.gunCtr.zIndex = ZLayer.m2;
-    this.gunCtr.addChild(this.gun.sprite);
-    this.move(new PIXI.Point(0, 0));
-    this.isFacingRight ? this.faceRight() : this.faceLeft();
+  setActiveWeapon(props: weapon) {
+    if (props.type === 'gun') {
+      const gunName = props.name;
+      const originalCount = this.gunList.length;
+      this.gunCtr.removeChild(this.gun.sprite);
+      const activeGun = this.gunList.find((g) => g.name === gunName);
+      if (!activeGun) throw new Error(`gun name not found in gunList: ${gunName}`);
+      const nonAcivtGuns = this.gunList.filter((g) => g.name !== gunName).sort();
+      const proposedNewGunList = [activeGun, ...nonAcivtGuns].filter((g) => !!g);
+      if (originalCount !== proposedNewGunList.length) throw new Error('count is off');
+      this.gunList = proposedNewGunList;
+      this.gunCtr.zIndex = ZLayer.m2;
+      this.gunCtr.addChild(this.gun.sprite);
+      this.move(new PIXI.Point(0, 0));
+      this.isFacingRight ? this.faceRight() : this.faceLeft();
+    } else if (props.type === 'poll') {
+    }
   }
 
   move(amount: PIXI.Point) {

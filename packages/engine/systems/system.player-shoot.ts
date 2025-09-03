@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
-import type { IOdaGun } from '../entity/eneity.oda-gun';
 import { OdaEntity } from '../entity/entity.oda';
+import type { IOdaGun } from '../entity/entity.oda-gun';
 import type { IEntityStore } from '../entity/entity.store';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 import { ZLayer } from '../types/enums';

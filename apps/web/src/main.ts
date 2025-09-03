@@ -61,7 +61,6 @@ const main = async () => {
         loadgingText.style.display = 'none';
       }
       resizer();
-      console.log('[fired]');
       appRef.canvas.style.display = 'block';
       appRef.canvas.style.border = '2px solid white';
     }, 250);

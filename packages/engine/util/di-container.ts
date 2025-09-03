@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import { createEntityStore, type IEntityStore } from '../entity/entity.store';
-import { createGunFactory, type IGunFactory } from '../factory/factory.weapon';
 import { createSceneEngine, type ISceneEngine } from '../scenes/scene-engine';
 import { createSystemAgg, type ISystemAgg } from '../systems/system.agg';
 import { createAssetLoader, type IAssetLoader } from './asset-loader';
@@ -18,7 +17,6 @@ export interface IDiContainer {
   input: () => IInput;
   gameConstants: () => IGameConstants;
   gameRef: () => PIXI.Container;
-  gunFactory: () => IGunFactory;
   sceneEngine: () => ISceneEngine;
   systemAgg: () => ISystemAgg;
 }
@@ -28,7 +26,6 @@ const diContainer = (): IDiContainer => {
   let _eventBus: IEventBus | undefined;
   let _entityStore: IEntityStore | undefined;
   let _gameRef: PIXI.Container | undefined;
-  let _gunFactory: IGunFactory | undefined;
   let _input: IInput | undefined;
   let _cameara: ICamera | undefined;
   let _assetLoader: IAssetLoader | undefined;
@@ -86,13 +83,6 @@ const diContainer = (): IDiContainer => {
     return _gameRef;
   };
 
-  const gunFactory = () => {
-    if (!_gunFactory) {
-      _gunFactory = createGunFactory(assetLoader());
-    }
-    return _gunFactory;
-  };
-
   const sceneEngine = () => {
     if (!_sceneEngine) {
       _sceneEngine = createSceneEngine(gameRef());
@@ -116,7 +106,6 @@ const diContainer = (): IDiContainer => {
     input,
     gameConstants,
     gameRef,
-    gunFactory,
     sceneEngine,
     systemAgg,
   };

@@ -1,5 +1,6 @@
 import odaIdleUrl from '@package/assets/images/actors/player/oda_idle_anim_2.png';
 import missedShotUrl from '@package/assets/images/actors/weapons/missed-shot.png';
+import poll_sign_url from '@package/assets/images/actors/weapons/poll-sign.png';
 import rifle_1_url from '@package/assets/images/actors/weapons/rifle-1.png';
 import rifle_1_impact_url from '@package/assets/images/actors/weapons/rifle-1-explosian.png';
 import rifle_1_flash_url from '@package/assets/images/actors/weapons/rifle-1-flash.png';
@@ -36,6 +37,7 @@ const assetMap = {
   weirdGun1Icon: weird_gun_1_icon_url,
   missedShot: missedShotUrl,
   inputBtn: inputBtnUrl,
+  pollSign: poll_sign_url,
 };
 
 export const assetFilePath = [
@@ -56,6 +58,7 @@ export const assetFilePath = [
   'odaHudIcon',
   'inputBtn',
   'missedShot',
+  'pollSign',
 ] as const;
 export type AssetName = (typeof assetFilePath)[number];
 

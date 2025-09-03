@@ -1,4 +1,4 @@
-import { type GunName, OdaGunEntity } from '../entity/eneity.oda-gun';
+import { type GunName, OdaGunEntity } from '../entity/entity.oda-gun';
 import { ZLayer } from '../types/enums';
 import type { IAssetLoader } from '../util/asset-loader';
 

@@ -209,7 +209,7 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
           oda.move(nextPos);
           return;
         } else {
-          oda.setIdle();
+          oda.setGunIdle();
           nextRollPos = null;
         }
       }

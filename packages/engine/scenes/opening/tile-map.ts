@@ -135,8 +135,6 @@ export const createTiledMap = (props: { metaData: TiledMapMetaData; atlas: PIXI.
     }
   }
 
-  ctr.cacheAsBitmap = true;
-
   return {
     ctr,
     metaData,

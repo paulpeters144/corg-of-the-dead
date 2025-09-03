@@ -136,10 +136,10 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
     update: (delta: number) => {
       if (oda.isRolling) return;
       if (handleOptionPause()) return;
-      if (input.shoot.is.pressed && !oda.isWalking) {
-        oda.setWalking();
-      }
-
+      // if (input.shoot.is.pressed && !oda.isWalking) {
+      //   oda.setGunWalk();
+      // }
+      //
       const upPressed = input.up.is.pressed && !input.down.is.pressed;
       const dnPressed = input.down.is.pressed && !input.up.is.pressed;
       const rtPressed = input.right.is.pressed && !input.left.is.pressed;
@@ -187,11 +187,6 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
       }
 
       if (oda.isRolling) return;
-
-      if (!upPressed && !dnPressed && !rtPressed && !ltPressed) {
-        oda.setIdle();
-        return;
-      }
       if (oda.isWalking && input.walk.is.pressed) return;
 
       const moved = !!nextMoveAmount;
@@ -201,23 +196,40 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
       const isMoving = isWalking || isRunning;
       const isShooting = input.shoot.is.pressed;
 
-      if (!moved && isMoving) {
-        oda.setIdle();
-      } else if (moved && !isMoving && !isShooting) {
-        oda.setRunning();
-      } else if (moved && isShooting && (isRunning || oda.isIdle)) {
-        oda.setWalking();
-      } else if (!isShooting && oda.isWalking) {
-        oda.setRunning();
+      if (oda.usingGun) {
+        if (!moved && isMoving) {
+          oda.setGunIdle();
+        } else if (moved && !isMoving && !isShooting) {
+          oda.setGunRun();
+        } else if (moved && isShooting && (isRunning || oda.isIdle)) {
+          oda.setGunWalk();
+        } else if (!isShooting && oda.isWalking) {
+          oda.setGunRun();
+        }
+
+        if (input.walk.is.pressed && !oda.isWalking) {
+          oda.setGunWalk();
+        }
+      }
+
+      if (oda.usingPoll) {
+        if (!moved && isMoving) {
+          oda.setIdlePoll();
+        } else if (moved && !isMoving && !isShooting) {
+          oda.setPollRun();
+        } else if (moved && isShooting && (isRunning || oda.isIdle)) {
+          oda.setPollRun();
+        } else if (!isShooting && oda.isWalking) {
+          oda.setPollRun();
+        }
+        if (input.walk.is.pressed && !oda.isWalking) {
+          oda.setPollRun();
+        }
       }
 
       if (isRunning) {
         if (ltPressed && oda.isFacingRight) oda.faceLeft();
         if (rtPressed && !oda.isFacingRight) oda.faceRight();
-      }
-
-      if (input.walk.is.pressed && !oda.isWalking) {
-        oda.setWalking();
       }
     },
   };

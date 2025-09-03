@@ -45,7 +45,7 @@ export const createHeadsUpDisplaySystem = (di: IDiContainer): ISystem => {
       if (input.option.wasReleasedOnce) {
         const selectedGunName = hud.hideGunList();
         if (selectedGunName) {
-          oda.setActiveGun(selectedGunName);
+          oda.setActiveWeapon({ type: 'gun', name: selectedGunName });
           hud.gunInfo.setNewGunList(oda.gunList);
           const activeGun = oda.gunList.find((g) => g.name === selectedGunName);
           const nonAcivtGuns = oda.gunList.filter((g) => g.name !== selectedGunName);

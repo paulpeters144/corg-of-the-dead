@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
-import type { IOdaGun } from './eneity.oda-gun';
 import { Entity } from './entity';
+import type { GunName, IOdaGun } from './entity.oda-gun';
 
 export class GunHudInfoEntity extends Entity {
   gunList: IOdaGun[];
@@ -64,7 +64,7 @@ export class GunHudInfoEntity extends Entity {
     }
   }
 
-  hidNonActiveGuns(): string | null {
+  hidNonActiveGuns(): GunName | null {
     if (this.gunGraphics.every((g) => g.ctr.visible)) {
       for (const g of this.gunGraphics.slice(1)) g.ctr.visible = true;
 
