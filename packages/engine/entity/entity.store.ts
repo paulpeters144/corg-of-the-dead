@@ -9,6 +9,15 @@ export interface IEntityStore {
   // biome-ignore lint/suspicious/noExplicitAny: use of any is needed here
   first<T extends Entity>(type: new (...args: any[]) => T): T | undefined;
   clear(): void;
+  get<T extends Entity>(
+    // biome-ignore lint/suspicious/noExplicitAny: use of any is needed here
+    type: new (...args: any[]) => T,
+  ): {
+    all: () => T[];
+    first: () => T | undefined;
+    byId: (id: string) => T | undefined;
+    count: () => number;
+  };
 }
 
 export class EntityStore implements IEntityStore {
@@ -52,6 +61,17 @@ export class EntityStore implements IEntityStore {
   // biome-ignore lint/suspicious/noExplicitAny: need this to allow search by ctr name
   public getAll<T extends Entity>(type: new (...args: any[]) => T): T[] {
     return (this._store.get(type.name) as T[]) || [];
+  }
+
+  // biome-ignore lint/suspicious/noExplicitAny: need this to allow search by ctr name
+  public get<T extends Entity>(type: new (...args: any[]) => T) {
+    const list = (this._store.get(type.name) as T[]) || [];
+    return {
+      all: () => list,
+      first: () => list?.at(0),
+      byId: (id: string) => list.find((e) => e.id === id),
+      count: () => list.length,
+    };
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: need this to allow search by ctr name
