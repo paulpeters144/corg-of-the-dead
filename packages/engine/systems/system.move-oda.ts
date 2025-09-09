@@ -131,6 +131,130 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
     return false;
   };
 
+
+  const handleMoveWithGun = (props: {
+    delta: number,
+    upPressed: boolean,
+    dnPressed: boolean,
+    rtPressed: boolean,
+    ltPressed: boolean,
+    collidables: PIXI.Rectangle[],
+  }) => {
+    const { delta, upPressed, dnPressed, rtPressed, ltPressed, collidables } = props;
+    const nextMoveAmount = getNextMoveAmount({
+      entityRect: oda.moveRect,
+      collideArea: collidables,
+      input: {
+        up: upPressed,
+        right: rtPressed,
+        down: dnPressed,
+        left: ltPressed,
+        walking: oda.isWalking,
+      },
+      speed: {
+        x: 15,
+        y: 8.75,
+      },
+      delta: delta,
+    });
+
+    if (nextMoveAmount !== null) {
+      oda.move(nextMoveAmount);
+    }
+
+    if (oda.isRolling) return;
+    if (oda.isWalking && input.walk.is.pressed) return;
+
+    const moved = !!nextMoveAmount;
+
+    const isWalking = oda.isWalking;
+    const isRunning = oda.isRunning;
+    const isMoving = isWalking || isRunning;
+    const isShooting = input.shoot.is.pressed;
+
+    if (oda.usingGun) {
+      if (!moved && isMoving) {
+        oda.setIdleGun();
+      } else if (moved && !isMoving && !isShooting) {
+        oda.setGunRun();
+      } else if (moved && isShooting && (isRunning || oda.isIdle)) {
+        oda.setGunWalk();
+      } else if (!isShooting && oda.isWalking) {
+        oda.setGunRun();
+      }
+
+      if (input.walk.is.pressed && !oda.isWalking) {
+        oda.setGunWalk();
+      }
+    }
+
+    if (isRunning) {
+      if (ltPressed && oda.isFacingRight) oda.faceLeft();
+      if (rtPressed && !oda.isFacingRight) oda.faceRight();
+    }
+  }
+
+  const handleMoveWithPoll = (props: {
+    delta: number,
+    upPressed: boolean,
+    dnPressed: boolean,
+    rtPressed: boolean,
+    ltPressed: boolean,
+    collidables: PIXI.Rectangle[],
+  }) => {
+    if (oda.isActiveAnim('pollSwing')) return;
+
+    const { delta, upPressed, dnPressed, rtPressed, ltPressed, collidables } = props;
+    const nextMoveAmount = getNextMoveAmount({
+      entityRect: oda.moveRect,
+      collideArea: collidables,
+      input: {
+        up: upPressed,
+        right: rtPressed,
+        down: dnPressed,
+        left: ltPressed,
+        walking: oda.isWalking,
+      },
+      speed: {
+        x: 15,
+        y: 8.75,
+      },
+      delta: delta,
+    });
+
+    if (nextMoveAmount !== null) {
+      oda.move(nextMoveAmount);
+    }
+
+    if (oda.isRolling) return;
+    if (oda.isWalking && input.walk.is.pressed) return;
+
+    const moved = !!nextMoveAmount;
+
+    const isWalking = oda.isWalking;
+    const isRunning = oda.isRunning;
+    const isMoving = isWalking || isRunning;
+    const isShooting = input.shoot.is.pressed;
+
+    if (oda.usingPoll) {
+      if (!moved && isMoving) {
+        oda.setIdlePoll();
+      } else if (moved && !isMoving && !isShooting) {
+        oda.setPollRun();
+      } else if (moved && isShooting && (isRunning || oda.isIdle)) {
+        oda.setPollRun();
+      } else if (!isShooting && oda.isWalking) {
+        oda.setPollRun();
+      }
+    }
+
+    if (isRunning) {
+      if (ltPressed && oda.isFacingRight) oda.faceLeft();
+      if (rtPressed && !oda.isFacingRight) oda.faceRight();
+    }
+
+  }
+
   return {
     name: () => 'move-oda-system',
     update: (delta: number) => {
@@ -165,72 +289,25 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
         })
         .map((o) => o.moveRect);
 
-      const nextMoveAmount = getNextMoveAmount({
-        entityRect: oda.moveRect,
-        collideArea: [...collideArea, ...trafficDrums],
-        input: {
-          up: upPressed,
-          right: rtPressed,
-          down: dnPressed,
-          left: ltPressed,
-          walking: oda.isWalking,
-        },
-        speed: {
-          x: 15,
-          y: 8.75,
-        },
-        delta: delta,
-      });
+      if (oda.usingGun)
+        handleMoveWithGun({
+          delta: delta,
+          upPressed: upPressed,
+          dnPressed: dnPressed,
+          rtPressed: rtPressed,
+          ltPressed: ltPressed,
+          collidables: [...collideArea, ...trafficDrums],
+        })
 
-      if (nextMoveAmount !== null) {
-        oda.move(nextMoveAmount);
-      }
-
-      if (oda.isRolling) return;
-      if (oda.isWalking && input.walk.is.pressed) return;
-
-      const moved = !!nextMoveAmount;
-
-      const isWalking = oda.isWalking;
-      const isRunning = oda.isRunning;
-      const isMoving = isWalking || isRunning;
-      const isShooting = input.shoot.is.pressed;
-
-      if (oda.usingGun) {
-        if (!moved && isMoving) {
-          oda.setGunIdle();
-        } else if (moved && !isMoving && !isShooting) {
-          oda.setGunRun();
-        } else if (moved && isShooting && (isRunning || oda.isIdle)) {
-          oda.setGunWalk();
-        } else if (!isShooting && oda.isWalking) {
-          oda.setGunRun();
-        }
-
-        if (input.walk.is.pressed && !oda.isWalking) {
-          oda.setGunWalk();
-        }
-      }
-
-      if (oda.usingPoll) {
-        if (!moved && isMoving) {
-          oda.setIdlePoll();
-        } else if (moved && !isMoving && !isShooting) {
-          oda.setPollRun();
-        } else if (moved && isShooting && (isRunning || oda.isIdle)) {
-          oda.setPollRun();
-        } else if (!isShooting && oda.isWalking) {
-          oda.setPollRun();
-        }
-        if (input.walk.is.pressed && !oda.isWalking) {
-          oda.setPollRun();
-        }
-      }
-
-      if (isRunning) {
-        if (ltPressed && oda.isFacingRight) oda.faceLeft();
-        if (rtPressed && !oda.isFacingRight) oda.faceRight();
-      }
+      if (oda.usingPoll)
+        handleMoveWithPoll({
+          delta: delta,
+          upPressed: upPressed,
+          dnPressed: dnPressed,
+          rtPressed: rtPressed,
+          ltPressed: ltPressed,
+          collidables: [...collideArea, ...trafficDrums],
+        })
     },
   };
 };

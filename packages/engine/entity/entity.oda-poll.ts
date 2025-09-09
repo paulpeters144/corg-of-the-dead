@@ -1,7 +1,7 @@
 import type * as PIXI from 'pixi.js';
 import { Entity } from './entity';
 
-export type PollName = 'ParkSign';
+export type PollName = 'ParkSign' | 'SomeOtherName';
 
 type assets = {
   flash: PIXI.Texture;

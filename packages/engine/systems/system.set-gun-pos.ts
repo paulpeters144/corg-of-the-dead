@@ -2,7 +2,7 @@ import { OdaEntity } from '../entity/entity.oda';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
 
-export const createSetPlayerGunPosSystem = (di: IDiContainer): ISystem => {
+export const createSetGunPosSystem = (di: IDiContainer): ISystem => {
   const oda = di.entityStore().first(OdaEntity);
   if (!oda) throw new Error('create cam orb with no oda entity');
 
@@ -15,9 +15,9 @@ export const createSetPlayerGunPosSystem = (di: IDiContainer): ISystem => {
   // }, 200)
 
   return {
-    name: () => 'set-player-gun-pos-system',
+    name: () => 'set-gun-pos-system',
     update: (_: number) => {
-      if (!oda.gun) return;
+      if (!oda.usingGun) return;
 
       const facingRight = oda.isFacingRight;
 

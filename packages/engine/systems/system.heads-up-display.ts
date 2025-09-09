@@ -19,10 +19,13 @@ export const createHeadsUpDisplaySystem = (di: IDiContainer): ISystem => {
   }, 1000);
 
   bus.on('odaShot', (e) => {
-    const gun = hud.gunInfo.gunList.find((g) => g.name === e.name);
+    const gun = hud.gunInfo.weaponList
+      .filter(w => w.type === "gun")
+      .find((g) => g.weapon.name === e.name);
+
     if (gun) {
-      const idxOfGun = hud.gunInfo.gunList.indexOf(gun);
-      const ammoText = hud.gunInfo.gunGraphics.at(idxOfGun)?.ammoText;
+      const idxOfGun = hud.gunInfo.weaponList.indexOf(gun);
+      const ammoText = hud.gunInfo.weaponGraphics.at(idxOfGun)?.ammoText;
       if (ammoText) ammoText.text = e.ammo.toString();
     }
   });
@@ -43,17 +46,13 @@ export const createHeadsUpDisplaySystem = (di: IDiContainer): ISystem => {
         }
       }
       if (input.option.wasReleasedOnce) {
-        const selectedGunName = hud.hideGunList();
-        if (selectedGunName) {
-          oda.setActiveWeapon({ type: 'gun', name: selectedGunName });
-          hud.gunInfo.setNewGunList(oda.gunList);
-          const activeGun = oda.gunList.find((g) => g.name === selectedGunName);
-          const nonAcivtGuns = oda.gunList.filter((g) => g.name !== selectedGunName);
-          if (activeGun) {
-            oda.gunList = [activeGun, ...nonAcivtGuns.sort()];
-            hud.gunInfo.gunList = oda.gunList;
-          }
-        }
+        hud.hideGunList();
+        const activeWeapon = hud.activeWeapon();
+        const weapon = activeWeapon.type === "gun" ?
+          { type: "gun" as const, name: activeWeapon.weapon.name } :
+          { type: "poll" as const, name: activeWeapon.weapon.name }
+
+        oda.setActiveWeapon(weapon);
       }
 
       hud.update(delta);

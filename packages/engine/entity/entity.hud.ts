@@ -2,24 +2,45 @@ import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
 import { Entity } from './entity';
 import type { GunName, IOdaGun } from './entity.oda-gun';
+import type { IOdaPoll, PollName } from './entity.oda-poll';
+
+
+type weaponList = ({
+  type: "gun",
+  weapon: IOdaGun
+} | {
+  type: "poll"
+  weapon: IOdaPoll
+})[]
 
 export class GunHudInfoEntity extends Entity {
-  gunList: IOdaGun[];
-  gunGraphics: {
+  weaponList: weaponList;
+
+  weaponGraphics: {
     name: string;
     ctr: PIXI.Container;
     ammoText: PIXI.Text;
   }[] = [];
+
   selectGraphic = new PIXI.Graphics().roundRect(0, 0, 50, 21, 1).stroke({ width: 2, color: 'white' });
+
   selectedIdx = 0;
+
+  get activeWeapon() {
+    return this.weaponList[0];
+  }
+
+  get selectedWeapon() {
+    return this.weaponList[this.selectedIdx];
+  }
 
   private time: number = 0; // for animation
 
-  constructor(props: { gunList: IOdaGun[] }) {
+  constructor(props: { weaponsList: weaponList }) {
     super(new PIXI.Container());
 
-    this.gunList = props.gunList;
-    this.setNewGunList(props.gunList);
+    this.weaponList = props.weaponsList;
+    this.setNewWeaponList(props.weaponsList);
 
     this.ctr.addChild(this.selectGraphic);
     this._setSelectedGraphicInPosition();
@@ -28,53 +49,62 @@ export class GunHudInfoEntity extends Entity {
     this.selectGraphic.pivot.set(this.selectGraphic.width / 2, this.selectGraphic.height / 2);
   }
 
-  setNewGunList(gunList: IOdaGun[]) {
-    this.gunList = gunList;
-    this.gunGraphics.map((g) => this.ctr.removeChild(g.ctr));
-    this.gunGraphics.length = 0;
+  setNewWeaponList(weaponList: weaponList) {
+    this.weaponList = weaponList;
+    this.weaponGraphics.map((g) => this.ctr.removeChild(g.ctr));
+    this.weaponGraphics.length = 0;
 
-    for (const g of this.gunList) {
+    for (const weapon of this.weaponList) {
       const ctr = new PIXI.Container();
-      const gunIcon = new PIXI.Sprite(g.assets.icon);
+      const w = weapon.weapon;
+      const gunIcon = new PIXI.Sprite(w.assets.icon);
       gunIcon.x += 3;
 
       const ammoText = this._getNewTextInstance();
-      ammoText.text = g.ammo.toString();
+      ammoText.text = weapon.type === "gun" ?
+        weapon.weapon.ammo.toString() :
+        "infinite";
 
       ctr.addChild(gunIcon, ammoText);
       ammoText.x = gunIcon.x + gunIcon.width + 5;
       ammoText.y = gunIcon.y + 5;
 
-      if (this.gunGraphics.length !== 0) {
-        const lastGunCtr = this.gunGraphics[this.gunGraphics.length - 1].ctr;
+      if (this.weaponGraphics.length !== 0) {
+        const lastGunCtr = this.weaponGraphics[this.weaponGraphics.length - 1].ctr;
         ctr.y = lastGunCtr.y + lastGunCtr.height + 8;
         ctr.visible = false;
       }
 
       this.ctr.addChild(ctr);
-      this.gunGraphics.push({ name: g.name, ctr: ctr, ammoText });
+      this.weaponGraphics.push({ name: w.name, ctr: ctr, ammoText });
     }
   }
 
-  showGunList() {
-    if (this.gunGraphics.find((g) => !g.ctr.visible)) {
-      for (const g of this.gunGraphics) g.ctr.visible = true;
+  showWeaponList() {
+    if (this.weaponGraphics.find((g) => !g.ctr.visible)) {
+      for (const g of this.weaponGraphics) g.ctr.visible = true;
 
       this.selectGraphic.visible = true;
     }
   }
 
-  hidNonActiveGuns(): GunName | null {
-    if (this.gunGraphics.every((g) => g.ctr.visible)) {
-      for (const g of this.gunGraphics.slice(1)) g.ctr.visible = true;
+  hideWeaponList() {
+    this.weaponList = [
+      this.selectedWeapon,
+      ...this.weaponList
+        .filter(w => w.weapon.name !== this.selectedWeapon.weapon.name)
+        .sort((a, b) => a.weapon.name.localeCompare(b.weapon.name))
+    ];
 
-      const selectedGunName = this.gunList.at(this.selectedIdx)?.name ?? null;
+    if (this.weaponGraphics.every((g) => g.ctr.visible)) {
+      for (const g of this.weaponGraphics.slice(1)) g.ctr.visible = false;
+
       this.selectedIdx = 0;
       this._setSelectedGraphicInPosition();
       this.selectGraphic.visible = false;
-      return selectedGunName;
     }
-    return null;
+
+    this.setNewWeaponList(this.weaponList);
   }
 
   update(delta: number) {
@@ -91,7 +121,7 @@ export class GunHudInfoEntity extends Entity {
     if (now - this.lastIdxChange < 100) return;
 
     this.selectedIdx++;
-    if (this.selectedIdx > this.gunList.length - 1) {
+    if (this.selectedIdx > this.weaponList.length - 1) {
       this.selectedIdx = 0;
     }
     this._setSelectedGraphicInPosition();
@@ -104,15 +134,15 @@ export class GunHudInfoEntity extends Entity {
 
     this.selectedIdx--;
     if (this.selectedIdx < 0) {
-      this.selectedIdx = this.gunList.length - 1;
+      this.selectedIdx = this.weaponList.length - 1;
     }
     this._setSelectedGraphicInPosition();
     this.lastIdxChange = now;
   }
 
   private _setSelectedGraphicInPosition() {
-    this.selectGraphic.x = this.gunGraphics[this.selectedIdx].ctr.x + this.selectGraphic.width * 0.5;
-    this.selectGraphic.y = this.gunGraphics[this.selectedIdx].ctr.y + this.selectGraphic.height * 0.433;
+    this.selectGraphic.x = this.weaponGraphics[this.selectedIdx].ctr.x + this.selectGraphic.width * 0.5;
+    this.selectGraphic.y = this.weaponGraphics[this.selectedIdx].ctr.y + this.selectGraphic.height * 0.433;
   }
 
   private _getNewTextInstance() {
@@ -128,9 +158,17 @@ export class GunHudInfoEntity extends Entity {
   }
 }
 
-interface HudProps {
+type weaponListType = {
+  type: "gun",
+  weapon: IOdaGun
+} | {
+  type: "poll"
+  weapon: IOdaPoll
+}
+
+type HudPropsType = {
   odaIcon: PIXI.Sprite;
-  gunList: IOdaGun[];
+  weaponList: weaponListType[]
 }
 
 export class HeadsUpDisplayEntity extends Entity {
@@ -142,7 +180,7 @@ export class HeadsUpDisplayEntity extends Entity {
   gunListCtr: PIXI.Container = new PIXI.Container();
   gunInfo: GunHudInfoEntity;
 
-  constructor(props: HudProps) {
+  constructor(props: HudPropsType) {
     const ctr = new PIXI.Container();
     super(ctr);
 
@@ -166,7 +204,7 @@ export class HeadsUpDisplayEntity extends Entity {
     this.headBarMainGraphic.x = this.maxHealthGraphic.x;
     this.headBarMainGraphic.y = this.maxHealthGraphic.y + 1;
 
-    this.gunInfo = new GunHudInfoEntity({ gunList: props.gunList });
+    this.gunInfo = new GunHudInfoEntity({ weaponsList: props.weaponList });
     this.ctr.addChild(this.gunInfo.ctr);
     this.gunInfo.ctr.y = this.odaIcon.y + this.odaIcon.height + 5;
   }
@@ -181,6 +219,7 @@ export class HeadsUpDisplayEntity extends Entity {
     this.headBarMainGraphic.width = newHealthSize;
   }
 
-  hideGunList = () => this.gunInfo.hidNonActiveGuns();
-  showGunList = () => this.gunInfo.showGunList();
+  hideGunList = () => this.gunInfo.hideWeaponList();
+  showGunList = () => this.gunInfo.showWeaponList();
+  activeWeapon = () => this.gunInfo.activeWeapon;
 }

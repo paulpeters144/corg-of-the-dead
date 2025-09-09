@@ -170,6 +170,7 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
   let nextRollPos: PIXI.Point | null = null;
 
   const rollMechanic = createRollMechanic(input);
+  let odasLastState: 'gun' | 'poll' = 'gun';
 
   return {
     name: () => 'oda-roll-system',
@@ -209,14 +210,17 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
           oda.move(nextPos);
           return;
         } else {
-          oda.setGunIdle();
+          odasLastState === 'gun' ? oda.setIdleGun() : oda.setIdlePoll();
           nextRollPos = null;
         }
       }
 
       const rollDirection = rollMechanic.didRoll();
 
-      if (rollDirection) oda.setRolling();
+      if (rollDirection) {
+        odasLastState = oda.usingGun ? 'gun' : 'poll';
+        oda.setRolling();
+      }
       const rollDistance = 75;
       switch (rollDirection) {
         case 'up':

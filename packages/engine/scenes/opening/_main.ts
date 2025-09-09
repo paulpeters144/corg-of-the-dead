@@ -13,14 +13,16 @@ import { createInputUISystem } from '../../systems/system.input-ui';
 import { createMoveOdaSystem } from '../../systems/system.move-oda';
 import { createOdaRollSystem } from '../../systems/system.oda-rolling';
 import { BgEntity, createBackgrounParalaxSystem } from '../../systems/system.parallax';
-import { createPlayerShootSystem } from '../../systems/system.player-shoot';
+import { createOdaShootSystem } from '../../systems/system.player-shoot';
 import { createPlayZIndexSystem } from '../../systems/system.player-zindex';
-import { createSetPlayerGunPosSystem } from '../../systems/system.set-gun-pos';
+import { createSetGunPosSystem } from '../../systems/system.set-gun-pos';
 import { ZLayer } from '../../types/enums';
 import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
+import { createSwingPollSystem } from '../../systems/system.swing-poll';
+import { createSetPollPosSystem } from '../../systems/system.set-poll-pos';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -50,6 +52,8 @@ export const openingScene = (di: IDiContainer): IScene => {
         'odaHudIcon',
         'weirdGun1Icon',
         'inputBtn',
+        'parkSignIcon',
+        'parkSign',
       );
 
       entityStore.add(
@@ -74,10 +78,10 @@ export const openingScene = (di: IDiContainer): IScene => {
         ],
         pollList: [pollFactory.create({ name: 'ParkSign' })],
       });
-      oda.setIdlePoll();
 
-      gameRef.addChild(oda.gunCtr);
+      gameRef.addChild(oda.weaponCtr);
       entityStore.add(oda, new CameraOrbEntity());
+      oda.setActiveWeapon({ type: 'poll', name: 'ParkSign' });
 
       const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y);
       for (let i = 0; i < sortedTrafficDrums.length; i++) {
@@ -91,7 +95,10 @@ export const openingScene = (di: IDiContainer): IScene => {
 
       const hud = new HeadsUpDisplayEntity({
         odaIcon: assetLoader.createSprite('odaHudIcon'),
-        gunList: oda.gunList,
+        weaponList: [
+          ...oda.pollList.map(p => ({ type: 'poll' as const, weapon: p })),
+          ...oda.gunList.map(g => ({ type: 'gun' as const, weapon: g })),
+        ]
       });
 
       entityStore.add(hud);
@@ -103,15 +110,17 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.add(
         createOdaRollSystem(di),
         createHeadsUpDisplaySystem(di),
-        createPlayerShootSystem(di),
+        createOdaShootSystem(di),
         createCamControlSystem(di),
         createPlayZIndexSystem(di),
         createBackgrounParalaxSystem(di),
         createMoveOdaSystem(di),
         createCamOrbSystem(di),
-        createSetPlayerGunPosSystem(di),
+        createSetGunPosSystem(di),
+        createSetPollPosSystem(di),
         createGunExplosianSystem(di),
         createInputUISystem(di),
+        createSwingPollSystem(di),
       );
 
       camera.clamp({
@@ -127,7 +136,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

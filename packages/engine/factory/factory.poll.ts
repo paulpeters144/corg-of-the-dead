@@ -12,13 +12,12 @@ export interface IPollFactory {
 }
 
 const createAnimations = (texture: PIXI.Texture) => {
-  const width = 32;
-  const height = 32;
-  const row = 7;
-  const textures = Array.from({ length: 3 }, (_, i) => {
+  const size = 48;
+  const row = 0;
+  const textures = Array.from({ length: 4 }, (_, i) => {
     const t = new PIXI.Texture({
       source: texture.source,
-      frame: new PIXI.Rectangle(width * i, height * row, width, height),
+      frame: new PIXI.Rectangle(size * i, size * row, size, size),
     });
     t.source.scaleMode = 'nearest';
     return t;
@@ -29,13 +28,13 @@ const createAnimations = (texture: PIXI.Texture) => {
 export const createPollFactory = (assetLoader: IAssetLoader): IPollFactory => {
   const create = (props: CreatePollProps) => {
     if (props.name === 'ParkSign') {
-      const textures = createAnimations(assetLoader.getTexture('odaIdle'));
+      const textures = createAnimations(assetLoader.getTexture('parkSign'));
       const anim = new PIXI.AnimatedSprite({ textures });
       const parkSign = new OdaPollEntity({
         anim: anim,
         assets: {
           flash: assetLoader.getTexture('rifle1'),
-          icon: assetLoader.getTexture('rifle1'),
+          icon: assetLoader.getTexture('parkSignIcon'),
           impact: assetLoader.getTexture('rifle1'),
         },
         name: 'ParkSign',
@@ -44,7 +43,7 @@ export const createPollFactory = (assetLoader: IAssetLoader): IPollFactory => {
         damage: 45,
       });
 
-      parkSign.anim.zIndex = ZLayer.m2;
+      parkSign.anim.zIndex = ZLayer.m1;
       return parkSign;
     }
 

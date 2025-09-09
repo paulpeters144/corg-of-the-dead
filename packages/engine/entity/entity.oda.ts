@@ -62,13 +62,22 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
   return result as { [key in AnimKey]: PIXI.AnimatedSprite };
 };
 
-type weapon = { type: 'gun'; name: GunName } | { type: 'poll'; weapon: PollName };
+type weapon = { type: 'gun'; name: GunName } | { type: 'poll'; name: PollName };
 
 // -=-=-=-=-=-=-=-=-=-CLASS IMPL-=-=-=-=-=-=-=-=-=-=-
 
 export class OdaEntity extends Entity {
+  pollList: IOdaPoll[];
   gunList: IOdaGun[] = [];
-  gunCtr = new PIXI.Container();
+
+  weaponCtr = new PIXI.Container();
+
+  get poll(): IOdaPoll {
+    const activePoll = this.pollList.at(0);
+    if (!activePoll) throw new Error('no active gun');
+    return activePoll;
+  }
+
   get gun(): IOdaGun {
     const activeGun = this.gunList.at(0);
     if (!activeGun) throw new Error('no active gun');
@@ -165,6 +174,7 @@ export class OdaEntity extends Entity {
     pollList: IOdaPoll[];
   }) {
     super(new PIXI.Container());
+    this.pollList = props.pollList;
     this.gunList = props.gunList;
     this.animMap = createAnimations(props.spriteSheet);
 
@@ -178,11 +188,11 @@ export class OdaEntity extends Entity {
     }
 
     this.ctr.children[0].visible = true;
-    this.setActiveWeapon({ type: 'gun', name: this.gun.name });
+    this.setActiveWeapon({ type: 'poll', name: 'ParkSign' });
     this.ctr.zIndex = ZLayer.m1;
   }
 
-  setGunIdle() {
+  setIdleGun() {
     this.setWeaponVisible(true);
     this._setAllAnimsInvisible();
     this.ctr.children[spriteSheetRowDic.gunIdle.idx].visible = true;
@@ -223,6 +233,7 @@ export class OdaEntity extends Entity {
     this._setAllAnimsInvisible();
     this.ctr.children[spriteSheetRowDic.pollSwing.idx].visible = true;
     this.anim.gotoAndPlay(0);
+    this.anim.loop = false;
   }
 
   setIdlePoll() {
@@ -246,9 +257,10 @@ export class OdaEntity extends Entity {
       c.scale.set(-1, 1);
     }
 
-    const gun = this.gun.sprite;
-    gun.anchor.set(0.25, 0);
-    gun.scale.set(-1, 1);
+    this.gun.sprite.anchor.set(0.25, 0);
+    this.gun.sprite.scale.set(-1, 1);
+    this.poll.anim.anchor.set(0.25, 0);
+    this.poll.anim.scale.set(-1, 1);
   }
 
   faceRight() {
@@ -258,32 +270,57 @@ export class OdaEntity extends Entity {
       c.scale.set(1, 1);
     }
 
-    const gun = this.gun.sprite;
-    gun.anchor.set(0, 0);
-    gun.scale.set(1, 1);
+    this.gun.sprite.anchor.set(0, 0);
+    this.gun.sprite.scale.set(1, 1);
+    this.poll.anim.anchor.set(0, 0);
+    this.poll.anim.scale.set(1, 1);
   }
 
   setWeaponVisible(value: boolean) {
     this.gun.sprite.visible = value;
+    this.poll.anim.visible = value;
   }
 
-  setActiveWeapon(props: weapon) {
+  setActiveWeapon(props: {
+    type: "gun";
+    name: GunName;
+  } | {
+    type: "poll";
+    name: PollName;
+  }) {
     if (props.type === 'gun') {
       const gunName = props.name;
       const originalCount = this.gunList.length;
-      this.gunCtr.removeChild(this.gun.sprite);
+      this.weaponCtr.removeChildren();
       const activeGun = this.gunList.find((g) => g.name === gunName);
       if (!activeGun) throw new Error(`gun name not found in gunList: ${gunName}`);
       const nonAcivtGuns = this.gunList.filter((g) => g.name !== gunName).sort();
       const proposedNewGunList = [activeGun, ...nonAcivtGuns].filter((g) => !!g);
       if (originalCount !== proposedNewGunList.length) throw new Error('count is off');
       this.gunList = proposedNewGunList;
-      this.gunCtr.zIndex = ZLayer.m2;
-      this.gunCtr.addChild(this.gun.sprite);
+      this.weaponCtr.zIndex = ZLayer.m2;
+      this.weaponCtr.addChild(this.gun.sprite);
       this.move(new PIXI.Point(0, 0));
-      this.isFacingRight ? this.faceRight() : this.faceLeft();
-    } else if (props.type === 'poll') {
+      this.setIdleGun();
     }
+
+    if (props.type === 'poll') {
+      const pollName = props.name;
+      const originalCount = this.pollList.length;
+      this.weaponCtr.removeChildren();
+      const activePoll = this.pollList.find(p => p.name == props.name);
+      if (!activePoll) throw new Error(`poll name not found in pollList: ${pollName}`);
+      const nonAcivePolls = this.pollList.filter((p) => p.name !== pollName).sort();
+      const proposedNewPollList = [activePoll, ...nonAcivePolls].filter((g) => !!g);
+      if (originalCount !== proposedNewPollList.length) throw new Error('count is off');
+      this.pollList = proposedNewPollList;
+      this.weaponCtr.zIndex = ZLayer.m2;
+      this.weaponCtr.addChild(this.poll.anim);
+      this.move(new PIXI.Point(0, 0));
+      this.setIdlePoll();
+    }
+
+    this.isFacingRight ? this.faceRight() : this.faceLeft();
   }
 
   move(amount: PIXI.Point) {
@@ -297,6 +334,12 @@ export class OdaEntity extends Entity {
       }
       this.gun.sprite.y = this.ctr.y + 16;
     }
+  }
+
+  isActiveAnim(key: AnimKey) {
+    if (this.activeAnimation !== key) return false;
+    if (!this.anim.playing) return false;
+    return true;
   }
 
   private _setAllAnimsInvisible() {

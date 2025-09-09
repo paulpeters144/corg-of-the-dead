@@ -91,7 +91,6 @@ const handleAutomaticFiring = (props: { oda: OdaEntity; input: IInput }): boolea
 
   if (input.shoot.is.pressed && !oda.isShooting) {
     lastShot = performance.now();
-
     return true;
   }
   return false;
@@ -187,7 +186,7 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
 
   return hitTrafficDrums.map((e) => e.rect);
 };
-export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
+export const createOdaShootSystem = (di: IDiContainer): ISystem => {
   const input = di.input();
   const bus = di.eventBus();
   const entityStore = di.entityStore();
@@ -200,9 +199,9 @@ export const createPlayerShootSystem = (di: IDiContainer): ISystem => {
   return {
     name: () => 'player-shoot-system',
     update: (_: number) => {
-      if (!oda.gun) return;
       if (oda.isRolling) return;
       if (input.option.is.pressed) return;
+      if (oda.usingPoll) return;
 
       let shotFired = false;
       if (oda.gun.isAutomatic) {
