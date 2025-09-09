@@ -15,6 +15,7 @@ import { createOdaRollSystem } from '../../systems/system.oda-rolling';
 import { BgEntity, createBackgrounParalaxSystem } from '../../systems/system.parallax';
 import { createOdaShootSystem } from '../../systems/system.player-shoot';
 import { createPlayZIndexSystem } from '../../systems/system.player-zindex';
+import { createPollHitAreaSystem } from '../../systems/system.poll-hit-area';
 import { createSetGunPosSystem } from '../../systems/system.set-gun-pos';
 import { createSetPollPosSystem } from '../../systems/system.set-poll-pos';
 import { createSwingPollSystem } from '../../systems/system.swing-poll';
@@ -23,7 +24,6 @@ import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
-import { createPollHitAreaSystem } from '../../systems/system.poll-hit-area';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -122,7 +122,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         createGunExplosianSystem(di),
         createInputUISystem(di),
         createSwingPollSystem(di),
-        createPollHitAreaSystem(di)
+        createPollHitAreaSystem(di),
       );
 
       camera.clamp({
@@ -138,7 +138,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => { },
+    dispose: () => {},
   };
 };
 

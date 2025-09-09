@@ -282,13 +282,13 @@ export class OdaEntity extends Entity {
   setActiveWeapon(
     props:
       | {
-        type: 'gun';
-        name: GunName;
-      }
+          type: 'gun';
+          name: GunName;
+        }
       | {
-        type: 'poll';
-        name: PollName;
-      },
+          type: 'poll';
+          name: PollName;
+        },
   ) {
     if (props.type === 'gun') {
       const gunName = props.name;

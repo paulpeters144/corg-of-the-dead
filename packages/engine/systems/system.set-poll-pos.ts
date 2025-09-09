@@ -13,7 +13,6 @@ export const createSetPollPosSystem = (di: IDiContainer): ISystem => {
 
       const facingRight = oda.isFacingRight;
 
-
       switch (oda.activeAnimation) {
         case 'pollIdle':
           if (oda.poll.anim.currentFrame !== 0) {
