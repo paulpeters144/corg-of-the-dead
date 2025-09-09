@@ -21,8 +21,8 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/engine
       pixi.js:
-        specifier: ^8.12.0
-        version: 8.12.0
+        specifier: ^8.13.1
+        version: 8.13.1
     devDependencies:
       typescript:
         specifier: ^4.5.4
@@ -43,8 +43,8 @@ importers:
         specifier: ^6.3.0
         version: 6.3.0
       pixi.js:
-        specifier: ^8.12.0
-        version: 8.12.0
+        specifier: ^8.13.1
+        version: 8.13.1
     devDependencies:
       typescript:
         specifier: ~5.8.3
@@ -875,6 +875,9 @@ packages:
   pixi.js@8.12.0:
     resolution: {integrity: sha512-or7vrH7WajLevu/JnGMdD80JaSpTlXfjwCLtzhg2BL60LWPf1pF0w08Qleiqr1Saj012gevguM//+6HzzVlnfA==}
 
+  pixi.js@8.13.1:
+    resolution: {integrity: sha512-n7lP3FG8noZV00O6ZTUNWQGg2j6xNjK/8TiGviptb4kfyGJvP4zMvF8s6DR0BymZ8P/lix/3Ye5rqilynpl/+g==}
+
   pkg-dir@4.2.0:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
@@ -939,6 +942,10 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  tiny-lru@11.4.5:
+    resolution: {integrity: sha512-hkcz3FjNJfKXjV4mjQ1OrXSLAehg8Hw+cEZclOVT+5c/cWQWImQ9wolzTjth+dmmDe++p3bme3fTxz6Q4Etsqw==}
+    engines: {node: '>=12'}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
@@ -1703,6 +1710,20 @@ snapshots:
       ismobilejs: 1.1.1
       parse-svg-path: 0.1.2
 
+  pixi.js@8.13.1:
+    dependencies:
+      '@pixi/colord': 2.9.6
+      '@types/css-font-loading-module': 0.0.12
+      '@types/earcut': 3.0.0
+      '@webgpu/types': 0.1.64
+      '@xmldom/xmldom': 0.8.11
+      earcut: 3.0.2
+      eventemitter3: 5.0.1
+      gifuct-js: 2.1.2
+      ismobilejs: 1.1.1
+      parse-svg-path: 0.1.2
+      tiny-lru: 11.4.5
+
   pkg-dir@4.2.0:
     dependencies:
       find-up: 4.1.0
@@ -1778,6 +1799,8 @@ snapshots:
       escape-string-regexp: 1.0.5
 
   supports-preserve-symlinks-flag@1.0.0: {}
+
+  tiny-lru@11.4.5: {}
 
   tinybench@2.9.0: {}
 

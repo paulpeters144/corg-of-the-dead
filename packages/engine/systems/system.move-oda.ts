@@ -131,14 +131,13 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
     return false;
   };
 
-
   const handleMoveWithGun = (props: {
-    delta: number,
-    upPressed: boolean,
-    dnPressed: boolean,
-    rtPressed: boolean,
-    ltPressed: boolean,
-    collidables: PIXI.Rectangle[],
+    delta: number;
+    upPressed: boolean;
+    dnPressed: boolean;
+    rtPressed: boolean;
+    ltPressed: boolean;
+    collidables: PIXI.Rectangle[];
   }) => {
     const { delta, upPressed, dnPressed, rtPressed, ltPressed, collidables } = props;
     const nextMoveAmount = getNextMoveAmount({
@@ -192,15 +191,15 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
       if (ltPressed && oda.isFacingRight) oda.faceLeft();
       if (rtPressed && !oda.isFacingRight) oda.faceRight();
     }
-  }
+  };
 
   const handleMoveWithPoll = (props: {
-    delta: number,
-    upPressed: boolean,
-    dnPressed: boolean,
-    rtPressed: boolean,
-    ltPressed: boolean,
-    collidables: PIXI.Rectangle[],
+    delta: number;
+    upPressed: boolean;
+    dnPressed: boolean;
+    rtPressed: boolean;
+    ltPressed: boolean;
+    collidables: PIXI.Rectangle[];
   }) => {
     if (oda.isActiveAnim('pollSwing')) return;
 
@@ -252,8 +251,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
       if (ltPressed && oda.isFacingRight) oda.faceLeft();
       if (rtPressed && !oda.isFacingRight) oda.faceRight();
     }
-
-  }
+  };
 
   return {
     name: () => 'move-oda-system',
@@ -297,7 +295,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
           rtPressed: rtPressed,
           ltPressed: ltPressed,
           collidables: [...collideArea, ...trafficDrums],
-        })
+        });
 
       if (oda.usingPoll)
         handleMoveWithPoll({
@@ -307,7 +305,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
           rtPressed: rtPressed,
           ltPressed: ltPressed,
           collidables: [...collideArea, ...trafficDrums],
-        })
+        });
     },
   };
 };

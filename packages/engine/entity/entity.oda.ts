@@ -62,8 +62,6 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
   return result as { [key in AnimKey]: PIXI.AnimatedSprite };
 };
 
-type weapon = { type: 'gun'; name: GunName } | { type: 'poll'; name: PollName };
-
 // -=-=-=-=-=-=-=-=-=-CLASS IMPL-=-=-=-=-=-=-=-=-=-=-
 
 export class OdaEntity extends Entity {
@@ -281,13 +279,17 @@ export class OdaEntity extends Entity {
     this.poll.anim.visible = value;
   }
 
-  setActiveWeapon(props: {
-    type: "gun";
-    name: GunName;
-  } | {
-    type: "poll";
-    name: PollName;
-  }) {
+  setActiveWeapon(
+    props:
+      | {
+        type: 'gun';
+        name: GunName;
+      }
+      | {
+        type: 'poll';
+        name: PollName;
+      },
+  ) {
     if (props.type === 'gun') {
       const gunName = props.name;
       const originalCount = this.gunList.length;
@@ -308,7 +310,7 @@ export class OdaEntity extends Entity {
       const pollName = props.name;
       const originalCount = this.pollList.length;
       this.weaponCtr.removeChildren();
-      const activePoll = this.pollList.find(p => p.name == props.name);
+      const activePoll = this.pollList.find((p) => p.name === props.name);
       if (!activePoll) throw new Error(`poll name not found in pollList: ${pollName}`);
       const nonAcivePolls = this.pollList.filter((p) => p.name !== pollName).sort();
       const proposedNewPollList = [activePoll, ...nonAcivePolls].filter((g) => !!g);

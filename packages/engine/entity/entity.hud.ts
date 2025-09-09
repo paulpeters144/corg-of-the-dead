@@ -1,17 +1,19 @@
 import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
 import { Entity } from './entity';
-import type { GunName, IOdaGun } from './entity.oda-gun';
-import type { IOdaPoll, PollName } from './entity.oda-poll';
+import type { IOdaGun } from './entity.oda-gun';
+import type { IOdaPoll } from './entity.oda-poll';
 
-
-type weaponList = ({
-  type: "gun",
-  weapon: IOdaGun
-} | {
-  type: "poll"
-  weapon: IOdaPoll
-})[]
+type weaponList = (
+  | {
+      type: 'gun';
+      weapon: IOdaGun;
+    }
+  | {
+      type: 'poll';
+      weapon: IOdaPoll;
+    }
+)[];
 
 export class GunHudInfoEntity extends Entity {
   weaponList: weaponList;
@@ -61,9 +63,7 @@ export class GunHudInfoEntity extends Entity {
       gunIcon.x += 3;
 
       const ammoText = this._getNewTextInstance();
-      ammoText.text = weapon.type === "gun" ?
-        weapon.weapon.ammo.toString() :
-        "infinite";
+      ammoText.text = weapon.type === 'gun' ? weapon.weapon.ammo.toString() : 'infinite';
 
       ctr.addChild(gunIcon, ammoText);
       ammoText.x = gunIcon.x + gunIcon.width + 5;
@@ -92,8 +92,8 @@ export class GunHudInfoEntity extends Entity {
     this.weaponList = [
       this.selectedWeapon,
       ...this.weaponList
-        .filter(w => w.weapon.name !== this.selectedWeapon.weapon.name)
-        .sort((a, b) => a.weapon.name.localeCompare(b.weapon.name))
+        .filter((w) => w.weapon.name !== this.selectedWeapon.weapon.name)
+        .sort((a, b) => a.weapon.name.localeCompare(b.weapon.name)),
     ];
 
     if (this.weaponGraphics.every((g) => g.ctr.visible)) {
@@ -158,18 +158,20 @@ export class GunHudInfoEntity extends Entity {
   }
 }
 
-type weaponListType = {
-  type: "gun",
-  weapon: IOdaGun
-} | {
-  type: "poll"
-  weapon: IOdaPoll
-}
+type weaponListType =
+  | {
+      type: 'gun';
+      weapon: IOdaGun;
+    }
+  | {
+      type: 'poll';
+      weapon: IOdaPoll;
+    };
 
 type HudPropsType = {
   odaIcon: PIXI.Sprite;
-  weaponList: weaponListType[]
-}
+  weaponList: weaponListType[];
+};
 
 export class HeadsUpDisplayEntity extends Entity {
   maxHealthBarWidth = 150;

@@ -13,8 +13,12 @@ export const createSetPollPosSystem = (di: IDiContainer): ISystem => {
 
       const facingRight = oda.isFacingRight;
 
+
       switch (oda.activeAnimation) {
         case 'pollIdle':
+          if (oda.poll.anim.currentFrame !== 0) {
+            oda.poll.anim.currentFrame = 0;
+          }
           oda.poll.anim.y = oda.ctr.y - 18;
           if (!oda.poll.anim.visible) {
             oda.poll.anim.visible = true;
@@ -48,6 +52,9 @@ export const createSetPollPosSystem = (di: IDiContainer): ISystem => {
           break;
 
         case 'pollRun':
+          if (oda.poll.anim.currentFrame !== 0) {
+            oda.poll.anim.currentFrame = 0;
+          }
           oda.poll.anim.x = oda.ctr.x + (facingRight ? -7 : 42);
           if (!oda.poll.anim.visible) {
             oda.poll.anim.visible = true;

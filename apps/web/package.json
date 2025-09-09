@@ -14,7 +14,7 @@
     "@package/assets": "workspace:*",
     "@package/engine": "workspace:*",
     "gh-pages": "^6.3.0",
-    "pixi.js": "^8.12.0"
+    "pixi.js": "^8.13.1"
   },
   "devDependencies": {
     "typescript": "~5.8.3",

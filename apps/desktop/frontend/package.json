@@ -8,9 +8,9 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"@package/engine": "workspace:*",
 		"@package/assets": "workspace:*",
-		"pixi.js": "^8.12.0"
+		"@package/engine": "workspace:*",
+		"pixi.js": "^8.13.1"
 	},
 	"devDependencies": {
 		"typescript": "^4.5.4",

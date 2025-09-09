@@ -15,14 +15,11 @@ export const createSwingPollSystem = (di: IDiContainer): ISystem => {
 
       const now = performance.now();
 
-      if (oda.activeAnimation === 'pollSwing' && oda.anim.playing === false) {
-        oda.setIdlePoll();
-      }
       if (input.shoot.is.pressed && !oda.isActiveAnim('pollSwing') && now - lastSwing > 500) {
         oda.setPollSwing();
+        setTimeout(() => { oda.setIdlePoll(); }, 350);
         lastSwing = performance.now();
       }
     },
   };
 };
-
