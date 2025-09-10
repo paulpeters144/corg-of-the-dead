@@ -20,6 +20,11 @@ export interface IEventBus {
 export type EventMap = {
   eventName: { count: number };
   shotFired: { cords: PIXI.Rectangle; facingRight: boolean };
+  impactBounce: {
+    id: string;
+    direction: 'right' | 'left';
+    power: number;
+  };
   odaShot: {
     rect: PIXI.Rectangle;
     name: GunName;

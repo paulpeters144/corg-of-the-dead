@@ -24,6 +24,7 @@ import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
+import { createImpactBounceSystem } from '../../systems/system.impact-bounce';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -123,6 +124,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         createInputUISystem(di),
         createSwingPollSystem(di),
         createPollHitAreaSystem(di),
+        createImpactBounceSystem(di),
       );
 
       camera.clamp({
@@ -138,7 +140,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

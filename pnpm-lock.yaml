@@ -65,13 +65,13 @@ importers:
         version: 25.0.0
       pixi-filters:
         specifier: ^6.1.4
-        version: 6.1.4(pixi.js@8.12.0)
+        version: 6.1.4(pixi.js@8.13.1)
       pixi-viewport:
         specifier: ^6.0.3
-        version: 6.0.3(pixi.js@8.12.0)
+        version: 6.0.3(pixi.js@8.13.1)
       pixi.js:
-        specifier: ^8.12.0
-        version: 8.12.0
+        specifier: ^8.13.1
+        version: 8.13.1
     devDependencies:
       '@types/node':
         specifier: ^24.3.0
@@ -871,9 +871,6 @@ packages:
     resolution: {integrity: sha512-2+qPJ0/n+8hQYhWvY+795+x9y3MiUrCOWacK0DY53whowWaGdx9iDocy7z1pBwjkZhC52YvrJQuZKK0sdVLtBw==}
     peerDependencies:
       pixi.js: '>=8'
-
-  pixi.js@8.12.0:
-    resolution: {integrity: sha512-or7vrH7WajLevu/JnGMdD80JaSpTlXfjwCLtzhg2BL60LWPf1pF0w08Qleiqr1Saj012gevguM//+6HzzVlnfA==}
 
   pixi.js@8.13.1:
     resolution: {integrity: sha512-n7lP3FG8noZV00O6ZTUNWQGg2j6xNjK/8TiGviptb4kfyGJvP4zMvF8s6DR0BymZ8P/lix/3Ye5rqilynpl/+g==}
@@ -1688,27 +1685,14 @@ snapshots:
 
   picomatch@4.0.3: {}
 
-  pixi-filters@6.1.4(pixi.js@8.12.0):
+  pixi-filters@6.1.4(pixi.js@8.13.1):
     dependencies:
       '@types/gradient-parser': 0.1.5
-      pixi.js: 8.12.0
+      pixi.js: 8.13.1
 
-  pixi-viewport@6.0.3(pixi.js@8.12.0):
+  pixi-viewport@6.0.3(pixi.js@8.13.1):
     dependencies:
-      pixi.js: 8.12.0
-
-  pixi.js@8.12.0:
-    dependencies:
-      '@pixi/colord': 2.9.6
-      '@types/css-font-loading-module': 0.0.12
-      '@types/earcut': 3.0.0
-      '@webgpu/types': 0.1.64
-      '@xmldom/xmldom': 0.8.11
-      earcut: 3.0.2
-      eventemitter3: 5.0.1
-      gifuct-js: 2.1.2
-      ismobilejs: 1.1.1
-      parse-svg-path: 0.1.2
+      pixi.js: 8.13.1
 
   pixi.js@8.13.1:
     dependencies:

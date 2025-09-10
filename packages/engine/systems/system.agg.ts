@@ -12,32 +12,31 @@ export interface ISystemAgg {
 }
 
 export const createSystemAgg = (): ISystemAgg => {
-  let _systemsArr: ISystem[] = [];
+  let _list: ISystem[] = [];
 
   return {
     update: (delta: number) => {
-      for (let i = 0; i < _systemsArr.length; i++) {
-        _systemsArr[i].update(delta);
+      for (let i = 0; i < _list.length; i++) {
+        _list[i].update(delta);
       }
     },
     add: (...systems: ISystem[]) => {
       for (const system of systems) {
-        const hasSystemAlready = _systemsArr.find((s) => s.name() === system.name());
-        if (hasSystemAlready) {
+        if (_list.find((s) => s.name() === system.name())) {
           throw new Error('only a sinlge isntance of a system can run');
         }
-        _systemsArr.push(system);
+        _list.push(system);
       }
     },
     remove: (...systems: ISystem[]) => {
       const toRemove = new Set(systems.map((s) => s.name()));
-      _systemsArr = _systemsArr.filter((s) => !toRemove.has(s.name()));
+      _list = _list.filter((s) => !toRemove.has(s.name()));
     },
     clearAll: () => {
-      _systemsArr.length = 0;
+      _list.length = 0;
     },
     getAll: () => {
-      return _systemsArr;
+      return _list;
     },
   };
 };

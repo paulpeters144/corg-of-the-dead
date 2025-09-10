@@ -8,16 +8,8 @@ export interface IEntityStore {
   getAll<T extends Entity>(type: new (...args: any[]) => T): T[];
   // biome-ignore lint/suspicious/noExplicitAny: use of any is needed here
   first<T extends Entity>(type: new (...args: any[]) => T): T | undefined;
+  getById(id: string): Entity | undefined;
   clear(): void;
-  get<T extends Entity>(
-    // biome-ignore lint/suspicious/noExplicitAny: use of any is needed here
-    type: new (...args: any[]) => T,
-  ): {
-    all: () => T[];
-    first: () => T | undefined;
-    byId: (id: string) => T | undefined;
-    count: () => number;
-  };
 }
 
 export class EntityStore implements IEntityStore {
@@ -50,6 +42,7 @@ export class EntityStore implements IEntityStore {
         const entToRemove = list[index];
         list.splice(index, 1);
         this._gameRef.removeChild(entToRemove.ctr);
+        this._idCache.delete(entToRemove.id);
       }
 
       if (list.length === 0) {
@@ -63,15 +56,22 @@ export class EntityStore implements IEntityStore {
     return (this._store.get(type.name) as T[]) || [];
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: need this to allow search by ctr name
-  public get<T extends Entity>(type: new (...args: any[]) => T) {
-    const list = (this._store.get(type.name) as T[]) || [];
-    return {
-      all: () => list,
-      first: () => list?.at(0),
-      byId: (id: string) => list.find((e) => e.id === id),
-      count: () => list.length,
-    };
+  private _idCache = new Map<string, Entity>();
+  public getById(id: string): Entity | undefined {
+    const cacheHit = this._idCache.get(id);
+    if (cacheHit) return cacheHit;
+
+    for (const [_, entities] of this._store.entries()) {
+      for (let i = 0; i < entities.length; i++) {
+        const entity = entities[i];
+        if (entity.id === id) {
+          this._idCache.set(entity.id, entity);
+          return entity;
+        }
+      }
+    }
+
+    return undefined;
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: need this to allow search by ctr name

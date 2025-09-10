@@ -84,9 +84,21 @@ export const createPollHitAreaSystem = (di: IDiContainer): ISystem => {
           .filter((e) => e.rect.intersects(rect));
 
         if (hitDrums.length > 0) {
-          hitDrums.map((e) => showHitMarker(e.center));
-          hitDrums.filter((e) => e.recieveDamage(oda.poll.damage)).map((e) => entityStore.remove(e));
-          bus.fire('camShake', { duration: 100, magnitude: 3 });
+          for (const drum of hitDrums) {
+            showHitMarker(drum.center);
+            drum.recieveDamage(oda.poll.damage);
+            if (drum.health <= 0) {
+              entityStore.remove(drum);
+              bus.fire('camShake', { duration: 250, magnitude: 15 });
+            } else {
+              bus.fire('camShake', { duration: 100, magnitude: 5 });
+            }
+            bus.fire('impactBounce', {
+              id: drum.id,
+              direction: oda.isFacingRight ? "right" : "left",
+              power: 100,
+            })
+          }
         }
 
         showDebugGraphics(rect);
