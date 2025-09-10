@@ -95,9 +95,9 @@ export const createPollHitAreaSystem = (di: IDiContainer): ISystem => {
             }
             bus.fire('impactBounce', {
               id: drum.id,
-              direction: oda.isFacingRight ? "right" : "left",
+              direction: oda.isFacingRight ? 'right' : 'left',
               power: 100,
-            })
+            });
           }
         }
 

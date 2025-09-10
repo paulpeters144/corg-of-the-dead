@@ -9,6 +9,7 @@ import { createCamControlSystem } from '../../systems/system.cam-control';
 import { createCamOrbSystem } from '../../systems/system.cam-orb';
 import { createGunExplosianSystem } from '../../systems/system.gun-explosian';
 import { createHeadsUpDisplaySystem } from '../../systems/system.heads-up-display';
+import { createImpactBounceSystem } from '../../systems/system.impact-bounce';
 import { createInputUISystem } from '../../systems/system.input-ui';
 import { createMoveOdaSystem } from '../../systems/system.move-oda';
 import { createOdaRollSystem } from '../../systems/system.oda-rolling';
@@ -24,7 +25,6 @@ import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
-import { createImpactBounceSystem } from '../../systems/system.impact-bounce';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -140,7 +140,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => { },
+    dispose: () => {},
   };
 };
 
