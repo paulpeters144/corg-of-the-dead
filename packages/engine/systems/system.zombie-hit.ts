@@ -12,14 +12,12 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
 
   const events: HitEvent[] = [];
 
-  bus.on('zombiePollHit', e => {
-
-  })
+  bus.on('zombiePollHit', (_e) => {});
 
   return {
     name: () => 'zombie-hit-system',
     update: (_: number) => {
       if (events.length === 0) return;
     },
-  }
+  };
 };

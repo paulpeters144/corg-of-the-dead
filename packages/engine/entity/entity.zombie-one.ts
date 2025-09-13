@@ -2,15 +2,7 @@ import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
 import { Entity } from './entity';
 
-const spriteAnimKeys = [
-  'idle',
-  'walk',
-  'swipe',
-  'die',
-  'hitDirection',
-  'fall',
-  'revive',
-] as const;
+const spriteAnimKeys = ['idle', 'walk', 'swipe', 'die', 'hitDirection', 'fall', 'revive'] as const;
 
 type AnimKey = (typeof spriteAnimKeys)[number];
 

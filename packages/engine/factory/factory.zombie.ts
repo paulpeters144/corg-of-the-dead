@@ -1,7 +1,7 @@
-import { ZombieOneEntity } from "../entity/entity.zombie-one";
-import type { IAssetLoader } from "../util/asset-loader";
+import { ZombieOneEntity } from '../entity/entity.zombie-one';
+import type { IAssetLoader } from '../util/asset-loader';
 
-type ZombieName = "one";
+type ZombieName = 'one';
 
 export const createZombieFactory = (assetLoader: IAssetLoader) => {
   return {
@@ -9,13 +9,13 @@ export const createZombieFactory = (assetLoader: IAssetLoader) => {
       switch (name) {
         case 'one': {
           const zombie = new ZombieOneEntity({
-            spriteSheet: assetLoader.getTexture('zombieOne')
-          })
+            spriteSheet: assetLoader.getTexture('zombieOne'),
+          });
           return zombie;
         }
         default:
-          throw new Error(`unknown zombie name '${name}'`)
+          throw new Error(`unknown zombie name '${name}'`);
       }
-    }
-  }
-}
+    },
+  };
+};

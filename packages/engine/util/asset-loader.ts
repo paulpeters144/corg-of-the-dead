@@ -1,3 +1,4 @@
+import zombie_one_url from '@package/assets/images/actors/enemies/zombie-one.png';
 import oda_idle_url from '@package/assets/images/actors/player/oda_idle_anim_2.png';
 import missed_shot_url from '@package/assets/images/actors/weapons/missed-shot.png';
 import park_sign_url from '@package/assets/images/actors/weapons/park-sign.png';
@@ -6,7 +7,6 @@ import rifle_1_url from '@package/assets/images/actors/weapons/rifle-1.png';
 import rifle_1_impact_url from '@package/assets/images/actors/weapons/rifle-1-explosian.png';
 import rifle_1_flash_url from '@package/assets/images/actors/weapons/rifle-1-flash.png';
 import rifle_1_icon_url from '@package/assets/images/actors/weapons/rifle-1-icon.png';
-import zombie_one_url from "@package/assets/images/actors/enemies/zombie-one.png";
 import shotty_1_Url from '@package/assets/images/actors/weapons/shotty-1.png';
 import shotty_1_icon_url from '@package/assets/images/actors/weapons/shotty-1-icon.png';
 import weird_gun_1_url from '@package/assets/images/actors/weapons/weird-gun-1.png';

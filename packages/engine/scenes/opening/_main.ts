@@ -5,8 +5,10 @@ import { OdaEntity } from '../../entity/entity.oda';
 import { TrafficDrumEntity } from '../../entity/entity.traffic-drum';
 import { createPollFactory } from '../../factory/factory.poll';
 import { createGunFactory } from '../../factory/factory.weapon';
+import { createZombieFactory } from '../../factory/factory.zombie';
 import { createCamControlSystem } from '../../systems/system.cam-control';
 import { createCamOrbSystem } from '../../systems/system.cam-orb';
+import { createEntityZIndexSystem } from '../../systems/system.entity-zindex';
 import { createGunExplosianSystem } from '../../systems/system.gun-explosian';
 import { createHeadsUpDisplaySystem } from '../../systems/system.heads-up-display';
 import { createImpactBounceSystem } from '../../systems/system.impact-bounce';
@@ -24,8 +26,6 @@ import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
-import { createZombieFactory } from '../../factory/factory.zombie';
-import { createEntityZIndexSystem } from '../../systems/system.entity-zindex';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -114,7 +114,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       setTimeout(() => {
         oda?.move(new PIXI.Point(100, 300));
         zombie.ctr.position.set(200, 300);
-        zombie.setAnimation('idle')
+        zombie.setAnimation('idle');
       }, 50);
 
       systemAgg.add(
@@ -148,7 +148,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => { },
+    dispose: () => {},
   };
 };
 

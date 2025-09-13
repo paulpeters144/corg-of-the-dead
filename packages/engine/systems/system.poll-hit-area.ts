@@ -9,7 +9,7 @@ type BoundaryBox = { center: Point; rect: PIXI.Rectangle };
 
 const isCloseBy = (target: Point, candidate: Point, dx = 66, dy = 150): boolean => {
   return Math.abs(candidate.x - target.x) < dx && Math.abs(candidate.y - target.y) < dy;
-}
+};
 
 const byDistance = (target: Point) => {
   return (a: BoundaryBox, b: BoundaryBox) => {
@@ -17,7 +17,7 @@ const byDistance = (target: Point) => {
     const distB = (b.center.x - target.x) ** 2 + (b.center.y - target.y) ** 2;
     return distA - distB;
   };
-}
+};
 
 const randNum = (min: number, max: number) => {
   const step1 = Math.random() * (max - min + 1);
