@@ -192,8 +192,6 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
   const gunHitEventDict = new Map<string, GunHitEvent>();
   const pollHitEventDict = new Map<string, PollHitEvent>();
 
-
-
   bus.on('zombieHit', (e) => {
     const zombie = entityStore.getById(e.id) as ZombieOneEntity;
     if (!zombie) return;
@@ -204,7 +202,7 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
       e.direction === 'left' ? zombie.faceRight() : zombie.faceLeft();
     }
 
-    if (e.type === "poll") {
+    if (e.type === 'poll') {
       const distFall = randNum(2.1 * e.damage, 3.5 * e.damage);
       pollHitEventDict.set(zombie.id, {
         zombie: zombie,
@@ -217,8 +215,8 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
           curr: 0,
         },
       });
-    } else if (e.type === "gun") {
-      const distFall = randNum(.25 * e.damage, 1 * e.damage);
+    } else if (e.type === 'gun') {
+      const distFall = randNum(0.25 * e.damage, 1 * e.damage);
       gunHitEventDict.set(zombie.id, {
         zombie: zombie,
         direction: e.direction,
@@ -231,7 +229,7 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
         },
       });
     } else {
-      throw new Error(`unknown zombieHit type: ${e.type}`)
+      throw new Error(`unknown zombieHit type: ${e.type}`);
     }
   });
 
@@ -241,7 +239,6 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
       if (pollHitEventDict.size === 0 && gunHitEventDict.size === 0) return;
 
       const now = performance.now();
-
 
       for (const e of gunHitEventDict.values()) {
         const { zombie } = e;
@@ -257,7 +254,6 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
           if (removeZombie) gunHitEventDict.delete(zombie.id);
         }
       }
-
 
       for (const e of pollHitEventDict.values()) {
         const { zombie } = e;

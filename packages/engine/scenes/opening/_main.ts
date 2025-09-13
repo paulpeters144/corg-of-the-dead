@@ -152,7 +152,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => { },
+    dispose: () => {},
   };
 };
 

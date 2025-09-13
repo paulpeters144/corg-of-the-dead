@@ -27,7 +27,7 @@ export type EventMap = {
   };
   zombieHit: {
     id: string;
-    type: "gun" | "poll";
+    type: 'gun' | 'poll';
     direction: 'right' | 'left';
     damage: number;
   };

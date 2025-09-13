@@ -186,7 +186,6 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
       oda.setGunWalk();
     }
 
-
     if (isRunning) {
       if (ltPressed && oda.isFacingRight) oda.faceLeft();
       if (rtPressed && !oda.isFacingRight) oda.faceRight();

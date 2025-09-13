@@ -1,16 +1,16 @@
 import * as PIXI from 'pixi.js';
+import type { Entity } from '../entity/entity';
 import { OdaEntity } from '../entity/entity.oda';
 import type { IOdaGun } from '../entity/entity.oda-gun';
 import type { IEntityStore } from '../entity/entity.store';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
+import { ZombieOneEntity } from '../entity/entity.zombie-one';
 import { ZLayer } from '../types/enums';
 import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
+import type { IEventBus } from '../util/event-bus';
 import { byDistanceAsc } from '../util/util';
 import type { ISystem } from './system.agg';
-import { ZombieOneEntity } from '../entity/entity.zombie-one';
-import type { Entity } from '../entity/entity';
-import type { IEventBus } from '../util/event-bus';
 
 const createRectangleGraphic = (props: {
   range: number;
@@ -121,8 +121,8 @@ export const applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: P
 const handleShotDamage = (props: {
   oda: OdaEntity;
   rangeArea: PIXI.Rectangle[];
-  entityStore: IEntityStore,
-  bus: IEventBus,
+  entityStore: IEntityStore;
+  bus: IEventBus;
 }) => {
   const { oda, rangeArea, entityStore, bus } = props;
   if (!oda.gun) throw new Error('shooting with no gun... not a good idea');
@@ -132,8 +132,7 @@ const handleShotDamage = (props: {
   const hittableEntities: (TrafficDrumEntity | ZombieOneEntity)[] = [
     ...entityStore.getAll(TrafficDrumEntity),
     ...entityStore.getAll(ZombieOneEntity),
-  ]
-    .sort(byDistanceAsc(oda.center));
+  ].sort(byDistanceAsc(oda.center));
 
   const hitEntities: (TrafficDrumEntity | ZombieOneEntity)[] = [];
 
@@ -190,7 +189,7 @@ const handleShotDamage = (props: {
   for (let i = 0; i < hitEntities.length; i++) {
     const e = hitEntities[i];
     if (e instanceof TrafficDrumEntity) {
-      e.recieveDamage(oda.gun.damage)
+      e.recieveDamage(oda.gun.damage);
       if (e.health <= 0) {
         entityStore.remove(e);
       }
@@ -198,10 +197,10 @@ const handleShotDamage = (props: {
     if (e instanceof ZombieOneEntity) {
       bus.fire('zombieHit', {
         id: e.id,
-        type: "gun",
-        direction: oda.isFacingRight ? "right" : "left",
+        type: 'gun',
+        direction: oda.isFacingRight ? 'right' : 'left',
         damage: oda.gun.damage,
-      })
+      });
     }
   }
 
