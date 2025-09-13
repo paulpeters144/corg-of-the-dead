@@ -86,7 +86,7 @@ export const openingScene = (di: IDiContainer): IScene => {
 
       gameRef.addChild(oda.weaponCtr);
       entityStore.add(oda, new CameraOrbEntity());
-      oda.setActiveWeapon({ type: 'poll', name: 'ParkSign' });
+      oda.setActiveWeapon({ type: 'gun', name: 'Rifle' });
 
       for (let i = 0; i < tilemap.trafficDrumPos.length; i++) {
         const pos = tilemap.trafficDrumPos[i];
@@ -106,8 +106,8 @@ export const openingScene = (di: IDiContainer): IScene => {
       const hud = new HeadsUpDisplayEntity({
         odaIcon: assetLoader.createSprite('odaHudIcon'),
         weaponList: [
-          ...oda.pollList.map((p) => ({ type: 'poll' as const, weapon: p })),
           ...oda.gunList.map((g) => ({ type: 'gun' as const, weapon: g })),
+          ...oda.pollList.map((p) => ({ type: 'poll' as const, weapon: p })),
         ],
       });
 
@@ -152,7 +152,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

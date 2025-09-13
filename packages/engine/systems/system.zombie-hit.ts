@@ -3,7 +3,7 @@ import type { IDiContainer } from '../util/di-container';
 import { randNum } from '../util/util';
 import type { ISystem } from './system.agg';
 
-interface HitEvent {
+interface PollHitEvent {
   zombie: ZombieOneEntity;
   direction: 'right' | 'left';
   hitTime: number;
@@ -15,7 +15,19 @@ interface HitEvent {
   };
 }
 
-const handleZombieDieAnim = (props: { delta: number; now: number; e: HitEvent }) => {
+interface GunHitEvent {
+  zombie: ZombieOneEntity;
+  direction: 'right' | 'left';
+  hitTime: number;
+  flashSet: boolean;
+  fall: {
+    curr: number;
+    max: number;
+    speed: number;
+  };
+}
+
+const pollZombieDieAnim = (props: { delta: number; now: number; e: PollHitEvent }) => {
   const { delta, now, e } = props;
   const { zombie } = e;
 
@@ -56,7 +68,7 @@ const handleZombieDieAnim = (props: { delta: number; now: number; e: HitEvent })
   };
 };
 
-const handleZombieFallBack = (props: { delta: number; now: number; e: HitEvent }) => {
+const pollZombieFallBack = (props: { delta: number; now: number; e: PollHitEvent }) => {
   const { delta, now, e } = props;
   let result = false;
   const { zombie } = e;
@@ -98,13 +110,91 @@ const handleZombieFallBack = (props: { delta: number; now: number; e: HitEvent }
   };
 };
 
+const gunZombieDieAnim = (props: { delta: number; now: number; e: GunHitEvent }) => {
+  const { delta, now, e } = props;
+  const { zombie } = e;
+
+  if (!e.flashSet) {
+    zombie.setRedFilter();
+    e.flashSet = true;
+    setTimeout(() => {
+      zombie.ctr.filters = [];
+    }, 75);
+  }
+  if (!zombie.isActiveAnim('die')) {
+    zombie.setAnimation('die');
+  }
+
+  let result = false;
+
+  if (zombie.isActiveAnim('die')) {
+    const percent = e.fall.curr / e.fall.max;
+
+    // smaller knockback than poll
+    let easedSpeed = e.fall.speed * (0.6 - percent * 0.4);
+    easedSpeed = easedSpeed > 10 ? easedSpeed : 10;
+
+    const moveDist = delta * easedSpeed;
+
+    e.fall.curr += moveDist;
+    if (e.direction === 'right') zombie.ctr.x += moveDist * 0.5;
+    else zombie.ctr.x -= moveDist * 0.5;
+
+    zombie.ctr.y -= moveDist * 0.1;
+  }
+
+  if (now - e.hitTime > 500 && zombie.isActiveAnim('die')) {
+    result = true;
+  }
+
+  return { removeZombie: result };
+};
+
+const gunZombieFlinch = (props: { delta: number; now: number; e: GunHitEvent }) => {
+  const { delta, now, e } = props;
+  let result = false;
+  const { zombie } = e;
+
+  if (!e.flashSet) {
+    zombie.setRedFilter();
+    e.flashSet = true;
+    zombie.setAnimation('hitDirection');
+  }
+
+  if (zombie.hasFilter && now - e.hitTime > 50) {
+    zombie.ctr.filters = [];
+  }
+
+  if (zombie.isActiveAnim('hitDirection') && e.fall.curr < e.fall.max) {
+    const percent = e.fall.curr / e.fall.max;
+    let easedSpeed = e.fall.speed * (2.8 - percent * 2);
+    easedSpeed = easedSpeed > 8 ? easedSpeed : 8;
+
+    const moveDist = delta * easedSpeed;
+
+    e.fall.curr += moveDist;
+    if (e.direction === 'right') zombie.ctr.x += moveDist * 0.1;
+    else zombie.ctr.x -= moveDist * 0.4;
+  }
+
+  if (now - e.hitTime > 500) {
+    zombie.setAnimation('idle');
+    result = true;
+  }
+
+  return { removeZombie: result };
+};
+
 export const createZombieHitSystem = (di: IDiContainer): ISystem => {
   const entityStore = di.entityStore();
   const bus = di.eventBus();
 
-  const eventDic = new Map<string, HitEvent>();
+  const gunHitEventDict = new Map<string, GunHitEvent>();
+  const pollHitEventDict = new Map<string, PollHitEvent>();
 
-  bus.on('zombiePollHit', (e) => {
+
+
+  bus.on('zombieHit', (e) => {
     const zombie = entityStore.getById(e.id) as ZombieOneEntity;
     if (!zombie) return;
 
@@ -114,41 +204,75 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
       e.direction === 'left' ? zombie.faceRight() : zombie.faceLeft();
     }
 
-    const distFall = randNum(100, 150);
-    eventDic.set(zombie.id, {
-      zombie: zombie,
-      direction: e.direction,
-      hitTime: performance.now(),
-      flashSet: false,
-      fall: {
-        max: distFall,
-        speed: distFall * 0.4,
-        curr: 0,
-      },
-    });
+    if (e.type === "poll") {
+      const distFall = randNum(2.1 * e.damage, 3.5 * e.damage);
+      pollHitEventDict.set(zombie.id, {
+        zombie: zombie,
+        direction: e.direction,
+        hitTime: performance.now(),
+        flashSet: false,
+        fall: {
+          max: distFall,
+          speed: distFall * 0.4,
+          curr: 0,
+        },
+      });
+    } else if (e.type === "gun") {
+      const distFall = randNum(.25 * e.damage, 1 * e.damage);
+      gunHitEventDict.set(zombie.id, {
+        zombie: zombie,
+        direction: e.direction,
+        hitTime: performance.now(),
+        flashSet: false,
+        fall: {
+          max: distFall,
+          speed: distFall * 0.4,
+          curr: 0,
+        },
+      });
+    } else {
+      throw new Error(`unknown zombieHit type: ${e.type}`)
+    }
   });
 
   return {
     name: () => 'zombie-hit-system',
     update: (delta: number) => {
-      if (eventDic.size === 0) return;
+      if (pollHitEventDict.size === 0 && gunHitEventDict.size === 0) return;
 
       const now = performance.now();
 
-      for (const e of eventDic.values()) {
+
+      for (const e of gunHitEventDict.values()) {
         const { zombie } = e;
 
         if (zombie.health <= 0) {
-          const { removeZombie } = handleZombieDieAnim({ delta, now, e });
+          const { removeZombie } = gunZombieDieAnim({ delta, now, e });
           if (removeZombie) {
             entityStore.remove(zombie);
-            eventDic.delete(zombie.id);
+            gunHitEventDict.delete(zombie.id);
+          }
+        } else {
+          const { removeZombie } = gunZombieFlinch({ delta, now, e });
+          if (removeZombie) gunHitEventDict.delete(zombie.id);
+        }
+      }
+
+
+      for (const e of pollHitEventDict.values()) {
+        const { zombie } = e;
+
+        if (zombie.health <= 0) {
+          const { removeZombie } = pollZombieDieAnim({ delta, now, e });
+          if (removeZombie) {
+            entityStore.remove(zombie);
+            pollHitEventDict.delete(zombie.id);
           }
         }
 
         if (zombie.health > 0) {
-          const { removeZombie } = handleZombieFallBack({ delta, now, e });
-          if (removeZombie) eventDic.delete(zombie.id);
+          const { removeZombie } = pollZombieFallBack({ delta, now, e });
+          if (removeZombie) pollHitEventDict.delete(zombie.id);
         }
       }
     },

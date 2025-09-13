@@ -115,7 +115,7 @@ export class TrafficDrumEntity extends Entity {
     this.ctr.zIndex = ZLayer.m1;
   }
 
-  recieveDamage(val: number): boolean {
+  recieveDamage(val: number) {
     this._health -= val;
     if (this._health < 0) {
       this._health = 0;
@@ -132,7 +132,5 @@ export class TrafficDrumEntity extends Entity {
     } else {
       this.anim.gotoAndStop(0);
     }
-    const died = this._health <= 0;
-    return died;
   }
 }

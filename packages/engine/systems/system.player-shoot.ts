@@ -8,6 +8,9 @@ import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
 import { byDistanceAsc } from '../util/util';
 import type { ISystem } from './system.agg';
+import { ZombieOneEntity } from '../entity/entity.zombie-one';
+import type { Entity } from '../entity/entity';
+import type { IEventBus } from '../util/event-bus';
 
 const createRectangleGraphic = (props: {
   range: number;
@@ -115,17 +118,26 @@ export const applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: P
   }, 3000);
 };
 
-const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; entityStore: IEntityStore }) => {
-  const { oda, rangeArea, entityStore } = props;
+const handleShotDamage = (props: {
+  oda: OdaEntity;
+  rangeArea: PIXI.Rectangle[];
+  entityStore: IEntityStore,
+  bus: IEventBus,
+}) => {
+  const { oda, rangeArea, entityStore, bus } = props;
   if (!oda.gun) throw new Error('shooting with no gun... not a good idea');
   const spread = oda.gun.spread;
   const isPiercing = oda.gun.piercing;
 
-  const hittableEntities = [...entityStore.getAll(TrafficDrumEntity)].sort(byDistanceAsc(oda.center));
+  const hittableEntities: (TrafficDrumEntity | ZombieOneEntity)[] = [
+    ...entityStore.getAll(TrafficDrumEntity),
+    ...entityStore.getAll(ZombieOneEntity),
+  ]
+    .sort(byDistanceAsc(oda.center));
 
-  const hitTrafficDrums: TrafficDrumEntity[] = [];
+  const hitEntities: (TrafficDrumEntity | ZombieOneEntity)[] = [];
 
-  const isWithinRangeArea = (entity: TrafficDrumEntity): boolean => {
+  const isWithinRangeArea = (entity: Entity): boolean => {
     for (let i = 0; i < rangeArea.length; i++) {
       if (entity.rect.intersects(rangeArea[i])) {
         return true;
@@ -136,22 +148,23 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
 
   for (let i = 0; i < hittableEntities.length; i++) {
     const entity = hittableEntities[i];
-    const notInArr = !hitTrafficDrums.some((e) => e.id === entity.id);
+    const notInArr = !hitEntities.some((e) => e.id === entity.id);
 
     if (!isWithinRangeArea(entity) || !notInArr) continue;
+    if (entity.health <= 0) continue;
 
     if (isPiercing) {
-      hitTrafficDrums.push(entity);
+      hitEntities.push(entity);
     } else {
       if (spread > 1) {
         let shouldHit = false;
 
-        if (hitTrafficDrums.length === 0) {
+        if (hitEntities.length === 0) {
           shouldHit = true;
         } else {
-          for (const hitEntity of hitTrafficDrums) {
-            const dx = entity.center.x - hitEntity.center.x;
-            const dy = entity.center.y - hitEntity.center.y;
+          for (const e of hitEntities) {
+            const dx = entity.center.x - e.center.x;
+            const dy = entity.center.y - e.center.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance <= 50) {
@@ -162,26 +175,37 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
         }
 
         if (shouldHit) {
-          hitTrafficDrums.push(entity);
+          hitEntities.push(entity);
         }
       } else {
-        if (hitTrafficDrums.length === 0) {
-          hitTrafficDrums.push(entity);
+        if (hitEntities.length === 0) {
+          hitEntities.push(entity);
         }
       }
     }
 
-    if (!isPiercing && spread === 1 && hitTrafficDrums.length > 0) break;
+    if (!isPiercing && spread === 1 && hitEntities.length > 0) break;
   }
 
-  for (let i = 0; i < hitTrafficDrums.length; i++) {
-    const entity = hitTrafficDrums[i];
-    if (entity?.recieveDamage(oda.gun?.damage || 0)) {
-      entityStore.remove(entity);
+  for (let i = 0; i < hitEntities.length; i++) {
+    const e = hitEntities[i];
+    if (e instanceof TrafficDrumEntity) {
+      e.recieveDamage(oda.gun.damage)
+      if (e.health <= 0) {
+        entityStore.remove(e);
+      }
+    }
+    if (e instanceof ZombieOneEntity) {
+      bus.fire('zombieHit', {
+        id: e.id,
+        type: "gun",
+        direction: oda.isFacingRight ? "right" : "left",
+        damage: oda.gun.damage,
+      })
     }
   }
 
-  return hitTrafficDrums.map((e) => e.rect);
+  return hitEntities.map((e) => e.rect);
 };
 
 const applyTracer = (props: {
@@ -323,7 +347,13 @@ export const createOdaShootSystem = (di: IDiContainer): ISystem => {
         faceDirection: isFacingRight ? 'right' : 'left',
       });
 
-      const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
+      const hitArea = handleShotDamage({
+        oda: oda,
+        rangeArea: rectArr,
+        entityStore: entityStore,
+        bus: bus,
+      });
+
       if (hitArea.length > 0) {
         const gunName = oda.gun.name || 'unknown-gun-name';
         hitArea.map((e) => bus.fire('shotHit', { gunName, area: e }));

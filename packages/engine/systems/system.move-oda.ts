@@ -163,31 +163,29 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
       oda.move(nextMoveAmount);
     }
 
-    if (oda.isRolling) return;
-    if (oda.isWalking && input.walk.is.pressed) return;
-
     const moved = !!nextMoveAmount;
+    if (!moved && oda.isWalking) oda.setIdleGun();
+    if (oda.isWalking && input.walk.is.pressed) return;
 
     const isWalking = oda.isWalking;
     const isRunning = oda.isRunning;
     const isMoving = isWalking || isRunning;
     const isShooting = input.shoot.is.pressed;
 
-    if (oda.usingGun) {
-      if (!moved && isMoving) {
-        oda.setIdleGun();
-      } else if (moved && !isMoving && !isShooting) {
-        oda.setGunRun();
-      } else if (moved && isShooting && (isRunning || oda.isIdle)) {
-        oda.setGunWalk();
-      } else if (!isShooting && oda.isWalking) {
-        oda.setGunRun();
-      }
-
-      if (input.walk.is.pressed && !oda.isWalking) {
-        oda.setGunWalk();
-      }
+    if (!moved && isMoving) {
+      oda.setIdleGun();
+    } else if (moved && !isMoving && !isShooting) {
+      oda.setGunRun();
+    } else if (moved && isShooting && (isRunning || oda.isIdle)) {
+      oda.setGunWalk();
+    } else if (!isShooting && oda.isWalking) {
+      oda.setGunRun();
     }
+
+    if (input.walk.is.pressed && moved && !oda.isWalking) {
+      oda.setGunWalk();
+    }
+
 
     if (isRunning) {
       if (ltPressed && oda.isFacingRight) oda.faceLeft();

@@ -47,7 +47,8 @@ export const createSwingPollSystem = (di: IDiContainer): ISystem => {
             return r.intersects(rect) && z.isActiveAnim('idle', 'walk', 'swipe') && z.health > 0;
           })
           .forEach((z) => {
-            bus.fire('zombiePollHit', {
+            bus.fire('zombieHit', {
+              type: 'poll',
               id: z.id,
               direction: oda.isFacingRight ? 'right' : 'left',
               damage: oda.poll.damage,
