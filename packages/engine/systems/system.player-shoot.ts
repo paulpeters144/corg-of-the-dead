@@ -6,8 +6,8 @@ import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 import { ZLayer } from '../types/enums';
 import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
-import type { ISystem } from './system.agg';
 import { byDistanceAsc } from '../util/util';
+import type { ISystem } from './system.agg';
 
 const createRectangleGraphic = (props: {
   range: number;
@@ -121,8 +121,7 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
   const spread = oda.gun.spread;
   const isPiercing = oda.gun.piercing;
 
-  const hittableEntities = [...entityStore.getAll(TrafficDrumEntity)]
-    .sort(byDistanceAsc(oda.center));
+  const hittableEntities = [...entityStore.getAll(TrafficDrumEntity)].sort(byDistanceAsc(oda.center));
 
   const hitTrafficDrums: TrafficDrumEntity[] = [];
 

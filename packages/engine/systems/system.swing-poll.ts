@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { OdaEntity } from '../entity/entity.oda';
+import { ZombieOneEntity } from '../entity/entity.zombie-one';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
-import { ZombieOneEntity } from '../entity/entity.zombie-one';
 
 export const createSwingPollSystem = (di: IDiContainer): ISystem => {
   const input = di.input();
@@ -33,31 +33,30 @@ export const createSwingPollSystem = (di: IDiContainer): ISystem => {
           oda.poll.anim.x - 2,
           oda.poll.anim.y + 18,
           oda.poll.anim.width,
-          oda.poll.anim.height - 30
+          oda.poll.anim.height - 30,
         );
 
-        entityStore.getAll(ZombieOneEntity)
-          .filter(z => {
+        entityStore
+          .getAll(ZombieOneEntity)
+          .filter((z) => {
             const r = z.rect;
             r.x += oda.isFacingRight ? 15 : 45;
             r.y += 12;
             r.width -= 30;
-            r.height -= 18
-            return r.intersects(rect) &&
-              z.isActiveAnim('idle', 'walk', 'swipe') &&
-              z.health > 0;
+            r.height -= 18;
+            return r.intersects(rect) && z.isActiveAnim('idle', 'walk', 'swipe') && z.health > 0;
           })
-          .forEach(z => {
+          .forEach((z) => {
             bus.fire('zombiePollHit', {
               id: z.id,
-              direction: oda.isFacingRight ? "right" : "left",
+              direction: oda.isFacingRight ? 'right' : 'left',
               damage: oda.poll.damage,
-            })
+            });
             bus.fire('camShake', {
               duration: 40,
               magnitude: 4,
-            })
-          })
+            });
+          });
 
         registeredSwing = true;
       }

@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
+import { ColorOverlayFilter } from 'pixi-filters';
 import { ZLayer } from '../types/enums';
 import { Entity } from './entity';
-import { ColorOverlayFilter } from 'pixi-filters';
 
 const spriteAnimKeys = ['idle', 'walk', 'swipe', 'die', 'hitDirection', 'fall', 'revive'] as const;
 
@@ -192,7 +192,7 @@ export class ZombieOneEntity extends Entity {
   setRedFilter() {
     const redOverlay = new ColorOverlayFilter({
       color: '#ff0000',
-      alpha: 1
+      alpha: 1,
     });
     this.ctr.filters = [redOverlay];
   }

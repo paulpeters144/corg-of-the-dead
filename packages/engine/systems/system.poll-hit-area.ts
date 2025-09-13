@@ -2,8 +2,8 @@ import * as PIXI from 'pixi.js';
 import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 import type { IDiContainer } from '../util/di-container';
-import type { ISystem } from './system.agg';
 import { byDistanceAsc, isCloseBy, randNum } from '../util/util';
+import type { ISystem } from './system.agg';
 
 export const createPollHitAreaSystem = (di: IDiContainer): ISystem => {
   const gameRef = di.gameRef();
@@ -11,7 +11,6 @@ export const createPollHitAreaSystem = (di: IDiContainer): ISystem => {
   const oda = entityStore.first(OdaEntity);
   const bus = di.eventBus();
   if (!oda) throw new Error('oda not found');
-
 
   const showHitMarker = (p: { x: number; y: number }) => {
     const graphic = new PIXI.Graphics();

@@ -4,8 +4,8 @@ import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 import { ZombieOneEntity } from '../entity/entity.zombie-one';
 import type { IDiContainer } from '../util/di-container';
-import type { ISystem } from './system.agg';
 import { byDistanceAsc, isCloseBy } from '../util/util';
+import type { ISystem } from './system.agg';
 
 export const collides = (rect1: PIXI.Rectangle) => {
   const topOf = (rect2: PIXI.Rectangle): boolean => {

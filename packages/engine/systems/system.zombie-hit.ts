@@ -1,7 +1,7 @@
-import { ZombieOneEntity } from '../entity/entity.zombie-one';
+import type { ZombieOneEntity } from '../entity/entity.zombie-one';
 import type { IDiContainer } from '../util/di-container';
-import type { ISystem } from './system.agg';
 import { randNum } from '../util/util';
+import type { ISystem } from './system.agg';
 
 interface HitEvent {
   zombie: ZombieOneEntity;
@@ -12,7 +12,7 @@ interface HitEvent {
     curr: number;
     max: number;
     speed: number;
-  }
+  };
 }
 
 const handleZombieDieAnim = (props: { delta: number; now: number; e: HitEvent }) => {
@@ -22,15 +22,15 @@ const handleZombieDieAnim = (props: { delta: number; now: number; e: HitEvent })
   if (!e.flashSet) {
     zombie.setRedFilter();
     e.flashSet = true;
-    setTimeout(() => { zombie.ctr.filters = [] }, 100)
+    setTimeout(() => {
+      zombie.ctr.filters = [];
+    }, 100);
   }
   if (!zombie.isActiveAnim('die')) {
     zombie.setAnimation('die');
   }
 
-
   let result = false;
-
 
   if (zombie.isActiveAnim('die')) {
     const percent = e.fall.curr / e.fall.max;
@@ -38,7 +38,7 @@ const handleZombieDieAnim = (props: { delta: number; now: number; e: HitEvent })
     let easedSpeed = e.fall.speed * (1 - percent);
     easedSpeed = easedSpeed > 15 ? easedSpeed : 15;
 
-    const moveDist = (delta * easedSpeed);
+    const moveDist = delta * easedSpeed;
 
     e.fall.curr += moveDist;
     if (e.direction === 'right') {
@@ -49,12 +49,12 @@ const handleZombieDieAnim = (props: { delta: number; now: number; e: HitEvent })
   }
 
   if (now - e.hitTime > 650 && zombie.isActiveAnim('die')) {
-    result = true
+    result = true;
   }
   return {
     removeZombie: result,
-  }
-}
+  };
+};
 
 const handleZombieFallBack = (props: { delta: number; now: number; e: HitEvent }) => {
   const { delta, now, e } = props;
@@ -63,13 +63,12 @@ const handleZombieFallBack = (props: { delta: number; now: number; e: HitEvent }
   if (!e.flashSet) {
     zombie.setRedFilter();
     e.flashSet = true;
-    zombie.setAnimation('fall')
+    zombie.setAnimation('fall');
   }
 
   if (zombie.hasFilter && now - e.hitTime > 75) {
     zombie.ctr.filters = [];
   }
-
 
   if (zombie.isActiveAnim('fall') && e.fall.curr < e.fall.max) {
     const percent = e.fall.curr / e.fall.max;
@@ -91,13 +90,13 @@ const handleZombieFallBack = (props: { delta: number; now: number; e: HitEvent }
     zombie.setAnimation('revive');
   }
   if (zombie.isActiveAnim('revive') && zombie.onLastFrame) {
-    zombie.setAnimation('idle')
+    zombie.setAnimation('idle');
     result = true;
   }
   return {
     removeZombie: result,
-  }
-}
+  };
+};
 
 export const createZombieHitSystem = (di: IDiContainer): ISystem => {
   const entityStore = di.entityStore();
@@ -111,8 +110,8 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
 
     zombie.recieveDamage(e.damage);
 
-    if (zombie.health <= 0 && e.direction === "left") {
-      e.direction === "left" ? zombie.faceRight() : zombie.faceLeft();
+    if (zombie.health <= 0 && e.direction === 'left') {
+      e.direction === 'left' ? zombie.faceRight() : zombie.faceLeft();
     }
 
     const distFall = randNum(100, 150);
@@ -125,7 +124,7 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
         max: distFall,
         speed: distFall * 0.4,
         curr: 0,
-      }
+      },
     });
   });
 
@@ -140,15 +139,15 @@ export const createZombieHitSystem = (di: IDiContainer): ISystem => {
         const { zombie } = e;
 
         if (zombie.health <= 0) {
-          const { removeZombie } = handleZombieDieAnim({ delta, now, e })
+          const { removeZombie } = handleZombieDieAnim({ delta, now, e });
           if (removeZombie) {
-            entityStore.remove(zombie)
+            entityStore.remove(zombie);
             eventDic.delete(zombie.id);
           }
         }
 
         if (zombie.health > 0) {
-          const { removeZombie } = handleZombieFallBack({ delta, now, e })
+          const { removeZombie } = handleZombieFallBack({ delta, now, e });
           if (removeZombie) eventDic.delete(zombie.id);
         }
       }

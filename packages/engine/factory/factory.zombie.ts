@@ -12,7 +12,12 @@ export const createZombieFactory = (assetLoader: IAssetLoader) => {
           const zombie = new ZombieOneEntity({
             spriteSheet: assetLoader.getTexture('zombieOne'),
           });
-          setTimeout(() => { zombie.setAnimation('idle') }, randNum(10, 750))
+          setTimeout(
+            () => {
+              zombie.setAnimation('idle');
+            },
+            randNum(10, 750),
+          );
           return zombie;
         }
         default:
