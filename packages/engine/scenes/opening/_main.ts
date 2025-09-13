@@ -21,11 +21,11 @@ import { createPollHitAreaSystem } from '../../systems/system.poll-hit-area';
 import { createSetGunPosSystem } from '../../systems/system.set-gun-pos';
 import { createSetPollPosSystem } from '../../systems/system.set-poll-pos';
 import { createSwingPollSystem } from '../../systems/system.swing-poll';
-import { ZLayer } from '../../types/enums';
 import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
+import { createZombieHitSystem } from '../../systems/system.zombie-hit';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -88,14 +88,25 @@ export const openingScene = (di: IDiContainer): IScene => {
       entityStore.add(oda, new CameraOrbEntity());
       oda.setActiveWeapon({ type: 'poll', name: 'ParkSign' });
 
-      const sortedTrafficDrums = tilemap.trafficDrumPos.sort((a, b) => a.y - b.y);
-      for (let i = 0; i < sortedTrafficDrums.length; i++) {
-        const pos = sortedTrafficDrums[i];
+      for (let i = 0; i < tilemap.trafficDrumPos.length; i++) {
+        const pos = tilemap.trafficDrumPos[i];
         const spriteSheet = { spriteSheet: assetLoader.getTexture('trafficDrum') };
         const trafficDrum = new TrafficDrumEntity(spriteSheet);
-        trafficDrum.ctr.position.set(pos.x - trafficDrum.ctr.width * 0.5, pos.y - trafficDrum.ctr.height * 0.85);
-        trafficDrum.ctr.zIndex = ZLayer.m1 + i * 0.001;
+        trafficDrum.ctr.position.set(
+          pos.x - trafficDrum.ctr.width * 0.5,
+          pos.y - trafficDrum.ctr.height * 0.85,
+        );
         entityStore.add(trafficDrum);
+      }
+
+      for (let i = 0; i < tilemap.basicZombiesPos.length; i++) {
+        const pos = tilemap.basicZombiesPos[i];
+        const zombie = zombieFactory.create('one');
+        zombie.ctr.position.set(
+          pos.x - zombie.ctr.width * 0.5,
+          pos.y - zombie.ctr.height * 0.85,
+        );
+        entityStore.add(zombie);
       }
 
       const hud = new HeadsUpDisplayEntity({
@@ -106,15 +117,14 @@ export const openingScene = (di: IDiContainer): IScene => {
         ],
       });
 
-      const zombie = zombieFactory.create('one');
 
       entityStore.add(hud);
-      entityStore.add(zombie);
 
       setTimeout(() => {
         oda?.move(new PIXI.Point(100, 300));
-        zombie.ctr.position.set(200, 300);
-        zombie.setAnimation('idle');
+        // zombie.ctr.position.set(200, 300);
+        // zombie.setAnimation('idle');
+        // zombie.faceRight();
       }, 50);
 
       systemAgg.add(
@@ -122,8 +132,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         createHeadsUpDisplaySystem(di),
         createOdaShootSystem(di),
         createCamControlSystem(di),
-        createBackgrounParalaxSystem(di),
-        createMoveOdaSystem(di),
+        createBackgrounParalaxSystem(di), createMoveOdaSystem(di),
         createCamOrbSystem(di),
         createSetGunPosSystem(di),
         createSetPollPosSystem(di),
@@ -133,6 +142,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         createPollHitAreaSystem(di),
         createImpactBounceSystem(di),
         createEntityZIndexSystem(di),
+        createZombieHitSystem(di)
       );
 
       camera.clamp({
@@ -148,7 +158,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 

@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { ZLayer } from '../types/enums';
 import { Entity } from './entity';
+import { ColorOverlayFilter } from 'pixi-filters';
 
 const spriteAnimKeys = ['idle', 'walk', 'swipe', 'die', 'hitDirection', 'fall', 'revive'] as const;
 
@@ -53,6 +54,11 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
 // -=-=-=-=-=-=-=-=-=-CLASS IMPL-=-=-=-=-=-=-=-=-=-=-
 
 export class ZombieOneEntity extends Entity {
+  private _health = 100;
+  get health(): number {
+    return this._health;
+  }
+
   animMap: { [key in AnimKey]: PIXI.AnimatedSprite };
 
   get anim(): PIXI.AnimatedSprite {
@@ -82,6 +88,12 @@ export class ZombieOneEntity extends Entity {
     );
   }
 
+  get hasFilter(): boolean {
+    if (!this.ctr.filters) return false;
+    if (this.ctr.filters.length === 0) return false;
+    return true;
+  }
+
   get center(): PIXI.Point {
     return new PIXI.Point(this.ctr.x + this.anim.width / 2, this.ctr.y + this.anim.height / 2);
   }
@@ -102,6 +114,12 @@ export class ZombieOneEntity extends Entity {
     }
     const m = 'at least one anim must be active for ZombieOneEntity at all times';
     throw new Error(m);
+  }
+
+  get onLastFrame(): boolean {
+    const current = this.anim.currentFrame + 1;
+    const total = this.anim.totalFrames;
+    return current === total;
   }
 
   constructor(props: {
@@ -130,6 +148,9 @@ export class ZombieOneEntity extends Entity {
     this.anim.gotoAndPlay(0);
     switch (key) {
       case 'swipe':
+      case 'fall':
+      case 'revive':
+      case 'die':
         this.anim.loop = false;
         break;
       default:
@@ -147,23 +168,40 @@ export class ZombieOneEntity extends Entity {
   faceLeft() {
     for (const child of this.ctr.children) {
       const c = child as PIXI.AnimatedSprite;
-      c.anchor.set(1, 0);
-      c.scale.set(-1, 1);
+      c.anchor.set(0, 0);
+      c.scale.set(1, 1);
     }
   }
 
   faceRight() {
     for (const child of this.ctr.children) {
       const c = child as PIXI.AnimatedSprite;
-      c.anchor.set(0, 0);
-      c.scale.set(1, 1);
+      c.anchor.set(1, 0);
+      c.scale.set(-1, 1);
     }
   }
 
-  isActiveAnim(key: AnimKey) {
-    if (this.activeAnimation !== key) return false;
-    if (!this.anim.playing) return false;
-    return true;
+  isActiveAnim(...keys: AnimKey[]) {
+    const active = this.activeAnimation;
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i] === active) return true;
+    }
+    return false;
+  }
+
+  setRedFilter() {
+    const redOverlay = new ColorOverlayFilter({
+      color: '#ff0000',
+      alpha: 1
+    });
+    this.ctr.filters = [redOverlay];
+  }
+
+  recieveDamage(value: number) {
+    this._health -= value;
+    if (this._health < 0) {
+      this._health = 0;
+    }
   }
 
   private _setAllAnimsInvisible() {

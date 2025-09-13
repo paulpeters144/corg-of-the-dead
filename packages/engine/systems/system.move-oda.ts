@@ -1,24 +1,11 @@
 import * as PIXI from 'pixi.js';
+import { BoundaryBox } from '../entity/entity.boundary-box';
 import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 import { ZombieOneEntity } from '../entity/entity.zombie-one';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
-
-type Point = { x: number; y: number };
-type BoundaryBox = { center: Point; rect: PIXI.Rectangle };
-
-const isCloseBy = (target: Point, candidate: Point, dx = 66, dy = 150): boolean => {
-  return Math.abs(candidate.x - target.x) < dx && Math.abs(candidate.y - target.y) < dy;
-};
-
-const byDistance = (target: Point) => {
-  return (a: BoundaryBox, b: BoundaryBox) => {
-    const distA = (a.center.x - target.x) ** 2 + (a.center.y - target.y) ** 2;
-    const distB = (b.center.x - target.x) ** 2 + (b.center.y - target.y) ** 2;
-    return distA - distB;
-  };
-};
+import { byDistanceAsc, isCloseBy } from '../util/util';
 
 export const collides = (rect1: PIXI.Rectangle) => {
   const topOf = (rect2: PIXI.Rectangle): boolean => {
@@ -273,10 +260,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
     update: (delta: number) => {
       if (oda.isRolling) return;
       if (handleOptionPause()) return;
-      // if (input.shoot.is.pressed && !oda.isWalking) {
-      //   oda.setGunWalk();
-      // }
-      //
+
       const upPressed = input.up.is.pressed && !input.down.is.pressed;
       const dnPressed = input.down.is.pressed && !input.up.is.pressed;
       const rtPressed = input.right.is.pressed && !input.left.is.pressed;
@@ -285,19 +269,19 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
       const collideArea = entityStore
         .getAll(BoundaryBox)
         .filter((o) => isCloseBy(oda.center, o.center))
-        .sort(byDistance(oda.center))
+        .sort(byDistanceAsc(oda.center))
         .map((o) => o.rect);
 
       const trafficDrums = entityStore
         .getAll(TrafficDrumEntity)
         .filter((o) => isCloseBy(oda.center, o.center))
-        .sort(byDistance(oda.center))
+        .sort(byDistanceAsc(oda.center))
         .map((o) => o.moveRect);
 
       const zombies = entityStore
         .getAll(ZombieOneEntity)
         .filter((o) => isCloseBy(oda.center, o.center))
-        .sort(byDistance(oda.center))
+        .sort(byDistanceAsc(oda.center))
         .map((o) => o.moveRect);
 
       const collidables = [...collideArea, ...trafficDrums, ...zombies];

@@ -202,7 +202,7 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
           entityRect: oda.moveRect,
           collideArea: [...collideArea, ...trafficDrums],
           endPos: nextRollPos,
-          speed: 30,
+          speed: 35,
           delta: delta,
         });
 

@@ -7,6 +7,7 @@ import { ZLayer } from '../types/enums';
 import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
+import { byDistanceAsc } from '../util/util';
 
 const createRectangleGraphic = (props: {
   range: number;
@@ -120,17 +121,14 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
   const spread = oda.gun.spread;
   const isPiercing = oda.gun.piercing;
 
-  const hittableEntities = [...entityStore.getAll(TrafficDrumEntity)].sort((a, b) => {
-    const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
-    const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
-    return distA - distB;
-  });
+  const hittableEntities = [...entityStore.getAll(TrafficDrumEntity)]
+    .sort(byDistanceAsc(oda.center));
 
   const hitTrafficDrums: TrafficDrumEntity[] = [];
 
   const isWithinRangeArea = (entity: TrafficDrumEntity): boolean => {
-    for (let ii = 0; ii < rangeArea.length; ii++) {
-      if (entity.rect.intersects(rangeArea[ii])) {
+    for (let i = 0; i < rangeArea.length; i++) {
+      if (entity.rect.intersects(rangeArea[i])) {
         return true;
       }
     }
@@ -185,68 +183,6 @@ const handleShotDamage = (props: { oda: OdaEntity; rangeArea: PIXI.Rectangle[]; 
   }
 
   return hitTrafficDrums.map((e) => e.rect);
-};
-export const createOdaShootSystem = (di: IDiContainer): ISystem => {
-  const input = di.input();
-  const bus = di.eventBus();
-  const entityStore = di.entityStore();
-  const assetLoader = di.assetLoader();
-  const oda = entityStore.first(OdaEntity);
-  const gameRef = di.gameRef();
-
-  if (!oda) throw new Error('create cam orb with no oda entity');
-
-  return {
-    name: () => 'player-shoot-system',
-    update: (_: number) => {
-      if (oda.isRolling) return;
-      if (input.option.is.pressed) return;
-      if (oda.usingPoll) return;
-
-      let shotFired = false;
-      if (oda.gun.isAutomatic) {
-        shotFired = handleAutomaticFiring({ oda: oda, input: input });
-      }
-      if (!oda.gun.isAutomatic) {
-        shotFired = handleNonAutomaticFiring({ oda: oda, input: input });
-      }
-
-      if (!shotFired) return;
-
-      oda.gun.ammo--;
-      bus.fire('odaShot', createOdaGunEvent(oda.gun));
-      const flash = assetLoader.createSprite('rifle1Flash');
-      applyGunFlash({ oda, gameRef, flash });
-
-      const isFacingRight = oda.isFacingRight;
-      const { rectArr } = createRectangleGraphic({
-        range: oda.gun.range,
-        shotFromPos: new PIXI.Point(oda.center.x, oda.center.y),
-        spread: oda.gun.spread,
-        size: oda.gun.areaSize,
-        faceDirection: isFacingRight ? 'right' : 'left',
-      });
-
-      const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
-      if (hitArea.length > 0) {
-        const gunName = oda.gun.name || 'unknown-gun-name';
-        hitArea.map((e) => bus.fire('shotHit', { gunName, area: e }));
-        bus.fire('camShake', { duration: 100, magnitude: 3 });
-        const hitRect = getFurthestRectFrom(oda.rect, hitArea);
-        if (oda.gun.tracer) applyTracer({ oda, flash, hitRect, gameRef });
-      } else {
-        const furthestRect = rectArr.reduce((prev, curr) => {
-          const prevDist = Math.abs(oda.center.x - prev.x);
-          const currDist = Math.abs(oda.center.x - curr.x);
-          return prevDist > currDist ? prev : curr;
-        });
-        furthestRect.y = oda.center.y;
-        bus.fire('shotMiss', { gunName: oda.gun.name, area: furthestRect });
-      }
-
-      // applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun });
-    },
-  };
 };
 
 const applyTracer = (props: {
@@ -345,4 +281,67 @@ const getFurthestRectFrom = (rect: PIXI.Rectangle, rects: PIXI.Rectangle[]): PIX
   }
 
   return furthestRect;
+};
+
+export const createOdaShootSystem = (di: IDiContainer): ISystem => {
+  const input = di.input();
+  const bus = di.eventBus();
+  const entityStore = di.entityStore();
+  const assetLoader = di.assetLoader();
+  const oda = entityStore.first(OdaEntity);
+  const gameRef = di.gameRef();
+
+  if (!oda) throw new Error('create cam orb with no oda entity');
+
+  return {
+    name: () => 'player-shoot-system',
+    update: (_: number) => {
+      if (oda.isRolling) return;
+      if (input.option.is.pressed) return;
+      if (oda.usingPoll) return;
+
+      let shotFired = false;
+      if (oda.gun.isAutomatic) {
+        shotFired = handleAutomaticFiring({ oda: oda, input: input });
+      }
+      if (!oda.gun.isAutomatic) {
+        shotFired = handleNonAutomaticFiring({ oda: oda, input: input });
+      }
+
+      if (!shotFired) return;
+
+      oda.gun.ammo--;
+      bus.fire('odaShot', createOdaGunEvent(oda.gun));
+      const flash = assetLoader.createSprite('rifle1Flash');
+      applyGunFlash({ oda, gameRef, flash });
+
+      const isFacingRight = oda.isFacingRight;
+      const { rectArr } = createRectangleGraphic({
+        range: oda.gun.range,
+        shotFromPos: new PIXI.Point(oda.center.x, oda.center.y),
+        spread: oda.gun.spread,
+        size: oda.gun.areaSize,
+        faceDirection: isFacingRight ? 'right' : 'left',
+      });
+
+      const hitArea = handleShotDamage({ oda, rangeArea: rectArr, entityStore });
+      if (hitArea.length > 0) {
+        const gunName = oda.gun.name || 'unknown-gun-name';
+        hitArea.map((e) => bus.fire('shotHit', { gunName, area: e }));
+        bus.fire('camShake', { duration: 100, magnitude: 3 });
+        const hitRect = getFurthestRectFrom(oda.rect, hitArea);
+        if (oda.gun.tracer) applyTracer({ oda, flash, hitRect, gameRef });
+      } else {
+        const furthestRect = rectArr.reduce((prev, curr) => {
+          const prevDist = Math.abs(oda.center.x - prev.x);
+          const currDist = Math.abs(oda.center.x - curr.x);
+          return prevDist > currDist ? prev : curr;
+        });
+        furthestRect.y = oda.center.y;
+        bus.fire('shotMiss', { gunName: oda.gun.name, area: furthestRect });
+      }
+
+      // applyDebugGraphics({ gameRef, rectArea: rectArr, odaGun: oda.gun });
+    },
+  };
 };

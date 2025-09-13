@@ -1,8 +1,9 @@
 import jsonMetaDataUrl from '@package/assets/levels/demo/test.json';
 import * as PIXI from 'pixi.js';
 import { BoundaryBox } from '../../entity/entity.boundary-box';
+import type { ZombieOneEntity } from '../../entity/entity.zombie-one';
 
-const LayerNameArr = ['l-1', 'traffic-drums', 'boundary-boxes'] as const;
+const LayerNameArr = ['l-1', 'traffic-drums', 'boundary-boxes', 'zombie-basic'] as const;
 
 export type LayerName = (typeof LayerNameArr)[number];
 
@@ -115,6 +116,8 @@ export const createTiledMap = (props: { metaData: TiledMapMetaData; atlas: PIXI.
 
   const boundaryBoxes: BoundaryBox[] = [];
   const trafficDrumPos: PIXI.Point[] = [];
+  const basicZombiesPos: PIXI.Point[] = [];
+
   for (const layer of metaData.layers) {
     if (layer.type === 'tilelayer') {
       const layerCtr = createTileLayer(layer);
@@ -133,6 +136,12 @@ export const createTiledMap = (props: { metaData: TiledMapMetaData; atlas: PIXI.
         trafficDrumPos.push(point);
       }
     }
+    if (layer.type === "objectgroup" && layer.name === "zombie-basic") {
+      for (const obj of layer.objects) {
+        const point = new PIXI.Point(obj.x, obj.y);
+        basicZombiesPos.push(point);
+      }
+    }
   }
 
   return {
@@ -140,5 +149,6 @@ export const createTiledMap = (props: { metaData: TiledMapMetaData; atlas: PIXI.
     metaData,
     boundaryBoxes,
     trafficDrumPos,
+    basicZombiesPos,
   };
 };
