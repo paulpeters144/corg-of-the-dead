@@ -25,6 +25,11 @@ export type EventMap = {
     direction: 'right' | 'left';
     power: number;
   };
+  zombiePollHit: {
+    id: string;
+    direction: 'right' | 'left';
+    damage: number;
+  };
   odaShot: {
     rect: PIXI.Rectangle;
     name: GunName;

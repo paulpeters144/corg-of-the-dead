@@ -7,11 +7,11 @@ import type { ISystem } from './system.agg';
 type Point = { x: number; y: number };
 type BoundaryBox = { center: Point; rect: PIXI.Rectangle };
 
-function isCloseBy(target: Point, candidate: Point, dx = 66, dy = 150): boolean {
+const isCloseBy = (target: Point, candidate: Point, dx = 66, dy = 150): boolean => {
   return Math.abs(candidate.x - target.x) < dx && Math.abs(candidate.y - target.y) < dy;
 }
 
-function byDistance(target: Point) {
+const byDistance = (target: Point) => {
   return (a: BoundaryBox, b: BoundaryBox) => {
     const distA = (a.center.x - target.x) ** 2 + (a.center.y - target.y) ** 2;
     const distB = (b.center.x - target.x) ** 2 + (b.center.y - target.y) ** 2;
@@ -89,9 +89,9 @@ export const createPollHitAreaSystem = (di: IDiContainer): ISystem => {
             drum.recieveDamage(oda.poll.damage);
             if (drum.health <= 0) {
               entityStore.remove(drum);
-              bus.fire('camShake', { duration: 250, magnitude: 15 });
+              bus.fire('camShake', { duration: 75, magnitude: 7 });
             } else {
-              bus.fire('camShake', { duration: 100, magnitude: 5 });
+              bus.fire('camShake', { duration: 50, magnitude: 5 });
             }
             bus.fire('impactBounce', {
               id: drum.id,

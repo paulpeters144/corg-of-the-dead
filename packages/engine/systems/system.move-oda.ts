@@ -4,6 +4,22 @@ import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
+import { ZombieOneEntity } from '../entity/entity.zombie-one';
+
+type Point = { x: number; y: number };
+type BoundaryBox = { center: Point; rect: PIXI.Rectangle };
+
+const isCloseBy = (target: Point, candidate: Point, dx = 66, dy = 150): boolean => {
+  return Math.abs(candidate.x - target.x) < dx && Math.abs(candidate.y - target.y) < dy;
+}
+
+const byDistance = (target: Point) => {
+  return (a: BoundaryBox, b: BoundaryBox) => {
+    const distA = (a.center.x - target.x) ** 2 + (a.center.y - target.y) ** 2;
+    const distB = (b.center.x - target.x) ** 2 + (b.center.y - target.y) ** 2;
+    return distA - distB;
+  };
+}
 
 export const collides = (rect1: PIXI.Rectangle) => {
   const topOf = (rect2: PIXI.Rectangle): boolean => {
@@ -269,23 +285,23 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
 
       const collideArea = entityStore
         .getAll(BoundaryBox)
-        .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 150)
-        .sort((a, b) => {
-          const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
-          const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
-          return distA - distB; // put the closest to the front
-        })
+        .filter((o) => isCloseBy(oda.center, o.center))
+        .sort(byDistance(oda.center))
         .map((o) => o.rect);
 
       const trafficDrums = entityStore
         .getAll(TrafficDrumEntity)
-        .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 150)
-        .sort((a, b) => {
-          const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
-          const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
-          return distA - distB; // put the closest to the front
-        })
+        .filter((o) => isCloseBy(oda.center, o.center))
+        .sort(byDistance(oda.center))
         .map((o) => o.moveRect);
+
+      const zombies = entityStore
+        .getAll(ZombieOneEntity)
+        .filter((o) => isCloseBy(oda.center, o.center))
+        .sort(byDistance(oda.center))
+        .map((o) => o.moveRect);
+
+      const collidables = [...collideArea, ...trafficDrums, ...zombies]
 
       if (oda.usingGun)
         handleMoveWithGun({
@@ -294,7 +310,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
           dnPressed: dnPressed,
           rtPressed: rtPressed,
           ltPressed: ltPressed,
-          collidables: [...collideArea, ...trafficDrums],
+          collidables: collidables,
         });
 
       if (oda.usingPoll)
@@ -304,7 +320,7 @@ export const createMoveOdaSystem = (di: IDiContainer): ISystem => {
           dnPressed: dnPressed,
           rtPressed: rtPressed,
           ltPressed: ltPressed,
-          collidables: [...collideArea, ...trafficDrums],
+          collidables: collidables,
         });
     },
   };

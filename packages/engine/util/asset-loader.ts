@@ -1,33 +1,34 @@
-import odaIdleUrl from '@package/assets/images/actors/player/oda_idle_anim_2.png';
-import missedShotUrl from '@package/assets/images/actors/weapons/missed-shot.png';
+import oda_idle_url from '@package/assets/images/actors/player/oda_idle_anim_2.png';
+import missed_shot_url from '@package/assets/images/actors/weapons/missed-shot.png';
 import park_sign_url from '@package/assets/images/actors/weapons/park-sign.png';
 import park_sign_icon_url from '@package/assets/images/actors/weapons/park-sign-icon.png';
 import rifle_1_url from '@package/assets/images/actors/weapons/rifle-1.png';
 import rifle_1_impact_url from '@package/assets/images/actors/weapons/rifle-1-explosian.png';
 import rifle_1_flash_url from '@package/assets/images/actors/weapons/rifle-1-flash.png';
 import rifle_1_icon_url from '@package/assets/images/actors/weapons/rifle-1-icon.png';
+import zombie_one_url from "@package/assets/images/actors/enemies/zombie-one.png";
 import shotty_1_Url from '@package/assets/images/actors/weapons/shotty-1.png';
 import shotty_1_icon_url from '@package/assets/images/actors/weapons/shotty-1-icon.png';
 import weird_gun_1_url from '@package/assets/images/actors/weapons/weird-gun-1.png';
 import weird_gun_1_icon_url from '@package/assets/images/actors/weapons/weird-gun-1-icon.png';
-import bunnyUrl from '@package/assets/images/bunny.png';
-import trafficDrumUrl from '@package/assets/images/objects/traffic_drum.png';
+import bunny_url from '@package/assets/images/bunny.png';
+import traffic_drum_url from '@package/assets/images/objects/traffic_drum.png';
 import inputBtnUrl from '@package/assets/images/ui/input-btn.png';
-import odaHudIconUrl from '@package/assets/images/ui/oda-hud-icon.png';
-import atlasDemoUrl from '@package/assets/levels/demo/Background_CityRuins_Streets.png';
-import bg1Url from '@package/assets/levels/demo/bg-1.png';
-import fg1Url from '@package/assets/levels/demo/fg-1.png';
+import oda_hud_icon_url from '@package/assets/images/ui/oda-hud-icon.png';
+import atlas_demo_url from '@package/assets/levels/demo/Background_CityRuins_Streets.png';
+import bg1_url from '@package/assets/levels/demo/bg-1.png';
+import fg1_url from '@package/assets/levels/demo/fg-1.png';
 
 import * as PIXI from 'pixi.js';
 
 const assetMap = {
-  bunny: bunnyUrl,
-  odaIdle: odaIdleUrl,
-  atlasDemo: atlasDemoUrl,
-  trafficDrum: trafficDrumUrl,
-  fg1: fg1Url,
-  bg1: bg1Url,
-  odaHudIcon: odaHudIconUrl,
+  bunny: bunny_url,
+  odaIdle: oda_idle_url,
+  atlasDemo: atlas_demo_url,
+  trafficDrum: traffic_drum_url,
+  fg1: fg1_url,
+  bg1: bg1_url,
+  odaHudIcon: oda_hud_icon_url,
   rifle1: rifle_1_url,
   rifle1Icon: rifle_1_icon_url,
   rifle1Impact: rifle_1_impact_url,
@@ -36,10 +37,11 @@ const assetMap = {
   shotty1Icon: shotty_1_icon_url,
   weirdGun1: weird_gun_1_url,
   weirdGun1Icon: weird_gun_1_icon_url,
-  missedShot: missedShotUrl,
+  missedShot: missed_shot_url,
   inputBtn: inputBtnUrl,
   parkSignIcon: park_sign_icon_url,
   parkSign: park_sign_url,
+  zombieOne: zombie_one_url,
 };
 
 export const assetFilePath = [
@@ -62,6 +64,7 @@ export const assetFilePath = [
   'missedShot',
   'parkSignIcon',
   'parkSign',
+  'zombieOne',
 ] as const;
 export type AssetName = (typeof assetFilePath)[number];
 

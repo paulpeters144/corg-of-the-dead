@@ -15,7 +15,6 @@ import { createMoveOdaSystem } from '../../systems/system.move-oda';
 import { createOdaRollSystem } from '../../systems/system.oda-rolling';
 import { BgEntity, createBackgrounParalaxSystem } from '../../systems/system.parallax';
 import { createOdaShootSystem } from '../../systems/system.player-shoot';
-import { createPlayZIndexSystem } from '../../systems/system.player-zindex';
 import { createPollHitAreaSystem } from '../../systems/system.poll-hit-area';
 import { createSetGunPosSystem } from '../../systems/system.set-gun-pos';
 import { createSetPollPosSystem } from '../../systems/system.set-poll-pos';
@@ -25,6 +24,8 @@ import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
 import { createTiledMap, fetchTileMapMetaData } from './tile-map';
+import { createZombieFactory } from '../../factory/factory.zombie';
+import { createEntityZIndexSystem } from '../../systems/system.entity-zindex';
 
 export const openingScene = (di: IDiContainer): IScene => {
   const assetLoader = di.assetLoader();
@@ -34,6 +35,7 @@ export const openingScene = (di: IDiContainer): IScene => {
   const systemAgg = di.systemAgg();
   const gunFactory = createGunFactory(assetLoader);
   const pollFactory = createPollFactory(assetLoader);
+  const zombieFactory = createZombieFactory(assetLoader);
 
   return {
     load: async () => {
@@ -56,6 +58,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         'inputBtn',
         'parkSignIcon',
         'parkSign',
+        'zombieOne',
       );
 
       entityStore.add(
@@ -103,10 +106,15 @@ export const openingScene = (di: IDiContainer): IScene => {
         ],
       });
 
+      const zombie = zombieFactory.create('one');
+
       entityStore.add(hud);
+      entityStore.add(zombie);
 
       setTimeout(() => {
         oda?.move(new PIXI.Point(100, 300));
+        zombie.ctr.position.set(200, 300);
+        zombie.setAnimation('idle')
       }, 50);
 
       systemAgg.add(
@@ -114,7 +122,6 @@ export const openingScene = (di: IDiContainer): IScene => {
         createHeadsUpDisplaySystem(di),
         createOdaShootSystem(di),
         createCamControlSystem(di),
-        createPlayZIndexSystem(di),
         createBackgrounParalaxSystem(di),
         createMoveOdaSystem(di),
         createCamOrbSystem(di),
@@ -125,6 +132,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         createSwingPollSystem(di),
         createPollHitAreaSystem(di),
         createImpactBounceSystem(di),
+        createEntityZIndexSystem(di),
       );
 
       camera.clamp({
@@ -140,7 +148,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => {},
+    dispose: () => { },
   };
 };
 
