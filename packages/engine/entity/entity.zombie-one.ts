@@ -51,9 +51,51 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
   return result as { [key in AnimKey]: PIXI.AnimatedSprite };
 };
 
+class PathData {
+  nextPos?: PIXI.Point;
+  paceSize = new PIXI.Point(20, 20);
+  moveVal = 4; // movement speed per update
+
+  // computes target chunk (bigger step, sets nextPos)
+  getNextPos(currPos: PIXI.Point, targetPos: PIXI.Point): PIXI.Point {
+    const dx = targetPos.x - currPos.x;
+    const dy = targetPos.y - currPos.y;
+
+    const stepX = Math.abs(dx) > this.paceSize.x ? Math.sign(dx) * this.paceSize.x : dx;
+
+    const stepY = Math.abs(dy) > this.paceSize.y ? Math.sign(dy) * this.paceSize.y : dy;
+
+    return new PIXI.Point(currPos.x + stepX, currPos.y + stepY);
+  }
+
+  stepToward(currPos: PIXI.Point, delta: number): PIXI.Point {
+    if (!this.nextPos) return currPos;
+
+    const dx = this.nextPos.x - currPos.x;
+    const dy = this.nextPos.y - currPos.y;
+
+    const dist = Math.hypot(dx, dy);
+    const stepDist = this.moveVal * delta;
+
+    if (dist <= stepDist) {
+      // close enough → snap to nextPos and clear it
+      const p = this.nextPos;
+      this.nextPos = undefined;
+      return p;
+    }
+
+    const stepX = (dx / dist) * stepDist;
+    const stepY = (dy / dist) * stepDist;
+
+    return new PIXI.Point(currPos.x + stepX, currPos.y + stepY);
+  }
+}
+
 // -=-=-=-=-=-=-=-=-=-CLASS IMPL-=-=-=-=-=-=-=-=-=-=-
 
 export class ZombieOneEntity extends Entity {
+  pathData: PathData = new PathData();
+
   private _health = 100;
   get health(): number {
     return this._health;

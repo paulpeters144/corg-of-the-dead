@@ -6,22 +6,8 @@ import { TrafficDrumEntity } from '../../entity/entity.traffic-drum';
 import { createPollFactory } from '../../factory/factory.poll';
 import { createGunFactory } from '../../factory/factory.weapon';
 import { createZombieFactory } from '../../factory/factory.zombie';
-import { createCamControlSystem } from '../../systems/system.cam-control';
-import { createCamOrbSystem } from '../../systems/system.cam-orb';
-import { createEntityZIndexSystem } from '../../systems/system.entity-zindex';
-import { createGunExplosianSystem } from '../../systems/system.gun-explosian';
-import { createHeadsUpDisplaySystem } from '../../systems/system.heads-up-display';
-import { createImpactBounceSystem } from '../../systems/system.impact-bounce';
-import { createInputUISystem } from '../../systems/system.input-ui';
-import { createMoveOdaSystem } from '../../systems/system.move-oda';
-import { createOdaRollSystem } from '../../systems/system.oda-rolling';
-import { BgEntity, createBackgrounParalaxSystem } from '../../systems/system.parallax';
-import { createOdaShootSystem } from '../../systems/system.player-shoot';
-import { createPollHitAreaSystem } from '../../systems/system.poll-hit-area';
-import { createSetGunPosSystem } from '../../systems/system.set-gun-pos';
-import { createSetPollPosSystem } from '../../systems/system.set-poll-pos';
-import { createSwingPollSystem } from '../../systems/system.swing-poll';
-import { createZombieHitSystem } from '../../systems/system.zombie-hit';
+import * as system from '../../systems';
+import { BgEntity } from '../../systems/system.parallax';
 import type { IAssetLoader } from '../../util/asset-loader';
 import type { IDiContainer } from '../../util/di-container';
 import type { IScene } from '../scene-engine';
@@ -121,22 +107,23 @@ export const openingScene = (di: IDiContainer): IScene => {
       }, 50);
 
       systemAgg.add(
-        createOdaRollSystem(di),
-        createHeadsUpDisplaySystem(di),
-        createOdaShootSystem(di),
-        createCamControlSystem(di),
-        createBackgrounParalaxSystem(di),
-        createMoveOdaSystem(di),
-        createCamOrbSystem(di),
-        createSetGunPosSystem(di),
-        createSetPollPosSystem(di),
-        createGunExplosianSystem(di),
-        createInputUISystem(di),
-        createSwingPollSystem(di),
-        createPollHitAreaSystem(di),
-        createImpactBounceSystem(di),
-        createEntityZIndexSystem(di),
-        createZombieHitSystem(di),
+        system.createOdaRollSystem(di),
+        system.createHeadsUpDisplaySystem(di),
+        system.createOdaShootSystem(di),
+        system.createCamControlSystem(di),
+        system.createBackgrounParalaxSystem(di),
+        system.createMoveOdaSystem(di),
+        system.createCamOrbSystem(di),
+        system.createSetGunPosSystem(di),
+        system.createSetPollPosSystem(di),
+        system.createGunExplosianSystem(di),
+        system.createInputUISystem(di),
+        system.createSwingPollSystem(di),
+        system.createPollHitAreaSystem(di),
+        system.createImpactBounceSystem(di),
+        system.createEntityZIndexSystem(di),
+        system.createZombieHitSystem(di),
+        system.createZombieMoveSystem(di),
       );
 
       camera.clamp({

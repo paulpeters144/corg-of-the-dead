@@ -118,85 +118,92 @@ export const applyDebugGraphics = (props: { gameRef: PIXI.Container; rectArea: P
   }, 3000);
 };
 
-const handleShotDamage = (props: {
+type HitableEntity = TrafficDrumEntity | ZombieOneEntity;
+
+const findHitEntities = (props: {
   oda: OdaEntity;
   rangeArea: PIXI.Rectangle[];
   entityStore: IEntityStore;
-  bus: IEventBus;
-}) => {
-  const { oda, rangeArea, entityStore, bus } = props;
+}): HitableEntity[] => {
+  const { oda, rangeArea, entityStore } = props;
   if (!oda.gun) throw new Error('shooting with no gun... not a good idea');
+
   const spread = oda.gun.spread;
   const isPiercing = oda.gun.piercing;
 
-  const hittableEntities: (TrafficDrumEntity | ZombieOneEntity)[] = [
+  const hittableEntities: HitableEntity[] = [
     ...entityStore.getAll(TrafficDrumEntity),
     ...entityStore.getAll(ZombieOneEntity),
   ].sort(byDistanceAsc(oda.center));
 
-  const hitEntities: (TrafficDrumEntity | ZombieOneEntity)[] = [];
+  const hitEntities: HitableEntity[] = [];
 
   const isWithinRangeArea = (entity: Entity): boolean => {
-    for (let i = 0; i < rangeArea.length; i++) {
-      if (entity.rect.intersects(rangeArea[i])) {
+    for (const area of rangeArea) {
+      if (entity.rect.intersects(area)) {
         return true;
       }
     }
     return false;
   };
 
-  for (let i = 0; i < hittableEntities.length; i++) {
-    const entity = hittableEntities[i];
-    const notInArr = !hitEntities.some((e) => e.id === entity.id);
-
-    if (!isWithinRangeArea(entity) || !notInArr) continue;
-    if (entity.health <= 0) continue;
+  for (const entity of hittableEntities) {
+    const alreadyHit = hitEntities.some((e) => e.id === entity.id);
+    if (!isWithinRangeArea(entity) || alreadyHit || entity.health <= 0) {
+      continue;
+    }
 
     if (isPiercing) {
       hitEntities.push(entity);
     } else {
-      if (spread > 1) {
+      if (spread > 1 && hitEntities.length < spread) {
         let shouldHit = false;
-
         if (hitEntities.length === 0) {
           shouldHit = true;
         } else {
           for (const e of hitEntities) {
-            const dx = entity.center.x - e.center.x;
-            const dy = entity.center.y - e.center.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
+            const distance = Math.hypot(entity.center.x - e.center.x, entity.center.y - e.center.y);
             if (distance <= 50) {
               shouldHit = true;
               break;
             }
           }
         }
-
         if (shouldHit) {
           hitEntities.push(entity);
         }
-      } else {
-        if (hitEntities.length === 0) {
-          hitEntities.push(entity);
-        }
+      } else if (hitEntities.length === 0) {
+        hitEntities.push(entity);
       }
     }
 
-    if (!isPiercing && spread === 1 && hitEntities.length > 0) break;
+    if (!isPiercing && spread === 1 && hitEntities.length > 0) {
+      break;
+    }
   }
 
-  for (let i = 0; i < hitEntities.length; i++) {
-    const e = hitEntities[i];
-    if (e instanceof TrafficDrumEntity) {
-      e.recieveDamage(oda.gun.damage);
-      if (e.health <= 0) {
-        entityStore.remove(e);
+  return hitEntities;
+};
+
+const applyDamageToEntities = (props: {
+  oda: OdaEntity;
+  hitEntities: HitableEntity[];
+  entityStore: IEntityStore;
+  bus: IEventBus;
+}): PIXI.Rectangle[] => {
+  const { oda, hitEntities, entityStore, bus } = props;
+  if (!oda.gun) throw new Error('damage applied with no gun... not a good idea');
+
+  for (const entity of hitEntities) {
+    if (entity instanceof TrafficDrumEntity) {
+      entity.recieveDamage(oda.gun.damage);
+      if (entity.health <= 0) {
+        entityStore.remove(entity);
       }
     }
-    if (e instanceof ZombieOneEntity) {
+    if (entity instanceof ZombieOneEntity) {
       bus.fire('zombieHit', {
-        id: e.id,
+        id: entity.id,
         type: 'gun',
         direction: oda.isFacingRight ? 'right' : 'left',
         damage: oda.gun.damage,
@@ -346,18 +353,15 @@ export const createOdaShootSystem = (di: IDiContainer): ISystem => {
         faceDirection: isFacingRight ? 'right' : 'left',
       });
 
-      const hitArea = handleShotDamage({
-        oda: oda,
-        rangeArea: rectArr,
-        entityStore: entityStore,
-        bus: bus,
-      });
+      const hitEntities = findHitEntities({ oda, rangeArea: rectArr, entityStore });
+      applyDamageToEntities({ oda, hitEntities, entityStore, bus });
+      const entityRects = hitEntities.map((e) => e.rect);
 
-      if (hitArea.length > 0) {
+      if (entityRects.length > 0) {
         const gunName = oda.gun.name || 'unknown-gun-name';
-        hitArea.map((e) => bus.fire('shotHit', { gunName, area: e }));
+        entityRects.map((e) => bus.fire('shotHit', { gunName, area: e }));
         bus.fire('camShake', { duration: 100, magnitude: 3 });
-        const hitRect = getFurthestRectFrom(oda.rect, hitArea);
+        const hitRect = getFurthestRectFrom(oda.rect, entityRects);
         if (oda.gun.tracer) applyTracer({ oda, flash, hitRect, gameRef });
       } else {
         const furthestRect = rectArr.reduce((prev, curr) => {
