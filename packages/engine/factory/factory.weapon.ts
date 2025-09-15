@@ -44,7 +44,7 @@ export const createGunFactory = (assetLoader: IAssetLoader): IGunFactory => {
           impact: assetLoader.getTexture('rifle1Impact'),
         },
         ammo: 200,
-        damage: 20,
+        damage: 34,
         fireRate: 350,
         range: 20,
         isAutomatic: false,

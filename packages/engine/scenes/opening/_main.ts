@@ -124,6 +124,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         system.createEntityZIndexSystem(di),
         system.createZombieHitSystem(di),
         system.createZombieMoveSystem(di),
+        // system.createDebugSystem(di),
       );
 
       camera.clamp({

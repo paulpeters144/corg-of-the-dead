@@ -100,6 +100,15 @@ export class OdaEntity extends Entity {
     );
   }
 
+  get rect(): PIXI.Rectangle {
+    return new PIXI.Rectangle(
+      this.ctr.x + (this.isFacingRight ? 5 : -0),
+      this.ctr.y + 5,
+      this.ctr.width - 6,
+      this.ctr.height - 5,
+    );
+  }
+
   get moveRect(): PIXI.Rectangle {
     const anim = this.anim;
     const shrinkOffset = 15;

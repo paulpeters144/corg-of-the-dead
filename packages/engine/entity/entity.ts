@@ -9,5 +9,6 @@ export class Entity {
   constructor(ctr: PIXI.Container) {
     this.ctr = ctr;
     this.id = crypto.randomUUID().replaceAll('-', '').slice(0, 15);
+    this.id = `_${this.id}`;
   }
 }

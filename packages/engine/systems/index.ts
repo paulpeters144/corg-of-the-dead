@@ -1,5 +1,6 @@
 export { createCamControlSystem } from './system.cam-control';
 export { createCamOrbSystem } from './system.cam-orb';
+export { createDebugSystem } from './system.debug';
 export { createEntityZIndexSystem } from './system.entity-zindex.ts';
 export { createGunExplosianSystem } from './system.gun-explosian';
 export { createHeadsUpDisplaySystem } from './system.heads-up-display';

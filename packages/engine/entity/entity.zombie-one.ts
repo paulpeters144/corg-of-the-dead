@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { ColorOverlayFilter } from 'pixi-filters';
 import { ZLayer } from '../types/enums';
+import { randNum } from '../util/util';
 import { Entity } from './entity';
 
 const spriteAnimKeys = ['idle', 'walk', 'swipe', 'die', 'hitDirection', 'fall', 'revive'] as const;
@@ -53,41 +54,85 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
 
 class PathData {
   nextPos?: PIXI.Point;
-  paceSize = new PIXI.Point(20, 20);
-  moveVal = 4; // movement speed per update
-
-  // computes target chunk (bigger step, sets nextPos)
-  getNextPos(currPos: PIXI.Point, targetPos: PIXI.Point): PIXI.Point {
-    const dx = targetPos.x - currPos.x;
-    const dy = targetPos.y - currPos.y;
-
-    const stepX = Math.abs(dx) > this.paceSize.x ? Math.sign(dx) * this.paceSize.x : dx;
-
-    const stepY = Math.abs(dy) > this.paceSize.y ? Math.sign(dy) * this.paceSize.y : dy;
-
-    return new PIXI.Point(currPos.x + stepX, currPos.y + stepY);
+  private _lastTimeSet: number = 0;
+  private _walkInterval: number = 0;
+  private _isClose = false;
+  get isClose(): boolean {
+    return this._isClose;
   }
 
-  stepToward(currPos: PIXI.Point, delta: number): PIXI.Point {
-    if (!this.nextPos) return currPos;
+  constructor() {
+    this._setNextWalkInterval();
+  }
 
-    const dx = this.nextPos.x - currPos.x;
-    const dy = this.nextPos.y - currPos.y;
+  setNextPos(props: { currRect: PIXI.Rectangle; targRect: PIXI.Rectangle }) {
+    const { currRect, targRect } = props;
 
-    const dist = Math.hypot(dx, dy);
-    const stepDist = this.moveVal * delta;
+    const currPos = new PIXI.Point(currRect.x, currRect.y);
+    const result = new PIXI.Rectangle(currRect.x, currRect.y, currRect.width, currRect.height);
 
-    if (dist <= stepDist) {
-      // close enough → snap to nextPos and clear it
-      const p = this.nextPos;
-      this.nextPos = undefined;
-      return p;
+    const zRightOfTarget = currRect.x > targRect.x;
+    const targPos = zRightOfTarget
+      ? new PIXI.Point(
+          // use right of target
+          targRect.x + targRect.width - 10,
+          targRect.y - 5,
+        )
+      : new PIXI.Point(
+          targRect.x - 35, // use right of target
+          targRect.y - 5,
+        );
+
+    const distToMove = 10;
+
+    if (Math.abs(currPos.x - targPos.x) < 25) {
+      if (currPos.y > targPos.y) {
+        result.y = currPos.y - distToMove;
+        if (result.y < targPos.y) {
+          result.y = targPos.y;
+        }
+      } else if (currPos.y < targPos.y) {
+        result.y = currPos.y + distToMove;
+        if (result.y > targPos.y) {
+          result.y = targPos.y;
+        }
+      }
     }
 
-    const stepX = (dx / dist) * stepDist;
-    const stepY = (dy / dist) * stepDist;
+    if (currPos.x > targPos.x) {
+      result.x = currPos.x - distToMove;
+      if (result.x < targPos.x) {
+        result.x = targPos.x;
+      }
+    } else if (currPos.x < targPos.x) {
+      result.x = currPos.x + distToMove;
+      if (result.x > targPos.x) {
+        result.x = targPos.x;
+      }
+    }
 
-    return new PIXI.Point(currPos.x + stepX, currPos.y + stepY);
+    const xDiff = Math.abs(currPos.x - result.x);
+    const yDiff = Math.abs(currPos.y - result.y);
+    this._isClose = xDiff <= 8 && yDiff <= 5;
+    if (this._isClose) return;
+    const now = performance.now();
+    if (now - this._lastTimeSet < this._walkInterval) return;
+
+    this.nextPos = new PIXI.Point(result.x, result.y);
+    this._lastTimeSet = performance.now();
+    this._setNextWalkInterval();
+  }
+
+  private readonly _stepsBeforePause = 5;
+  private _currentStepBeforePause = 0;
+  private _setNextWalkInterval() {
+    if (this._currentStepBeforePause < this._stepsBeforePause) {
+      this._walkInterval = 0;
+      this._currentStepBeforePause++;
+      return;
+    }
+    this._currentStepBeforePause = 0;
+    this._walkInterval = randNum(250, 1000);
   }
 }
 
@@ -100,6 +145,8 @@ export class ZombieOneEntity extends Entity {
   get health(): number {
     return this._health;
   }
+
+  lastSwipeHit = 0;
 
   animMap: { [key in AnimKey]: PIXI.AnimatedSprite };
 
@@ -141,7 +188,7 @@ export class ZombieOneEntity extends Entity {
   }
 
   get isFacingRight(): boolean {
-    return this.ctr.children[0].scale.x === 1;
+    return this.anim.scale.x === -1;
   }
 
   get activeAnimation(): AnimKey {

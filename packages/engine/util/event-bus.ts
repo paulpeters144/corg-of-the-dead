@@ -31,6 +31,11 @@ export type EventMap = {
     direction: 'right' | 'left';
     damage: number;
   };
+  zombieDidDamage: {
+    rect: PIXI.Rectangle;
+    hitFromDirection: 'right' | 'left';
+    damage: number;
+  };
   odaShot: {
     rect: PIXI.Rectangle;
     name: GunName;
