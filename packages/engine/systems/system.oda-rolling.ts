@@ -5,6 +5,8 @@ import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
 import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
 import type { ISystem } from './system.agg';
+import { byDistanceAsc, isCloseBy } from '../util/util';
+import { ZombieOneEntity } from '../entity/entity.zombie-one';
 
 const createRollMechanic = (input: IInput) => {
   let lastRoll = 0;
@@ -180,27 +182,25 @@ export const createOdaRollSystem = (di: IDiContainer): ISystem => {
       if (oda.isRolling && nextRollPos) {
         const collideArea = entityStore
           .getAll(BoundaryBox)
-          .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 150)
-          .sort((a, b) => {
-            const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
-            const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
-            return distA - distB; // put the closest to the front
-          })
+          .filter((o) => isCloseBy(oda.center, o.center))
+          .sort(byDistanceAsc(oda.center))
           .map((o) => o.rect);
 
         const trafficDrums = entityStore
           .getAll(TrafficDrumEntity)
-          .filter((o) => Math.abs(o.center.x - oda.center.x) < 66 && Math.abs(o.center.y - oda.center.y) < 150)
-          .sort((a, b) => {
-            const distA = (a.center.x - oda.center.x) ** 2 + (a.center.y - oda.center.y) ** 2;
-            const distB = (b.center.x - oda.center.x) ** 2 + (b.center.y - oda.center.y) ** 2;
-            return distA - distB; // put the closest to the front
-          })
+          .filter((o) => isCloseBy(oda.center, o.center))
+          .sort(byDistanceAsc(oda.center))
+          .map((o) => o.moveRect);
+
+        const zombies = entityStore
+          .getAll(ZombieOneEntity)
+          .filter((o) => isCloseBy(oda.center, o.center))
+          .sort(byDistanceAsc(oda.center))
           .map((o) => o.moveRect);
 
         const nextPos = getNextMoveAmount({
           entityRect: oda.moveRect,
-          collideArea: [...collideArea, ...trafficDrums],
+          collideArea: [...collideArea, ...trafficDrums, ...zombies],
           endPos: nextRollPos,
           speed: 35,
           delta: delta,

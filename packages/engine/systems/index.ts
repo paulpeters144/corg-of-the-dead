@@ -15,4 +15,4 @@ export { createSetGunPosSystem } from './system.set-gun-pos';
 export { createSetPollPosSystem } from './system.set-poll-pos';
 export { createSwingPollSystem } from './system.swing-poll';
 export { createZombieHitSystem } from './system.zombie-hit';
-export { createZombieMoveSystem } from './system.zombie-move';
+export { createZombieMoveSystem } from './move-zombie-system/index';

@@ -22,10 +22,10 @@
         },
         "test.json": {
             "scale": 1.5,
-            "selectedLayer": 2,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 402,
-                "y": 373
+                "x": 1064,
+                "y": 350.99999999999994
             }
         }
     },

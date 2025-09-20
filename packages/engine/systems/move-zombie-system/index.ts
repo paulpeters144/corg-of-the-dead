@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js';
-import { OdaEntity } from '../entity/entity.oda';
-import { ZombieOneEntity } from '../entity/entity.zombie-one';
-import type { IDiContainer } from '../util/di-container';
-import type { ISystem } from './system.agg';
+import { OdaEntity } from '../../entity/entity.oda';
+import { ZombieOneEntity } from '../../entity/entity.zombie-one';
+import type { IDiContainer } from '../../util/di-container';
+import type { ISystem } from '../system.agg';
 
 const handleZombieSwipe = (props: { zombie: ZombieOneEntity; di: IDiContainer; now: number }) => {
   const { zombie, di, now } = props;
@@ -18,13 +18,6 @@ const handleZombieSwipe = (props: { zombie: ZombieOneEntity; di: IDiContainer; n
       hitRect.x += 3;
     }
 
-    // const g = new PIXI.Graphics()
-    //   .rect(zRect.x, zRect.y, zRect.width, zRect.height)
-    //   .fill({ color: 'red' })
-    // g.zIndex = 999;
-    // di.gameRef().addChild(g);
-    // setTimeout(() => { di.gameRef().removeChild(g) }, 150)
-
     di.eventBus().fire('zombieDidDamage', {
       rect: hitRect,
       hitFromDirection: zombie.isFacingRight ? 'right' : 'left',
@@ -39,7 +32,7 @@ const getNextZombiePos = (props: { zombie: ZombieOneEntity; delta: number }) => 
   if (!zombie.pathData.nextPos) return undefined;
   const { nextPos } = zombie.pathData;
   const result = new PIXI.Point(zombie.ctr.x, zombie.ctr.y);
-  const moveSpeed = 10;
+  const moveSpeed = 7.5;
   if (nextPos.x > result.x) {
     result.x += moveSpeed * delta;
     if (result.x > nextPos.x) {
@@ -84,17 +77,24 @@ export const createZombieMoveSystem = (di: IDiContainer): ISystem => {
     update: (delta: number) => {
       const now = performance.now();
       if (now < 1500) return;
-      for (const zombie of entityStore.getAll(ZombieOneEntity)) {
+      const zombieList = entityStore.getAll(ZombieOneEntity);
+      for (const zombie of zombieList) {
         if (!zombie.anim.playing) zombie.setAnimation('idle');
         if (zombie.isActiveAnim('swipe') && zombie.anim.currentFrame === 2) {
           handleZombieSwipe({ zombie, di, now });
         }
         if (!zombie.isActiveAnim('idle', 'walk')) continue;
         if (!zombie.pathData.nextPos) {
-          zombie.pathData.setNextPos({
+          // if there is a zombie already at the oda's rect
+
+          const nextPos = zombie.pathData.getNextPos({
             currRect: zombie.rect,
             targRect: oda.rect,
           });
+
+          if (nextPos) {
+            zombie.pathData.nextPos = new PIXI.Point(nextPos.x, nextPos.y);
+          }
 
           if (!zombie.pathData.nextPos && zombie.isActiveAnim('walk')) {
             zombie.setAnimation('idle');

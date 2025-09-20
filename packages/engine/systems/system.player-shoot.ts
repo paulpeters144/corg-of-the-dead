@@ -163,7 +163,7 @@ const findHitEntities = (props: {
         } else {
           for (const e of hitEntities) {
             const distance = Math.hypot(entity.center.x - e.center.x, entity.center.y - e.center.y);
-            if (distance <= 50) {
+            if (distance <= 250) {
               shouldHit = true;
               break;
             }

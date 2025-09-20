@@ -65,7 +65,7 @@ class PathData {
     this._setNextWalkInterval();
   }
 
-  setNextPos(props: { currRect: PIXI.Rectangle; targRect: PIXI.Rectangle }) {
+  getNextPos(props: { currRect: PIXI.Rectangle; targRect: PIXI.Rectangle }) {
     const { currRect, targRect } = props;
 
     const currPos = new PIXI.Point(currRect.x, currRect.y);
@@ -83,7 +83,7 @@ class PathData {
           targRect.y - 5,
         );
 
-    const distToMove = 10;
+    const distToMove = 25;
 
     if (Math.abs(currPos.x - targPos.x) < 25) {
       if (currPos.y > targPos.y) {
@@ -116,11 +116,12 @@ class PathData {
     this._isClose = xDiff <= 8 && yDiff <= 5;
     if (this._isClose) return;
     const now = performance.now();
-    if (now - this._lastTimeSet < this._walkInterval) return;
+    if (now - this._lastTimeSet < this._walkInterval) return undefined;
 
-    this.nextPos = new PIXI.Point(result.x, result.y);
     this._lastTimeSet = performance.now();
     this._setNextWalkInterval();
+
+    return result;
   }
 
   private readonly _stepsBeforePause = 5;
@@ -132,7 +133,7 @@ class PathData {
       return;
     }
     this._currentStepBeforePause = 0;
-    this._walkInterval = randNum(250, 1000);
+    this._walkInterval = randNum(1000, 3000);
   }
 }
 

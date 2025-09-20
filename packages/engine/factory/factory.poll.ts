@@ -40,7 +40,7 @@ export const createPollFactory = (assetLoader: IAssetLoader): IPollFactory => {
         name: 'ParkSign',
         health: 100,
         hitRate: 10,
-        damage: 45,
+        damage: 50,
       });
 
       parkSign.anim.zIndex = ZLayer.m1;
