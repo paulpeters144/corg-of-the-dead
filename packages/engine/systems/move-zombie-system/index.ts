@@ -1,11 +1,11 @@
 import * as PIXI from 'pixi.js';
+import type { Entity } from '../../entity/entity';
 import { OdaEntity } from '../../entity/entity.oda';
+import { TrafficDrumEntity } from '../../entity/entity.traffic-drum';
 import { ZombieOneEntity } from '../../entity/entity.zombie-one';
 import type { IDiContainer } from '../../util/di-container';
 import type { ISystem } from '../system.agg';
 import * as util from './util';
-import { TrafficDrumEntity } from '../../entity/entity.traffic-drum';
-import type { Entity } from '../../entity/entity';
 
 // attack oda when they are close enough;
 
@@ -77,7 +77,6 @@ export const createZombieMoveSystem = (di: IDiContainer): ISystem => {
 
         const distance = util.distanceBetween({ p1: zombie.moveRect, p2: oda.moveRect });
         if (distance < 31 && !zombie.isActiveAnim('swipe')) {
-          debugger;
           zombie.setAnimation('swipe');
         }
       }

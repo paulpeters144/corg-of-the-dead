@@ -104,7 +104,7 @@ export const openingScene = (di: IDiContainer): IScene => {
         camera.animate({
           time: 0,
           position: { x: oda.ctr.x, y: oda.ctr.y },
-        })
+        });
         // zombie.ctr.position.set(200, 300);
         // zombie.setAnimation('idle');
         // zombie.faceRight();
@@ -144,7 +144,7 @@ export const openingScene = (di: IDiContainer): IScene => {
       systemAgg.update(delta);
     },
 
-    dispose: () => { },
+    dispose: () => {},
   };
 };
 

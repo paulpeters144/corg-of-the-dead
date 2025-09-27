@@ -217,10 +217,10 @@ export class Circle {
 
 /**
  * Represents a *convex* polygon with any number of points (specified in counter-clockwise order)
- * 
+ *
  * Note: Do _not_ manually change the `points`, `angle`, or `offset` properties. Use the
  * provided setters. Otherwise the calculated properties will not be updated correctly.
- * 
+ *
  * `pos` can be changed directly.
  */
 export class Polygon {
@@ -250,7 +250,7 @@ export class Polygon {
 
   /**
    * Set the points of the polygon. Any consecutive duplicate points will be combined.
-   * 
+   *
    * Note: The points are counter-clockwise *with respect to the coordinate system*.
    * If you directly draw the points on a screen that has the origin at the top-left corner
    * it will _appear_ visually that the points are being specified clockwise. This is just
@@ -303,7 +303,7 @@ export class Polygon {
 
   /**
    * Rotates this polygon counter-clockwise around the origin of *its local coordinate system* (i.e. `pos`).
-   * 
+   *
    * Note: This changes the **original** points (so any `angle` will be applied on top of this rotation).
    */
   rotate(angle: number): Polygon {
@@ -319,10 +319,10 @@ export class Polygon {
   /**
    * Translates the points of this polygon by a specified amount relative to the origin of *its own coordinate
    * system* (i.e. `pos`).
-   * 
+   *
    * This is most useful to change the "center point" of a polygon. If you just want to move the whole polygon, change
    * the coordinates of `pos`.
-   * 
+   *
    * Note: This changes the **original** points (so any `offset` will be applied on top of this translation)
    */
   translate(x: number, y: number): Polygon {
@@ -357,7 +357,7 @@ export class Polygon {
     const offset = this.offset;
     const angle = this.angle;
     const len = points.length;
-    
+
     for (let i = 0; i < len; i++) {
       const calcPoint = calcPoints[i].copy(points[i]);
       calcPoint.x += offset.x;
@@ -366,7 +366,7 @@ export class Polygon {
         calcPoint.rotate(angle);
       }
     }
-    
+
     // Calculate the edges/normals
     for (let i = 0; i < len; i++) {
       const p1 = calcPoints[i];
@@ -380,7 +380,7 @@ export class Polygon {
   /**
    * Compute the axis-aligned bounding box. Any current state
    * (translations/rotations) will be applied before constructing the AABB.
-   * 
+   *
    * Note: Returns a _new_ `Box` each time you call this.
    */
   getAABBAsBox(): Box {
@@ -390,7 +390,7 @@ export class Polygon {
     let yMin = points[0].y;
     let xMax = points[0].x;
     let yMax = points[0].y;
-    
+
     for (let i = 1; i < len; i++) {
       const point = points[i];
       if (point.x < xMin) {
@@ -410,7 +410,7 @@ export class Polygon {
   /**
    * Compute the axis-aligned bounding box. Any current state
    * (translations/rotations) will be applied before constructing the AABB.
-   * 
+   *
    * Note: Returns a _new_ `Polygon` each time you call this.
    */
   getAABB(): Polygon {
@@ -420,9 +420,9 @@ export class Polygon {
   /**
    * Compute the centroid (geometric center) of the polygon. Any current state
    * (translations/rotations) will be applied before computing the centroid.
-   * 
+   *
    * See https://en.wikipedia.org/wiki/Centroid#Centroid_of_a_polygon
-   * 
+   *
    * Note: Returns a _new_ `Vector` each time you call this.
    */
   getCentroid(): Vector {
@@ -431,7 +431,7 @@ export class Polygon {
     let cx = 0;
     let cy = 0;
     let ar = 0;
-    
+
     for (let i = 0; i < len; i++) {
       const p1 = points[i];
       const p2 = i === len - 1 ? points[0] : points[i + 1]; // Loop around if last point
@@ -473,10 +473,7 @@ export class Box {
     const pos = this.pos;
     const w = this.w;
     const h = this.h;
-    return new Polygon(new Vector(pos.x, pos.y), [
-      new Vector(), new Vector(w, 0),
-      new Vector(w, h), new Vector(0, h)
-    ]);
+    return new Polygon(new Vector(pos.x, pos.y), [new Vector(), new Vector(w, 0), new Vector(w, h), new Vector(0, h)]);
   }
 }
 
@@ -524,14 +521,14 @@ export class Response {
 // Object Pools
 // A pool of `Vector` objects that are used in calculations to avoid allocating memory.
 const T_VECTORS: Vector[] = [];
-for (let i = 0; i < 10; i++) { 
-  T_VECTORS.push(new Vector()); 
+for (let i = 0; i < 10; i++) {
+  T_VECTORS.push(new Vector());
 }
 
 // A pool of arrays of numbers used in calculations to avoid allocating memory.
 const T_ARRAYS: number[][] = [];
-for (let i = 0; i < 5; i++) { 
-  T_ARRAYS.push([]); 
+for (let i = 0; i < 5; i++) {
+  T_ARRAYS.push([]);
 }
 
 // Temporary response used for polygon hit detection.
@@ -556,10 +553,14 @@ function flattenPointsOn(points: Vector[], normal: Vector, result: number[]): vo
   for (let i = 0; i < len; i++) {
     // The magnitude of the projection of the point onto the normal
     const dot = points[i].dot(normal);
-    if (dot < min) { min = dot; }
-    if (dot > max) { max = dot; }
+    if (dot < min) {
+      min = dot;
+    }
+    if (dot > max) {
+      max = dot;
+    }
   }
-  result[0] = min; 
+  result[0] = min;
   result[1] = max;
 }
 
@@ -567,24 +568,39 @@ function flattenPointsOn(points: Vector[], normal: Vector, result: number[]): vo
  * Check whether two convex polygons are separated by the specified axis (must be a unit vector).
  */
 export function isSeparatingAxis(
-  aPos: Vector, 
-  bPos: Vector, 
-  aPoints: Vector[], 
-  bPoints: Vector[], 
-  axis: Vector, 
-  response?: Response
+  aPos: Vector,
+  bPos: Vector,
+  aPoints: Vector[],
+  bPoints: Vector[],
+  axis: Vector,
+  response?: Response,
 ): boolean {
-  const rangeA = T_ARRAYS.pop()!;
-  const rangeB = T_ARRAYS.pop()!;
+  const rangeA = T_ARRAYS.pop();
+  const rangeB = T_ARRAYS.pop();
+
+  if (!rangeA || !rangeB) {
+    throw new Error('T_ARRAYS pool exhausted');
+  }
+
   // The magnitude of the offset between the two polygons
-  const offsetV = T_VECTORS.pop()!.copy(bPos).sub(aPos);
+  const offsetV = T_VECTORS.pop();
+  if (!offsetV) {
+    T_ARRAYS.push(rangeA);
+    T_ARRAYS.push(rangeB);
+    throw new Error('T_VECTORS pool exhausted');
+  }
+
+  offsetV.copy(bPos).sub(aPos);
   const projectedOffset = offsetV.dot(axis);
+
   // Project the polygons onto the axis.
   flattenPointsOn(aPoints, axis, rangeA);
   flattenPointsOn(bPoints, axis, rangeB);
+
   // Move B's range to its position relative to A.
   rangeB[0] += projectedOffset;
   rangeB[1] += projectedOffset;
+
   // Check if there is a gap. If there is, this is a separating axis and we can stop
   if (rangeA[0] > rangeB[1] || rangeB[0] > rangeA[1]) {
     T_VECTORS.push(offsetV);
@@ -592,6 +608,7 @@ export function isSeparatingAxis(
     T_ARRAYS.push(rangeB);
     return true;
   }
+
   // This is not a separating axis. If we're calculating a response, calculate the overlap.
   if (response) {
     let overlap = 0;
@@ -641,7 +658,7 @@ export function isSeparatingAxis(
 /**
  * Calculates which Voronoi region a point is on a line segment.
  * It is assumed that both the line and the point are relative to `(0,0)`
- * 
+ *
  *            |       (0)      |
  *     (-1)  [S]--------------[E]  (1)
  *            |       (0)      |
@@ -650,18 +667,27 @@ function voronoiRegion(line: Vector, point: Vector): number {
   const len2 = line.len2();
   const dp = point.dot(line);
   // If the point is beyond the start of the line, it is in the left voronoi region.
-  if (dp < 0) { return LEFT_VORONOI_REGION; }
+  if (dp < 0) {
+    return LEFT_VORONOI_REGION;
+  }
   // If the point is beyond the end of the line, it is in the right voronoi region.
-  else if (dp > len2) { return RIGHT_VORONOI_REGION; }
+  if (dp > len2) {
+    return RIGHT_VORONOI_REGION;
+  }
   // Otherwise, it's in the middle one.
-  else { return MIDDLE_VORONOI_REGION; }
+  return MIDDLE_VORONOI_REGION;
 }
 
 /**
  * Check if a point is inside a circle.
  */
 export function pointInCircle(p: Vector, c: Circle): boolean {
-  const differenceV = T_VECTORS.pop()!.copy(p).sub(c.pos).sub(c.offset);
+  const differenceV = T_VECTORS.pop();
+  if (!differenceV) {
+    throw new Error('T_VECTORS pool exhausted');
+  }
+
+  differenceV.copy(p).sub(c.pos).sub(c.offset);
   const radiusSq = c.r * c.r;
   const distanceSq = differenceV.len2();
   T_VECTORS.push(differenceV);
@@ -688,15 +714,22 @@ export function pointInPolygon(p: Vector, poly: Polygon): boolean {
 export function testCircleCircle(a: Circle, b: Circle, response?: Response): boolean {
   // Check if the distance between the centers of the two
   // circles is greater than their combined radius.
-  const differenceV = T_VECTORS.pop()!.copy(b.pos).add(b.offset).sub(a.pos).sub(a.offset);
+  const differenceV = T_VECTORS.pop();
+  if (!differenceV) {
+    throw new Error('T_VECTORS pool exhausted');
+  }
+
+  differenceV.copy(b.pos).add(b.offset).sub(a.pos).sub(a.offset);
   const totalRadius = a.r + b.r;
   const totalRadiusSq = totalRadius * totalRadius;
   const distanceSq = differenceV.len2();
+
   // If the distance is bigger than the combined radius, they don't intersect.
   if (distanceSq > totalRadiusSq) {
     T_VECTORS.push(differenceV);
     return false;
   }
+
   // They intersect.  If we're calculating a response, calculate the overlap.
   if (response) {
     const dist = Math.sqrt(distanceSq);
@@ -717,13 +750,23 @@ export function testCircleCircle(a: Circle, b: Circle, response?: Response): boo
  */
 export function testPolygonCircle(polygon: Polygon, circle: Circle, response?: Response): boolean {
   // Get the position of the circle relative to the polygon.
-  const circlePos = T_VECTORS.pop()!.copy(circle.pos).add(circle.offset).sub(polygon.pos);
+  const circlePos = T_VECTORS.pop();
+  const edge = T_VECTORS.pop();
+  const point = T_VECTORS.pop();
+
+  if (!circlePos || !edge || !point) {
+    // Return vectors to pool if any were successfully popped
+    if (circlePos) T_VECTORS.push(circlePos);
+    if (edge) T_VECTORS.push(edge);
+    if (point) T_VECTORS.push(point);
+    throw new Error('T_VECTORS pool exhausted');
+  }
+
+  circlePos.copy(circle.pos).add(circle.offset).sub(polygon.pos);
   const radius = circle.r;
   const radius2 = radius * radius;
   const points = polygon.calcPoints;
   const len = points.length;
-  const edge = T_VECTORS.pop()!;
-  const point = T_VECTORS.pop()!;
 
   // For each edge in the polygon:
   for (let i = 0; i < len; i++) {
@@ -745,12 +788,21 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response?: R
 
     // Calculate which Voronoi region the center of the circle is in.
     let region = voronoiRegion(edge, point);
+
     // If it's the left region:
     if (region === LEFT_VORONOI_REGION) {
       // We need to make sure we're in the RIGHT_VORONOI_REGION of the previous edge.
       edge.copy(polygon.edges[prev]);
       // Calculate the center of the circle relative the starting point of the previous edge
-      const point2 = T_VECTORS.pop()!.copy(circlePos).sub(points[prev]);
+      const point2 = T_VECTORS.pop();
+      if (!point2) {
+        T_VECTORS.push(circlePos);
+        T_VECTORS.push(edge);
+        T_VECTORS.push(point);
+        throw new Error('T_VECTORS pool exhausted');
+      }
+
+      point2.copy(circlePos).sub(points[prev]);
       region = voronoiRegion(edge, point2);
       if (region === RIGHT_VORONOI_REGION) {
         // It's in the region we want.  Check if the circle intersects the point.
@@ -762,7 +814,8 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response?: R
           T_VECTORS.push(point);
           T_VECTORS.push(point2);
           return false;
-        } else if (response) {
+        }
+        if (response) {
           // It intersects, calculate the overlap.
           response.bInA = false;
           overlapN = point.normalize();
@@ -770,7 +823,6 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response?: R
         }
       }
       T_VECTORS.push(point2);
-      // If it's the right region:
     } else if (region === RIGHT_VORONOI_REGION) {
       // We need to make sure we're in the left region on the next edge
       edge.copy(polygon.edges[next]);
@@ -786,14 +838,14 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response?: R
           T_VECTORS.push(edge);
           T_VECTORS.push(point);
           return false;
-        } else if (response) {
+        }
+        if (response) {
           // It intersects, calculate the overlap.
           response.bInA = false;
           overlapN = point.normalize();
           overlap = radius - dist;
         }
       }
-      // Otherwise, it's the middle region:
     } else {
       // Need to check if the circle is intersecting the edge,
       // Change the edge into its "edge normal".
@@ -805,10 +857,11 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response?: R
       if (dist > 0 && distAbs > radius) {
         // No intersection
         T_VECTORS.push(circlePos);
-        T_VECTORS.push(normal);
+        T_VECTORS.push(edge);
         T_VECTORS.push(point);
         return false;
-      } else if (response) {
+      }
+      if (response) {
         // It intersects, calculate the overlap.
         overlapN = normal;
         overlap = radius - dist;
@@ -842,7 +895,7 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response?: R
 
 /**
  * Check if a circle and a polygon collide.
- * 
+ *
  * **NOTE:** This is slightly less efficient than polygonCircle as it just
  * runs polygonCircle and reverses everything at the end.
  */
@@ -908,7 +961,7 @@ export const SAT = {
   testCircleCircle,
   testPolygonCircle,
   testCirclePolygon,
-  testPolygonPolygon
+  testPolygonPolygon,
 };
 
 // Default export for backward compatibility

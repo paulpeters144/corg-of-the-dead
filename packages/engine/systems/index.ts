@@ -1,3 +1,4 @@
+export { createZombieMoveSystem } from './move-zombie-system/index';
 export { createCamControlSystem } from './system.cam-control';
 export { createCamOrbSystem } from './system.cam-orb';
 export { createDebugSystem } from './system.debug';
@@ -15,4 +16,3 @@ export { createSetGunPosSystem } from './system.set-gun-pos';
 export { createSetPollPosSystem } from './system.set-poll-pos';
 export { createSwingPollSystem } from './system.swing-poll';
 export { createZombieHitSystem } from './system.zombie-hit';
-export { createZombieMoveSystem } from './move-zombie-system/index';

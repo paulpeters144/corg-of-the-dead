@@ -2,11 +2,11 @@ import * as PIXI from 'pixi.js';
 import { BoundaryBox } from '../entity/entity.boundary-box';
 import { OdaEntity } from '../entity/entity.oda';
 import { TrafficDrumEntity } from '../entity/entity.traffic-drum';
+import { ZombieOneEntity } from '../entity/entity.zombie-one';
 import type { IInput } from '../util/control/input.control';
 import type { IDiContainer } from '../util/di-container';
-import type { ISystem } from './system.agg';
 import { byDistanceAsc, isCloseBy } from '../util/util';
-import { ZombieOneEntity } from '../entity/entity.zombie-one';
+import type { ISystem } from './system.agg';
 
 const createRollMechanic = (input: IInput) => {
   let lastRoll = 0;

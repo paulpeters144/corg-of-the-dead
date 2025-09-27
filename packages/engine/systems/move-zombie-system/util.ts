@@ -1,11 +1,11 @@
 import * as PIXI from 'pixi.js';
-import { ZombieOneEntity } from '../../entity/entity.zombie-one';
-import type { IDiContainer } from '../../util/di-container';
 import type { Entity } from '../../entity/entity';
+import type { ZombieOneEntity } from '../../entity/entity.zombie-one';
+import type { IDiContainer } from '../../util/di-container';
 import { randNum } from '../../util/util';
 
 export const createGraphic = (rect: PIXI.Rectangle, color?: string) => {
-  color = !!color ? color : 'green';
+  color = color ? color : 'green';
   return new PIXI.Graphics().rect(rect.x, rect.y, rect.width, rect.height).fill({ color });
 };
 
