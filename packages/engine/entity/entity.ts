@@ -4,20 +4,15 @@ export class Entity {
   public readonly ctr: PIXI.Container;
 
   public get rect(): PIXI.Rectangle {
-    return new PIXI.Rectangle(
-      this.ctr.x,
-      this.ctr.y,
-      this.ctr.width,
-      this.ctr.height,
-    );
+    return new PIXI.Rectangle(this.ctr.x, this.ctr.y, this.ctr.width, this.ctr.height);
   }
 
   public get moveRect(): PIXI.Rectangle {
-    const heightBuffer = this.ctr.height / 2;
-    const widthBuffer = this.ctr.width / 2;
+    const heightBuffer = this.ctr.height / 1.5;
+    const widthBuffer = this.ctr.width / 1.5;
     return new PIXI.Rectangle(
-      this.ctr.x - widthBuffer / 2,
-      this.ctr.y - heightBuffer / 2,
+      this.ctr.x + widthBuffer / 2,
+      this.ctr.y + heightBuffer,
       this.ctr.width - widthBuffer,
       this.ctr.height - heightBuffer,
     );

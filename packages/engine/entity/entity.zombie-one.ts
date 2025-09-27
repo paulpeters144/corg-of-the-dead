@@ -54,8 +54,8 @@ const createAnimations = (texture: PIXI.Texture): AnimMapType => {
 
 class PathData {
   nextPos?: PIXI.Point;
-  private _lastTimeSet: number = 0;
-  private _walkInterval: number = 0;
+  lastTimeSet: number = 0;
+  walkInterval: number = 0;
   private _isClose = false;
   get isClose(): boolean {
     return this._isClose;
@@ -65,75 +65,16 @@ class PathData {
     this._setNextWalkInterval();
   }
 
-  getNextPos(props: { currRect: PIXI.Rectangle; targRect: PIXI.Rectangle }) {
-    const { currRect, targRect } = props;
-
-    const currPos = new PIXI.Point(currRect.x, currRect.y);
-    const result = new PIXI.Rectangle(currRect.x, currRect.y, currRect.width, currRect.height);
-
-    const zRightOfTarget = currRect.x > targRect.x;
-    const targPos = zRightOfTarget
-      ? new PIXI.Point(
-          // use right of target
-          targRect.x + targRect.width - 10,
-          targRect.y - 5,
-        )
-      : new PIXI.Point(
-          targRect.x - 35, // use right of target
-          targRect.y - 5,
-        );
-
-    const distToMove = 25;
-
-    if (Math.abs(currPos.x - targPos.x) < 25) {
-      if (currPos.y > targPos.y) {
-        result.y = currPos.y - distToMove;
-        if (result.y < targPos.y) {
-          result.y = targPos.y;
-        }
-      } else if (currPos.y < targPos.y) {
-        result.y = currPos.y + distToMove;
-        if (result.y > targPos.y) {
-          result.y = targPos.y;
-        }
-      }
-    }
-
-    if (currPos.x > targPos.x) {
-      result.x = currPos.x - distToMove;
-      if (result.x < targPos.x) {
-        result.x = targPos.x;
-      }
-    } else if (currPos.x < targPos.x) {
-      result.x = currPos.x + distToMove;
-      if (result.x > targPos.x) {
-        result.x = targPos.x;
-      }
-    }
-
-    const xDiff = Math.abs(currPos.x - result.x);
-    const yDiff = Math.abs(currPos.y - result.y);
-    this._isClose = xDiff <= 8 && yDiff <= 5;
-    if (this._isClose) return;
-    const now = performance.now();
-    if (now - this._lastTimeSet < this._walkInterval) return undefined;
-
-    this._lastTimeSet = performance.now();
-    this._setNextWalkInterval();
-
-    return result;
-  }
-
   private readonly _stepsBeforePause = 5;
   private _currentStepBeforePause = 0;
   private _setNextWalkInterval() {
     if (this._currentStepBeforePause < this._stepsBeforePause) {
-      this._walkInterval = 0;
+      this.walkInterval = 0;
       this._currentStepBeforePause++;
       return;
     }
     this._currentStepBeforePause = 0;
-    this._walkInterval = randNum(1000, 3000);
+    this.walkInterval = randNum(1000, 3000);
   }
 }
 
@@ -167,14 +108,14 @@ export class ZombieOneEntity extends Entity {
     );
   }
 
-  get moveRect(): PIXI.Rectangle {
-    const anim = this.anim;
-    const shrinkOffset = 15;
+  public get moveRect(): PIXI.Rectangle {
+    const heightBuffer = this.ctr.height / 1.35;
+    const widthBuffer = this.ctr.width / 1.35;
     return new PIXI.Rectangle(
-      this.ctr.x + shrinkOffset * 0.001,
-      this.ctr.y + anim.height * 0.75,
-      anim.width - shrinkOffset * 0.25,
-      anim.height - shrinkOffset * 3.25,
+      this.ctr.x + widthBuffer / 2,
+      this.ctr.y + heightBuffer,
+      this.ctr.width - widthBuffer,
+      this.ctr.height - heightBuffer,
     );
   }
 
